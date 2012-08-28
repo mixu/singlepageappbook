@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>8. Implementing a model</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
+}
+</style>
+
+<script src="assets/jquery-1.6.1.min.js"></script>
+<link type="text/css" rel="stylesheet" href="assets/style.css"/>
+<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
+<script type="text/javascript">
+$(function() {
+   $('pre').each(function(i, el) {
+    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+   });
+});
+
+</script>
+<script type="text/javascript" src="assets/prettify.js"></script>
+<!-- Script runner -->
+<script type="text/javascript" src="assets/runner.js"></script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32878417-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </head>
+<body>
+  <div id="wrapper">
+    <div id="header">
+      <div id="brand">
+        <h1>Single page apps in depth</h1>
+        <span>a.k.a Mixu's single page app book</span>
+      </div>
+      <div id="navi">
+        <form class="search" action="http://www.google.com/search">
+          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
+          <input type="text" name="as_q" value="" class="search_field">
+          <input type="submit" value="Search" class="search_btn">
+        </form>
+      </div>
+    </div>
+
+    <div class="clear">
+      <hr>
+    </div>
+     <!-- Main -->
+
+    <div id="main">
+      <div id="content" class="post">
+<h1 class="chapter">8. Implementing a model</h1>
+
+<p>What's a model? Roughly, a model does a couple of things:</p>
+
+<ul>
+  <li><b>Data</b>. A model contains data.</li>
+  <li><b>Events</b>. A model emits change events when data is altered.</li>
+  <li><b>Persistence</b>. A model can be stored persistently, identified uniquely and loaded from storage.
+</ul>
+
+<p>That's about it, there might be some additional niceties, like default values for the data.</p>
+
+<h2>Defining a more useful data storage object (Model)</h2>
+
+<table>
+<tr><td class="left" style="background-color: #fbfbfb;">
+
+  <div class="code">
+    <div>function Model(attr) {</div>
+    <div>  this.reset();</div>
+    <div>  attr &amp;&amp; this.set(attr);</div>
+    <div>};</div>
+    <div>Model.prototype.reset = function() {</div>
+    <div class="hl green">  this._data = {};</div>
+    <div class="hl blue">  this.length = 0;</div>
+    <div>  this.emit('reset');</div>
+    <div>};</div>
+  </div>
+
+</td><td class="right" style="background-color: #fbfbfb;">
+
+  <h2>Model.reset()</h2>
+
+  <div class="green"><p><i>_data</i>: The underlying data structure is a object. To keep the values stored in the object from conflicting with property names, let's store the data in the <code>_data</code> property</p></div>
+  <div class="blue"><p>Store length: We'll also keep a simple length property for quick access to the number of elements stored in the Model.</p></div>
+</td></tr>
+<tr style="border-top: 1px solid #E5E5EE;"><td class="left" style="background-color: #fcfcfc;">
+
+<div class="code">
+  <div> </div>
+  <div>Model.prototype.get = function(key) {</div>
+  <div>  return this._data[key]; </div>
+  <div>};</div>
+  <div> </div>
+</div>
+
+</div>
+
+</td><td class="right" style="background-color: #fcfcfc;">
+
+<h2>Model.get(key)</h2>
+
+<p>This space intentionally left blank.</p>
+
+</td></tr>
+
+<tr style="border-top: 1px solid #E5E5EE;"><td class="left">
+
+<div class="code">
+  <div>Model.prototype.set = function(key, value) {</div>
+  <div >  var self = this;</div>
+  <div class="hl orange">  if(arguments.length == 1 &amp;&amp; key === Object(key)) {</div>
+  <div class="hl orange">    Object.keys(attr).forEach(function(key) {</div>
+  <div class="hl orange">      self.set(key, attr[key]);</div>
+  <div class="hl orange">    });</div>
+  <div class="hl orange">    return;</div>
+  <div class="hl orange">  }</div>
+  <div>  if(!this._data.hasOwnProperty(key)) {</div>
+  <div>    this.length++;</div>
+  <div>  }</div>
+  <div class="hl red">  this._data[key] = (typeof value == 'undefined' ?</div>
+  <div class="hl red">    true : value);</div>
+  <div>};</div>
+</div>
+
+</td><td class="right">
+
+<h2>Model.set(key, value)</h2>
+
+<div class="orange">
+  <p>Setting multiple values: if only a single argument <code>Model.set({ foo: 'bar'})</code> is passed, then call <code>Model.set()</code> for each pair in the first argument. This makes it easier to initialize the object by passing a hash.
+  </p>
+
+<p>Note that calling <code>Model.set(key)</code> is the same thing as calling <code>Model.set(key, true)</code>.</p>
+
+<p>What about ES5 getters and setters? <a href="http://jsperf.com/es5-getters-setters-versus-getter-setter-methods/5">Meh</a>, I <a href="http://code.google.com/p/v8/issues/detail?id=1239">say</a>.</p>
+
+</div>
+
+<div class="red"><p>Setting a single value: If the value is undefined, set to true. This is needed to be able to store null and false.</p>
+
+</div>
+
+</td></tr>
+
+<tr><td class="left">
+<div class="code">
+<div>Model.prototype.has = function(key) { </div>
+<div class="hl yellow">  return this._data.hasOwnProperty(key);</div>
+<div>};</div>
+<div></div>
+<div>Model.prototype.remove = function(key) {</div>
+<div class="hl purple">  this._data.hasOwnProperty(key) &amp;&amp; this.length--;</div>
+<div>  delete this._data[key];</div>
+<div>};</div>
+<div> </div>
+<div class="hl blue">module.exports = Model;</div>
+</div>
+</td><td class="right">
+
+<h2>Model.has(key), Model.remove(key)</h2>
+
+
+<div class="yellow">
+  <p>Model.has(key): we need to use hasOwnProperty to support false and null.</p>
+</div>
+
+<div class="purple">
+  <p>Model.remove(key): If the key was set and removed, then decrement .length.</p>
+</div>
+
+<div class="blue">
+  <p>That's it! Export the module.</p>
+</div>
+
+</td></tr>
+</table>
+
+<h2>Change events</h2>
+
+<p>Model accessors (get/set) exist because we want to be able to intercept changes to the model data, and emit <code>change</code> events. Other parts of the app - mainly views - can then listen for those events and get an idea of what changed and what the previous value was. For example, we can respond to these:</p>
+
+<ul>
+  <li>a set() for a value that is used elsewhere (to notify others of an update / to mark model as changed)</li>
+  <li>a remove() for a value that is used elsewhere</li>
+</ul>
+
+<p>We will want to allow people to write <code>model.on('change', function() { .. })</code> to add listeners that are called to notify about changes. We'll use a EventEmitter for that.</p>
+
+
+<p>If you're not familiar with EventEmitters, they are just a standard interface for emitting (triggering) and binding callbacks to events (I've written more about them <a href="http://book.mixu.net/ch9.html">in my other book</a>.)</p>
+
+<table>
+<tr><td class="left">
+
+<div class="code">
+  <div class="hl green">var util = require('util'),</div>
+  <div class="hl green">    events = require('events');</div>
+  <div> </div>
+
+  <div>function Model(attr) {</div>
+  <div>  // ...</div>
+  <div>};</div>
+  <div> </div>
+  <div class="hl green">util.inherits(Model, events.EventEmitter);</div>
+  <div> </div>
+
+  <div>Model.prototype.set = function(key, value) {</div>
+  <div>  var self = this, oldValue;</div>
+  <div>  // ...</div>
+  <div>  oldValue = this.get(key);</div>
+  <div class="hl blue">  this.emit('change', key, value, oldValue, this);</div>
+  <div>  // ...</div>
+  <div>};</div>
+  <div>Model.prototype.remove = function(key) {</div>
+  <div class="hl blue">  this.emit('change', key, undefined, this.get(key), this);</div>
+  <div>  // ...</div>
+  <div>};</div>
+
+
+</div>
+
+</td><td class="right">
+
+<div class="green"><p>The model extends <code>events.EventEmitter</code> using Node's <code>util.inherits()</code> in order to support the following API:</p>
+
+<ul>
+  <li>on(event, listener)</li>
+  <li>once(event, listener)</li>
+  <li>emit(event, [arg1], [...])</li>
+  <li>removeListener(event, listener)</li>
+  <li>removeAllListeners(event)</li>
+</ul>
+
+<p>For in-browser compatibility, we can use one of the many API-compatible implementations of Node's EventEmitter. For instance, I wrote one a while back (<a href="https://github.com/mixu/miniee">mixu/miniee</a>).</p>
+
+</div>
+
+<div class="blue">
+<p>When a value is <code>set()</code>, <code>emit('change', key, newValue, oldValue)</code>. </p>
+<p> This causes any listeners added via on()/once() to be triggered.</p>
+<p>When a value is <code>removed()</code>, <code>emit('change', key, null, oldValue)</code>.</p>
+</div>
+
+</td></tr>
+
+</table>
+
+
+<h2>Using the Model class</h2>
+
+<p>So, how can we use this model class? Here is a simple example of how to define a model:</p>
+
+<pre class="prettyprint">function Photo(attr) {
+  Model.prototype.apply(this, attr);
+}
+
+Photo.prototype = new Model();
+
+module.exports = Photo;
+</pre>
+
+<p>Creating a new instance and attaching a change event callback:</p>
+
+<pre class="prettyprint">
+var badger = new Photo({ src: 'badger.jpg' });
+badger.on('change', function(key, value, oldValue) {
+  console.log(key + ' changed from', oldValue, 'to', value);
+});
+</pre>
+
+<p>Defining default values:</p>
+
+<pre class="prettyprint">function Photo(attr) {
+  attr.src || (attr.src = 'default.jpg');
+  Model.prototype.apply(this, attr);
+}
+</pre>
+
+<p>Since the constructor is just a ES3 regular constructor, the model code doesn't depend on any particular framework. You could use it in any other code without having to worry about compatibility. For example, I am planning on reusing the model code when I do a rewrite of my window manager.</p>
+
+<h2>Differences with Backbone.js</h2>
+
+<p>I recommend that you read through <a href="http://documentcloud.github.com/backbone/docs/backbone.html#section-27">Backbone's model implementation</a> next. It is an example of a more production-ready model, and has several additional features:</p>
+
+<ul>
+  <li>Each instance has a unique cid (client id) assigned to it.</li>
+  <li>You can choose to silence change events by passing an additional parameter.</li>
+  <li>Changed values are accessible as the <code>changed</code> property of the model, in addition to being accessible as events; there are also many other convinient methods such as changedAttributes and previousAttributes.</li>
+  <li>There is support for HTML-escaping values and for a validate() function.</li>
+  <li>.reset() is called .clear() and .remove() is .unset()</li>
+  <li>Data source and data store methods (Model.save() and Model.destroy()) are implemented on the model, whereas I implement them in separate objects (first and last chapter of this section).</li>
+</ul>
+
+
+
+<div id="bottom_navi">
+  <a href="collections1.html"> &lt; &lt; Previous Chapter</a> | <a href="collections3.html">Next Chapter &gt; &gt;</a>
+</div>
+
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+        </div>
+      </div>
+
+
+      <div id="sidebar">
+        <h3><a href="index.html">Home</a></h3>
+        <h3><a href="collections1.html">Previous Chapter</a></h3>
+        <h3><a href="collections3.html">Next Chapter</a></h3>
+        <br>
+        
+      </div>
+
+
+    <div class="clear">
+    </div>
+
+    <div id="footer">
+      <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
+    </div>
+    </div>
+  </div>
+
+
+  </div>
+</body>
+</html>

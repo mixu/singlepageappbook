@@ -1,0 +1,114 @@
+<h1 class="chapter">%chapter_number% Implementing a data cache</h1>
+
+<p>There are three reasons why we want a data store:</p>
+
+<ul>
+  <li>To have a central mechanism for saving data.</li>
+  <li>To retrieve cached models quickly.</li>
+  <li>To prevent duplicate instances of the same model being created.</li>
+</ul>
+
+<p>The first two are obvious: we need to handle saving, and when possible, use caching to make unambiguous retrievals fast. The only clearly unambigous type of retrieval is fetching a model by id.</p>
+
+<p>The last reason is less obvious. Why is it bad to have duplicate instance of the same model? Well, first, it is inefficient to have the same data twice; but more importantly, it is very confusing if you can have two instances that represent the same object but are separate objects. For example, if you have a data cache that always returns a new object rather than reusing an existing one, then you can have situations where you change the model data, or add a model data listener, but this change does not actually work as expected because the object you used is a different instance. We'll tackle this after looking at saving and caching.</p>
+
+<h2>Implementing save()</h2>
+
+<p><b>Serializing models into JSON</b>. In order to send the model data, we need the ability to transform a model into a string. JSON is the obvious choice for serializing data. We need to add a additional method to the model:</p>
+
+<pre class="prettyprint">
+Model.prototype.json = function() {
+  return JSON.stringify(this._data);
+};
+</pre>
+
+<p><b>Mapping to the right backend URL</b>. We also need to know where to save the model:</p>
+
+<pre class="prettyprint">
+Model.prototype.url = function(method) {
+  return this.prototype.urlRoot +
+    (method == 'create' ? '' : encodeURIComponent(this.id));
+};
+</pre>
+
+<p>There are three kinds of persistence operations (since reads are handled by the data source):</p>
+
+<ul>
+  <li>"create": PUT /user</li>
+  <li>"update": POST /user/id</li>
+  <li>"delete": DELETE /user/id</li>
+</ul>
+
+<p>When the model doesn't have a id, we will use the "create" endpoint, and when the model does have id, we'll use the "update"/"delete" endpoint. If you set Model.prototype.urlRoot to "http://localhost/user", then you'll get the urls above, or if your URLs are different, you can replace Model.prototype.url with your own function.</p>
+
+<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convinience, let's redirect <code>Model.save()</code> to the DataStore:</p>
+
+<pre class="prettyprint">
+Model.prototype.save = function(callback) {
+  DataStore.save(this, callback);
+};
+</pre>
+
+<p>And do the same thing for <code>Model.destroy</code>:</p>
+
+<pre class="prettyprint">
+Model.prototype.destroy = function(callback) {
+  DataStore.delete(this, callback);
+};
+</pre>
+
+<p>Note that we allow the user to pass a callback, which will be called when the backend operation completes.</p>
+
+<h2>Managing the model lifecycle</h2>
+
+<p>Since the data store is responsible for caching the model and making sure that duplicate instances do not exist, we need to have a more detailed look at the lifecycle of the model.</p>
+
+<p><b>Instantiation</b>. There are two ways to instantiate a model:</p>
+
+<pre class="prettyprint">
+new Model();
+</pre>
+
+<p>The cache should do nothing in this case, models that are not saved are not cached.</p>
+
+<pre class="prettyprint">
+DataSource.find(conditions, function(model) { ... });
+</pre>
+
+<p>Here, the models are fetched from the backend using some conditions. If the conditions are just model IDs, then the data source should check the cache first.</p>
+
+<p>When models are instantiated from data with an ID, they should be registered with the cache.</p>
+
+<p><b>Persistence operations: create, update, delete</b>. </p>
+
+<pre class="prettyprint">
+Model.save(); // model.id is not set
+</pre>
+
+<p>Once the backend returns the model id, add the model to the data cache, so that it can be found by id.</p>
+
+<pre class="prettyprint">
+Model.save(); // model.id is set
+</pre>
+
+<p>Add the model to the data cache, so that it can be found by id.</p>
+
+<pre class="prettyprint">
+Model.delete();
+</pre>
+
+<p>Remove the model from the data cache, and from any collections it may be in.</p>
+
+
+<p><b>Data changes</b>. When the model ID changes, the cache should be updated to reflect this.</p>
+
+<p><b>Reference counting</b>. If you want to accurate count the number of models, you'll need to hook into Collection events (e.g. add / remove / reset). I'm not going to do that, because a simpler mechanism - for example, limiting model instances by age or by number - achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it'll be much easier to do something like this.</p>
+
+
+<h2>Implementing the data store / cache</h2>
+
+<p>DataStore.add(), DataStore.has(), DataStore.save(), DataStore.delete(), DataStore.reference().</p>
+
+
+<p><i>The implementation section is still a work in progress, my apologies.</i></p>
+

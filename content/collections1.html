@@ -1,0 +1,347 @@
+<h1 class="chapter">%chapter_number% Implementing a data source</h1>
+
+<p>In this chapter, I will look at implementing a data source.</p>
+
+<h2>Defining a REST-based, chainable API for the data source</h2>
+
+<p>Let's start off by writing some tests in order to specify what we want from the data source we will build. It's much easier to understand the code once we have an idea of what the end result should look like.</p>
+
+<p>Given the following fixture:</p>
+
+<pre class="prettyprint">
+var fixture = [
+  { name: 'a', id: 1, role: 2 },
+  { name: 'b', id: 2, role: 4, organization: 1 },
+  { name: 'c', id: 3, role: 4, organization: 2 }
+];
+var db.user = new DataSource();
+</pre>
+
+<p>... here are tests describing how I'd like the data source to work:</p>
+
+<h2>Can load a single item by ID</h2>
+
+<pre class="prettyprint">
+'can load a single item by ID': function(done) {
+  db.user(1, function(user) {
+    assert.equal(fixture[0], user);
+    done();
+  });
+},
+</pre>
+
+<h2>Can load multiple items by ID</h2>
+
+<pre class="prettyprint">
+'can load multiple items by ID': function(done) {
+  db.user([1, 2, 3], function(users) {
+    assert.deepEqual(fixture, users);
+    done();
+  });
+},
+</pre>
+
+<h2>Can loading items by search query</h2>
+
+<p>The data source should support retrieving items by conditions other than id's. Since the details depend on the backend used, we'll just allow the user to add search terms via a object. The parameter are passed to the backend, which can then implement whatever is the appropriate thing (e.g. SQL query by name) to return the result JSON.</p>
+
+<pre class="prettyprint">
+'can load items by search query': function(done) {
+  db.user({ name: 'c'}, function(user) {
+    assert.deepEqual(fixture[2], user);
+    done();
+  });
+},
+</pre>
+
+<h2>Can add more search conditions using and()</h2>
+
+<p>We'll also support incrementally defining search parameters:</p>
+
+<pre class="prettyprint">
+'should allow for adding more conditions using and()': function(done) {
+  db.user({ role: 4 })
+    .and({ organization: 1 }, function(users) {
+    assert.deepEqual(fixture[1], users);
+    done();
+  });
+},
+</pre>
+
+
+
+<h2>Implementing the chainable data source API</h2>
+
+<p>The full implementation for a chainable data source API is below. It almost fits on one screen.</p>
+
+<table>
+<tr><td class="left" style="background-color: #fbfbfb;">
+<div class="code">
+<div>function Search(options) {</div>
+<div class="green">  this.uri = options.uri;</div>
+<div class="green">  this.model = options.model;</div>
+<div class="blue">  this.conditions = [];</div>
+<div>}</div>
+<div></div>
+<div>Search.prototype.and = function(arg, callback) {</div>
+<div class="blue">  if(!arg) return this;</div>
+<div class="blue">  this.conditions.push(arg);</div>
+<div class="blue">  return this.end(callback);</div>
+<div>};</div>
+<div></div>
+</div>
+
+</td><td class="right" style="background-color: #fbfbfb;">
+
+  <div class="green"><p>The data source accepts two parameters:</p>
+    <ul>
+      <li><code>url</code>, which is a function that returns a URL for a particular id</li>
+      <li><code>model</code>, an optional parameter; if given, the results will be instances of that model instead of plain Javacript objects (e.g. JSON parsed as a JS object).</li>
+    </ul>
+  </div>
+
+  <div class="blue">
+    <p>The idea behind chainable APIs is that the actual action is delayed until a callback is passed to the API.</p>
+    <p><code>conditions</code> is a simple array of all the parameters (model ID's and search parameters) passed to the current data source search.</p>
+    <p>Also note how all the functions return <code>this</code>. That allows function calls to be written one after another.</p>
+  </div>
+
+</td></tr>
+<tr><td class="left" style="background-color: #fbfbfb;">
+
+
+<div class="code">
+<div>Search.prototype.end = function(callback) {</div>
+<div>  if(!callback) return this;</div>
+<div>  var self = this,</div>
+<div class="orange">      params = {},</div>
+<div class="orange">      urls = [];</div>
+<div class="orange">  function process(arg) {</div>
+<div class="yellow">    if(typeof arg == 'number') {</div>
+<div class="red">      urls.push(self.uri(arg));</div>
+<div class="yellow">    } else if (Array.isArray(arg)) {</div>
+<div class="yellow">      urls = urls.concat(arg.map(function(id) {</div>
+<div class="red">        return self.uri(id);</div>
+<div class="yellow">      }));</div>
+<div class="yellow">    } else if(arg === Object(arg)) {</div>
+<div class="yellow">      Object.keys(arg).forEach(function(key) {</div>
+<div class="yellow">        params[key] = arg[key];</div>
+<div class="yellow">      });</div>
+<div>    }</div>
+<div>  }</div>
+<div class="orange">  this.conditions.forEach(process);</div>
+<div>  (urls.length == 0) &amp;&amp; (urls = [ this.uri() ]);</div>
+<div>  this._execute(urls, params, callback);</div>
+<div>};</div>
+<div></div>
+
+</td><td class="right" style="background-color: #fbfbfb;">
+
+  <div class="orange">
+    <p>The <code>end()</code> function is where the conditions are processed and stored into <code>url</code> and <code>params</code>. We call <code>process()</code> on each condition in order to extract the information.</p>
+  </div>
+
+  <div class="yellow">
+    <p><code>process(arg)</code> looks at the type of each argument. If the argument is a number, we assume it's a model ID. If it is an array, then it is considered an array of IDs. Objects are assumed to be search parameters (key: value pairs).</p>
+  </div>
+
+  <div class="red">
+    <p>For numbers, we map them to a url by calling <code>this.uri()</code> on them. That parameter is part of the resource definition.</p>
+  </div>
+</td></tr>
+
+<tr><td class="left" style="background-color: #fbfbfb;">
+
+<div class="code">
+<div>Search.prototype._execute = function(urls, </div>
+<div>params, callback) {</div>
+<div>    var self = this, results = [];</div>
+<div class="green">  urls.forEach(function(url) {</div>
+<div class="green">    Client</div>
+<div class="green">      .get(url).data(params)</div>
+<div class="green">      .end(Client.parse(function(err, data) {</div>
+<div class="blue">        if(err) throw err;</div>
+<div class="blue">        results.push((self.model ? </div>
+<div class="blue">            new self.model(data) : data));</div>
+<div class="blue">        if(results.length == urls.length) {</div>
+<div class="blue">          callback((urls.length == 1 ?</div>
+<div class="blue">                  results[0] : results));</div>
+<div>        }</div>
+<div>      }));</div>
+<div>  });</div>
+<div>};</div>
+<div></div>
+</td><td class="right" style="background-color: #fbfbfb;">
+
+<div class="green">
+  <p>This is where the magic happens (not really). We call the HTTP client, passing each URL and set of parameters.</p>
+</div>
+
+<div class="blue">
+  <p>Once we get each result, we store it in the results array. When the results array is full, we call the original callback with the results. If there was only one result, then we just take the first item in the array.</p>
+</div>
+
+</td></tr>
+<tr><td class="left" style="background-color: #fbfbfb;">
+
+<div class="code">
+<div>Search.prototype.each = function(callback) {</div>
+<div class="orange">  return this.end(function(results) {</div>
+<div class="orange">    results.forEach(callback);</div>
+<div class="orange">  });</div>
+<div>};</div>
+<div></div>
+<div>module.exports = function(options) {</div>
+<div class="yellow">  return function(arg, callback) {</div>
+<div class="yellow">    return new Search(options).and(arg, callback);</div>
+<div class="yellow">  }</div>
+<div>};</div>
+</div>
+
+</td><td class="right" style="background-color: #fbfbfb;">
+
+<div class="orange">
+  <p>If <code>.each(function() { ...})</code> is called, then we take the callback, and wrap it in a function that iterates over the results array and calls the callback for each result. This requires ES5 (e.g. not IE; since we rely on Array.forEach to exist). For IE compatibility, use underscore or some other shim.</p>
+</div>
+
+<div class="yellow">
+  <p>Finally, how do we define a datasource?</p>
+  <p>We return a function that accepts <code>(arg, callback)</code> and itself returns a new instance of Search. This allows us to define a particular data source and store the configuration in another variable. Every search is a new instance of <code>Search</code>.</p>
+
+  <p>See the full usage example at the end of the chapter for details.</p>
+
+</div>
+</td></tr>
+
+</table>
+
+<h2>Making ajax a bit nicer: Client</h2>
+
+<p>Since I wanted the same code to work in Node and in the browser, I added a (chainable) HTTP interface that works both with jQuery and Node.js. Here is a usage example:</p>
+
+<pre class="prettyprint">
+Client
+  .get('http://www.google.com/')
+  .data({q: 'hello world'})
+  .end(function(err, data) {
+    console.log(data);
+  });
+</pre>
+
+<p>And the full source code:  for jQuery (~40 lines; below) and <a href="https://github.com/mixu/minimal/blob/master/client.js">for Node</a> (~70 lines; w/JSON parsing).</p>
+
+<pre class="prettyprint">
+var $ = require('jquery');
+
+function Client(opts) {
+  this.opts = opts || {};
+  this.opts.dataType || (this.opts.dataType = 'json');
+  this.opts.cache = false;
+};
+
+Client.prototype.data = function(data) {
+  if(!data || Object.keys(data).length == 0) return this;
+  if(this.opts.type == 'GET') {
+    this.opts.url += '?'+jQuery.param(data);
+  } else {
+    this.opts.contentType = 'application/json';
+    this.opts.data = JSON.stringify(data);
+  }
+  return this;
+};
+
+Client.prototype.end = function(callback) {
+  this.opts.error = function(j, t, err) {
+    callback &amp;&amp; callback(err);
+  };
+  this.opts.success = function(data, t, j) {
+    callback &amp;&amp; callback(undefined, data);
+  };
+  $.ajax(this.opts);
+};
+
+module.exports.parse = Client.parse = function(callback) {
+  return function(err, response) {
+    callback &amp;&amp; callback(undefined, response);
+  };
+};
+
+['get', 'post', 'put', 'delete'].forEach(function(method) {
+  module.exports[method] = function(urlStr) {
+    return new Client({
+      type: method.toUpperCase(), url: urlStr
+    });
+  };
+});
+</pre>
+
+<h2>Putting it all together</h2>
+
+<p>Now, that's a fairly useful data source implementation; minimal yet useful. You can certainly reuse it with your framework, since there are no framework dependencies; it's all (ES5) standard Javascript.</p>
+
+<p><b>Defining a data source</b></p>
+
+<p>Now, let's create a page that allows us to use the datasource to retrieve data. For example, you might want to use the datasource with a model. You may have noticed that I slipped in support for instantiating models from the result (see the this.model parameter in implementation). This means that we can ask the data source to instantiate objects from a given model constructor by passing the <code>model</code> option:</p>
+
+<pre class="prettyprint">
+// Find instances of Todo using Todo.find()
+Todo.find = new DataSource({
+  uri: function(id) {
+    return 'http://localhost:8080/api/todo/'
+      + (id ? encodeURIComponent(id) : 'search');
+  },
+  model: Todo
+});
+</pre>
+
+<p>As you can see, the uri function simply returns the right URL depending on whether the search is about a specific ID or just a search.</p>
+
+<p>The code also demostrates composition over inheritance. The inheritance-based way of setting up this same functionality would be to inherit from another object that has the data source functionality. With composition, we can simply assign the DataSource to any plain old JS object to add the ability to retrieve JSON data by calling a function.</p>
+
+<p><b>Building a backend</b>.</p>
+
+<p>The server-side for the datasource can be fairly simple: there are two cases - reading a model by ID, and searching for a model by property.</p>
+
+<pre class="prettyprint">
+var http = require('http'),
+    url = require('url');
+var todos = [
+      { id: 1, title: 'aa', done: false },
+      { id: 2, title: 'bb', done: true },
+      { id: 3, title: 'cc', done: false }
+    ],
+    server = http.createServer();
+
+var idRe = new RegExp('^/api/todo/([0-9]+)[^0-9]*$'),
+    searchRe = new RegExp('^/api/todo/search.*$');
+
+server.on('request', function(req, res) {
+  res.setHeader('content-type', 'application/json');
+  if(idRe.test(req.url)) {
+    var parts = idRe.exec(req.url);
+    // return the ID
+    if(todos[parts[1]]) {
+      res.end(JSON.stringify(todos[parts[1]]));
+    }
+  } else if (searchRe.test(req.url)) {
+    var data = '';
+    req.on('data', function(part) {
+      data += part;
+    });
+    req.on('end', function() {
+      var search = JSON.parse(data);
+      // search the todos array by key - value pair
+      res.end(JSON.stringify(
+        todos.filter(function(item) {
+          return Object.keys(search).every(function(key) {
+            return item[key] &amp;&amp; item[key] == search[key];
+          });
+        })
+      ));
+    });
+  } else {
+    console.log('Unknown', req.url);
+    res.end();
+  }
+});
+</pre>

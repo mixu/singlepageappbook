@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Single page apps in depth (new free book)</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
+}
+</style>
+
+<script src="assets/jquery-1.6.1.min.js"></script>
+<link type="text/css" rel="stylesheet" href="assets/style.css"/>
+<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
+<script type="text/javascript">
+$(function() {
+   $('pre').each(function(i, el) {
+    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+   });
+});
+
+</script>
+<script type="text/javascript" src="assets/prettify.js"></script>
+<!-- Script runner -->
+<script type="text/javascript" src="assets/runner.js"></script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32878417-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </head>
+<body>
+  <div id="wrapper">
+    <div id="header">
+      <div id="brand">
+        <h1>Single page apps in depth</h1>
+        <span>a.k.a Mixu's single page app book</span>
+      </div>
+      <div id="navi">
+        <form class="search" action="http://www.google.com/search">
+          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
+          <input type="text" name="as_q" value="" class="search_field">
+          <input type="submit" value="Search" class="search_btn">
+        </form>
+      </div>
+    </div>
+
+    <div class="clear">
+      <hr>
+    </div>
+     <!-- Main -->
+
+    <div id="main">
+      <div id="content" class="post">
+<p>This free book is the book I would have wanted when I started working with single page apps. It's not an API reference on a particular framework, rather, the focus is on discussing patterns, implementation choices and decent practices.</p>
+
+<p>I'm taking a "code and concepts" approach to the topic -  the best way to learn how to use something is to understand how it is implemented. My ambition here is to decompose the problem of writing a web app, take a fresh look at it and hopefully make better decisions the next time you make one.</p>
+
+<p>I'm releasing this a bit early, since I'm heading to <a href="http://www.nodeconf.com/">Nodeconf</a>. In my writing, I may sound slightly opinionated, but I am happy to be proven wrong. Your feedback is much appreciated!</p>
+
+<h3>Introduction</h3>
+
+<ul>
+  <li><a href="goal.html">Modern single page apps - an overview</a></li>
+</ul>
+
+<h3>Writing maintainable code</h3>
+
+<ul>
+  <li><a href="maintainability1.html">Maintainability depends on modularity: Stop using namespaces!</a></li>
+  <li><a href="maintainability2.html">Getting to maintainable</a></li>
+  <li><a href="maintainability3.html">Testing explained</a></li>
+</ul>
+
+<h3>Implementation alternatives: a look at the options</h3>
+
+<ul>
+  <li><a href="detail1.html">The view layer</a></li>
+  <li><a href="detail2.html">The model layer</a></li>
+</ul>
+
+<h3>Meditations on Models &amp; Collections</h3>
+
+<ul>
+  <li><a href="collections1.html">Implementing a data source</a></li>
+  <li><a href="collections2.html">Implementing a model</a></li>
+  <li><a href="collections3.html">Implementing a collection</a></li>
+  <li><a href="collections4.html">Implementing a data cache</a></li>
+  <li><a href="collections5.html">Implementing associations</a></li>
+</ul>
+
+<h3>Views - templating, behavior and event consumption</h3>
+
+<ul>
+  <li><a href="views1.html">Templating: from data to HTML</a></li>
+  <li><a href="views2.html">Behavior: binding DOM events to HTML and responding to events</a></li>
+  <li><a href="views3.html">Consuming events from the model layer: communication between views and re-rendering views in response to model data changes</a></li>
+</ul>
+
+<div id="bottom_navi">
+  <a href="index.html"> &lt; &lt; Previous Chapter</a> | <a href="goal.html">Next Chapter &gt; &gt;</a>
+</div>
+
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+        </div>
+      </div>
+
+
+      <div id="sidebar">
+        <h3><a href="index.html">Home</a></h3>
+        <h3><a href="index.html">Previous Chapter</a></h3>
+        <h3><a href="goal.html">Next Chapter</a></h3>
+        <br>
+                <p><img src="assets/e-book-reader-black.png">
+          <a href="http://singlepageappbook.com/mixu-single-page-apps.mobi" style="color: gray;"> .mobi (Kindle)</a>
+        </p>
+        <p><img src="assets/e-book-reader.png">
+          <a href="http://singlepageappbook.com/mixu-single-page-apps.epub" style="color: gray;">epub</a>
+        </p>
+        <p><img src="assets/document-code.png">
+          <a href="http://singlepageappbook.com/single-page.html" style="color: gray;">Single page HTML</a>
+        </p>
+        <p><img src="assets/document-pdf.png">
+          <a href="http://www.printfriendly.com/print/v2?url=http://singlepageappbook.com/single-page.html" style="color: gray;">PDF</a>
+        </p>
+
+<br>
+<hr>
+<br>
+
+<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fsinglepageappbook.com%2F&amp;send=false&amp;layout=button_count&amp;width=450&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:21px;" allowTransparency="true"></iframe>
+
+<br>
+
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://singlepageappbook.com/" data-text="Single page apps in depth" data-via="mikitotakada">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="http://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+<br>
+
+<br>
+<hr>
+<br>
+
+<p style="color: gray;"><a href="http://mixu.net" style="color: gray;">Who wrote this?</a></p>
+
+<p style="color: gray;">My <a href="http://book.mixu.net" style="color: gray;">other book is about Node.js</a></p>
+
+      </div>
+
+
+    <div class="clear">
+    </div>
+
+    <div id="footer">
+      <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
+    </div>
+    </div>
+  </div>
+
+
+  </div>
+</body>
+</html>

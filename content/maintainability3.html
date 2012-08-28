@@ -1,0 +1,423 @@
+<h1 class="chapter">%chapter_number% Testing</h1>
+
+<p><b>TDD?</b> The best way to make code testable is to start by writing the tests first - TDD style.  Essentially, <a href="http://en.wikipedia.org/wiki/Test-driven_development">TDD</a> boils down to:</p>
+
+<img src="assets/tdd.png" height="200">
+
+<p>TDD is a set of rules for writing code: you write a failing test (red), then add just enough code to make it pass (green) and finally refactor where necessary (refactor). What I will talk about in this chapter is: how to set up testing for your project using Mocha; how to do dependency injection for your CommonJS modules and how you can test asynchronous code. The rest is best covered by some other book or tutorial; so if you haven't heard of TDD, get out from under that rock you've been living under and read <a href="https://www.google.com/search?q=test+driven+development+by+example">Kent Beck's book</a> and perhaps <a href="https://www.google.com/search?q=working+effectively+with+legacy+code">Michael Feather's book</a>.</p>
+
+<h2>Why write tests?</h2>
+
+<p>Test driven development is not valuable because it catches errors, but because it changes the way you think about interfaces between modules. Writing tests <i>before you write code</i> influences how you think about the public interface of your modules and their coupling, it provides a safety net for performing refactoring and it documents the expected behavior of the system.</p>
+
+<p>In most cases, you don't completely understand the system when you start writing it.
+Writing something once produces just a rough draft. You want to be able to improve the code while ensuring that existing code does not break. That's what tests are for: they tell you what expectations you need to fulfill while refactoring.</p>
+
+<h2>What to test?</h2>
+
+<p>Test <i>driven</i> development implies that tests should guide the development. I often use tests as TODO's when developing new functionality; no code is written until I know how the code should look like in the test. Tests are a contract: this is what this particular module needs to provide externally.</p>
+
+<p>I find that the greatest value comes from testing pure logic and hard-to-replicate-otherwise edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is  important to have good modularization/few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
+
+<h2>Test frameworks</h2>
+
+<p>Use any test framework/runner <u>except don't use</u> <a href="https://github.com/pivotal/jasmine/issues/178">Jasmine</a>, which is terrible for asynchronous testing due to <a href="http://thelambdacalculus.wordpress.com/2011/02/28/5/">amount of boilerplate code</a> it requires.</p>
+
+<p>Test runners basically use one of three different styles for specifying tests:</p>
+
+<ul>
+  <li>BDD: <code>describe(foo) .. before() .. it()</code></li>
+  <li>TDD: <code>suite(foo) .. setup() .. test(bar)</code></li>
+  <li>and exports: <code>exports['suite'] = { before: f() .. 'foo should': f() }</code></li>
+</ul>
+
+<p>I like TJ's <a href="https://github.com/visionmedia/mocha">Mocha</a>, which has <a href="http://visionmedia.github.com/mocha/">a lot of awesome features</a>, such as support for all three specification styles, support for running tests in the browser, code coverage, Growl integration, documentation generation, airplane mode and a nyan cat test reporter. I like to use the "exports" style - it is the simplest thing that works.</p>
+
+<p>Some frameworks require you to use their assert() methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
+
+<h2>Setting up and writing a test</h2>
+
+<p>Let's set up a Node project with mocha and write a test. First, let's create a directory, initialize the package.json file (for npm) and install mocha:</p>
+
+<pre>
+[~] mkdir example
+[~] cd example
+[example] npm init
+Package name: (example)
+Description: Example system
+Package version: (0.0.0)
+Project homepage: (none)
+Project git repository: (none)
+...
+[example] npm install --save-dev mocha
+</pre>
+
+<p>I like the exports style for tests:</p>
+
+<pre class="prettyprint">
+var assert = require('assert'),
+    Model = require('../lib/model.js');
+
+exports['can check whether a key is set'] = function(done) {
+  var model = new Model();
+  assert.ok(!model.has('foo'));
+  model.set('foo', 'bar');
+  assert.ok(model.has('foo'));
+  done();
+};
+</pre>
+
+<p>Note the use of the <code>done()</code> function there. You need to call this function at the end of your test to notify the test runner that the test is done. This makes async testing easy, since you can just make that call at the end of your async calls (rather than having a polling mechanism, like Jasmine does).</p>
+
+<p>You can use before/after and beforeEach/afterEach to specify blocks of code that should be run either before/after the whole set of tests or before/after each test:</p>
+
+<pre class="prettyprint">
+exports['given a foo'] = {
+  before: function(done) {
+    this.foo = new Foo().connect();
+    done();
+  },
+
+  after: function(done) {
+    this.foo.disconnect();
+    done();
+  },
+
+  'can check whether a key is set': function() {
+    // ...
+  }
+};
+</pre>
+
+<p>You can also create nested test suites (e.g. where several sub-tests need additional setup):</p>
+
+<pre class="prettyprint">
+exports['given a foo'] = {
+  beforeEach: function(done) {
+    // ...
+  },
+  'when bar is set': {
+    beforeEach: function(done) {
+      // ...
+    },
+    'can execute baz': function(done) {
+      // ...
+    }
+  }
+};
+</pre>
+
+
+<h2>Basic assertions</h2>
+
+<p>You can get pretty far with these three:</p>
+
+<ul>
+  <li>assert.ok(value, [message])</li>
+  <li>assert.equal(actual, expected, [message])</li>
+  <li>assert.deepEqual(actual, expected, [message])</li>
+</ul>
+
+<p>Check out <a href="http://nodejs.org/api/assert.html">the assert module documentation</a> for more.</p>
+
+<h2>Tests should be easy to run</h2>
+
+<p>To run the full test suite, I create a Makefile:</p>
+
+<pre>
+TESTS += test/model.test.js
+
+test:
+  @./node_modules/.bin/mocha \
+    --ui exports \
+    --reporter list \
+    --slow 2000ms \
+    --bail \
+    $(TESTS)
+
+.PHONY: test
+</pre>
+
+<p>This way, people can run the tests using "make test". Note that the Makefile requires tabs for indentation.</p>
+
+<p>I also like to make individual test files runnable via  <code>node ./path/to/test.js</code>. To do this, I add the following wrapper - detect whether the current module is the main script, and if so, run the tests directly (in this, case using Mocha):</p>
+
+<pre class="prettyprint">
+// if this module is the script being run, then run the tests:
+if (module == require.main) {
+  var mocha = require('child_process').spawn('mocha', [ '--colors', '--ui',
+  'exports', '--reporter', 'spec', __filename ]);
+  mocha.stdout.pipe(process.stdout);
+  mocha.stderr.pipe(process.stderr);
+}
+</pre>
+
+<p>This makes running tests nice, since you no longer need to remember all those default options.</p>
+
+<h2>Testing interactions between modules</h2>
+
+<p>Unit tests by definition should only test one module at a time. Each unit test excercises one part of the module under test. Some direct inputs (e.g. function parameters) are passed to the module. Once a value is returned, the assertions in the test verify the direct outputs of the test.</p>
+
+<p>However, more complex modules may use other modules: for example, in order to read from a database via function calls (indirect inputs) and write to a database (indirect outputs).</p>
+
+<img src="assets/dependencies.png">
+
+<p>You want to swap the dependency (e.g. the database module) with one that is easier to use for testing purposes. This has several benefits:</p>
+
+<ul>
+  <li>You can capture the indirect outputs (dependency function calls etc.) and control the indirect inputs (e.g. the results returned from the dependency).</li>
+  <li>You can simulate error conditions, such as timeouts and connection errors.</li>
+  <li>You can avoid having to slow/hard to set up external dependencies, like databases and external APIs.</li>
+</ul>
+
+<p>This is known as dependency injection. The injected dependency (test double) pretends to implement the dependency, replacing it with one that is easier to control from the test. The code being tested is not aware that it is using a test double.</p>
+
+<p>For simple cases, you can just replace a single function in the dependency with a fake one. For example, you want to stub a function call:</p>
+
+<pre class="prettyprint">
+exports['it should be called'] = function(done) {
+  var called = false,
+      old = Foo.doIt;
+  Foo.doIt = function(callback) {
+    called = true;
+    callback('hello world');
+  };
+  // Assume Bar calls Foo.doIt
+  Bar.baz(function(result)) {
+    console.log(result);
+    assert.ok(called);
+    done();
+  });
+};
+</pre>
+
+<p>For more complex cases, you want to replace the whole backend object.</p>
+
+<p>There are two main alternatives: constructor parameter and module substitution.</p>
+
+<h3>Constructor parameters</h3>
+
+<p>One way to allow for dependency injection is to pass the dependency as a option. For example:</p>
+
+<pre class="prettyprint">
+function Channel(options) {
+  this.backend = options.backend || require('persistence');
+};
+Channel.prototype.publish = function(message) {
+  this.backend.send(message);
+};
+module.exports = Channel;
+</pre>
+
+<p>When writing a test, you pass a different parameter to the object being tested instead of the real backend:</p>
+<pre class="prettyprint">
+var MockPersistence = require('mock_persistence'),
+    Channel = require('./channel');
+
+var c = new Channel({ backend: MockPersistence });
+</pre>
+
+<p>However, this approach is not ideal:</p>
+
+<p>Your code is more cluttered, since you now have to write <code>this.backend.send</code> instead of <code>Persistence.send</code>; you now also to pass in that option though you only need it for testing.</p>
+
+<p>You have to pass that option through any intermediate objects if you are not directly using this class. If you have a hierarchy where Server instantiates Channel which uses Persistence; and you want to capture Persistence calls in a test, then the Server will have accept at channelBackend option or to expose the Channel instance externally.</p>
+
+
+<h3>Module substitution</h3>
+
+<p>Another way is to write a function that changes the value of the dependency in the module. For example:</p>
+
+
+<pre class="prettyprint">
+var Persistence = require('persistence');
+
+function Channel() { };
+Channel.prototype.publish = function(message) {
+  Persistence.send(message);
+};
+Channel._setBackend = function(backend) {
+  Persistence = backend;
+};
+module.exports = Channel;
+</pre>
+
+<p>Here, the <code>_setBackend</code> function is used to replace the (module-local) private variable  <code>Persistence</code> with another (test) object. Since module requires are cached, that private closure and variable can be set for every call to the module, even when the module is required from multiple different files.</p>
+
+<p>When writing a test, we can require() the module to gain access to setBackend() and inject the dependency:</p>
+
+<pre class="prettyprint">
+// using in test
+var MockPersistence = require('mock_persistence'),
+    Channel = require('./channel');
+
+exports['given foo'] = {
+  before: function(done) {
+    // inject dependency
+    Channel._setBackend(MockPersistence);
+  },
+  after: function(done) {
+    Channel._setBackend(require('persistence'));
+  },
+  // ...
+}
+
+var c = new Channel();
+</pre>
+
+<p>Using this pattern you can inject a dependency on a per-module basis as needed.</p>
+
+<p>There are other techniques, including creating a factory class (which makes the common case more complex) and redefining require (e.g. using Node's VM API). But I prefer the techniques above. I actually had a more abstract way of doing this, but it turned out to be totally not worth it; <code>_setBackend()</code> is the simplest thing that works.</p>
+
+<h2>Testing asynchronous code</h2>
+
+<p>Three ways:</p>
+
+<ul>
+  <li>Write a workflow</li>
+  <li>Wait for events, continue when expectations fulfilled</li>
+  <li>Record events and assert</li>
+</ul>
+
+<p>Writing a workflow is the simplest case: you have a sequence of operations that need to happen; in your test you set up callbacks (possibly by replacing some functions with callbacks). At the end of the callback chain, you call <code>done()</code>. You probably also want to add an assertion counter to verify that all the callbacks were triggered.</p>
+
+<p>Here is a basic example of a workflow, note how each step in the flow takes a callback (e.g. assume we send a message or something):</p>
+
+<pre class="prettyprint">
+exports['can read a status'] = function(done) {
+  var client = this.client;
+  client.status('item/21').get(function(value) {
+    assert.deepEqual(value, []);
+    client.status('item/21').set('bar', function() {
+      client.status('item/21').get(function(message) {
+        assert.deepEqual(message.value, [ 'bar' ]);
+        done();
+      });
+    });
+  });
+};
+</pre>
+
+<h2>Waiting for events using EventEmitter.when()</h2>
+
+<p>In some cases, you don't have a clearly defined order for things to happen. This is often the case when your interface is a EventEmitter. What's a EventEmitter? It's basically just Node's name for a event aggregator; the same functionality is present in many other Javascript projects - for example, jQuery uses <code>.bind()</code>/<code>.trigger()</code> for what is essentially the same thing.</p>
+
+<table class="table">
+<tr>
+  <td></td>
+  <td>Node.js EventEmitter</td><td>jQuery</td>
+</tr>
+<tr>
+  <td>Attach a callback to a event</td>
+  <td>.on(event, callback) / .addListener(event, callback)</td>
+  <td>.bind(eventType, handler) (1.0) / .on(event, callback) (1.7)</td>
+</tr>
+<tr>
+  <td>Trigger a event</td>
+  <td>.emit(event, data, ...)</td>
+  <td>.trigger(event, data, ...)</td>
+</tr>
+<tr>
+  <td>Remove a callback</td>
+  <td>.removeListener(event, callback)</td>
+  <td>.unbind(event, callback) / .off(event, callback)</td>
+</tr>
+<tr>
+  <td>Add a callback that is triggered once, then removed</td>
+  <td>.once(event, callback)</td>
+  <td>.one(event, callback)</td>
+</tr>
+</table>
+
+<p>jQuery's functions have some extra sugar on top, like selectors, but the idea is the same. The usual EventEmitter API is a bit awkward to work with when you are testing for events that don't come in a defined sequence:</p>
+
+<ul>
+  <li>If you use EE.once(), you have to manually reattach the handler in case of misses and manually count.</li>
+  <li>If you use EE.on(), you have to manually detach at the end of the test, and you need to have more sophisticated counting.</li>
+</ul>
+
+<p>EventEmitter.when() is a tiny extension to the standard EventEmitter API:</p>
+
+<pre class="prettyprint">
+EventEmitter.when = function(event, callback) {
+  var self = this;
+  function check() {
+    if(callback.apply(this, arguments)) {
+      self.removeListener(event, check);
+    }
+  }
+  check.listener = callback;
+  self.on(event, check);
+  return this;
+};
+</pre>
+
+<p>EE.when() works almost like EE.once(); it takes an event and a callback. The major difference is that the return value of the callback determines whether the callback is removed. </p>
+
+<pre class="prettyprint">
+exports['can subscribe'] = function(done) {
+  var client = this.client;
+  this.backend.when('subscribe', function(client, msg) {
+    var match = (msg.op == 'subscribe' &amp;&amp; msg.to == 'foo');
+    if (match) {
+      assert.equal('subscribe', msg.op);
+      assert.equal('foo', msg.to);
+      done();
+    }
+    return match;
+  });
+  client.connect();
+  client.subscribe('foo');
+};
+</pre>
+
+<h2>Recording events and then asserting</h2>
+
+<p>Recording replacements (a.k.a spies and mocks) are used more frequently when it is not feasible to write a full replacement of the dependency, or when it is more convinient to collect output (e.g from operations that might happen in any order) and then assert that certain conditions are fulfilled.</p>
+
+<p>For example, with a EventEmitter, we might not care in what order certain messages were emitted, just that they were emitted. Here is a simple example using a EventEmitter:</p>
+
+<pre class="prettyprint">
+exports['doIt sends a b c'] = function(done) {
+  var received = [];
+  client.on('foo', function(msg) {
+    received.push(msg);
+  });
+  client.doIt();
+  assert.ok(received.some(function(result) { return result == 'a'; }));
+  assert.ok(received.some(function(result) { return result == 'b'; }));
+  assert.ok(received.some(function(result) { return result == 'c'; }));
+  done();
+};
+</pre>
+
+<p>With the DOM or some other hard-to-mock dependency, we just substitute the function we're calling with another one (possibly via the dependency injection techniques mentioned earlier).</p>
+
+<pre class="prettyprint">
+exports['doIt sends a b c'] = function(done) {
+  var received = [],
+      old = jQuery.foo;
+  jQuery.foo = function() {
+    received.push(arguments);
+    old.apply(this, Array.prototype.slice(arguments));
+  });
+  jQuery.doIt();
+  assert.ok(received.some(function(result) { return result[1] == 'a'; }));
+  assert.ok(received.some(function(result) { return result[1] == 'b'; }));
+  done();
+};
+</pre>
+
+<p>Here, we are just replacing a function, capturing calls to it, and then calling the original function. Check out MDN on what <a href="https://developer.mozilla.org/en/JavaScript/Reference/Functions_and_function_scope/arguments">arguments</a> is, if you're not familiar with it.</p>
+
+
+<div class="ref">
+<h5>Additional reading</h5>
+
+<ul>
+  <li><a href="http://cjohansen.no/en">C. Johansen's blog</a> and <a href="http://www.amazon.com/dp/0321683919/">book</a</li>
+  <li><a href="http://channel9.msdn.com/events/mix/mix11/EXT23">http://channel9.msdn.com/events/mix/mix11/EXT23</a></li>
+</ul>
+
+
+</div>

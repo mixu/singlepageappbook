@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>6. The model layer: an overview</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
+}
+</style>
+
+<script src="assets/jquery-1.6.1.min.js"></script>
+<link type="text/css" rel="stylesheet" href="assets/style.css"/>
+<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
+<script type="text/javascript">
+$(function() {
+   $('pre').each(function(i, el) {
+    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+   });
+});
+
+</script>
+<script type="text/javascript" src="assets/prettify.js"></script>
+<!-- Script runner -->
+<script type="text/javascript" src="assets/runner.js"></script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32878417-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </head>
+<body>
+  <div id="wrapper">
+    <div id="header">
+      <div id="brand">
+        <h1>Single page apps in depth</h1>
+        <span>a.k.a Mixu's single page app book</span>
+      </div>
+      <div id="navi">
+        <form class="search" action="http://www.google.com/search">
+          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
+          <input type="text" name="as_q" value="" class="search_field">
+          <input type="submit" value="Search" class="search_btn">
+        </form>
+      </div>
+    </div>
+
+    <div class="clear">
+      <hr>
+    </div>
+     <!-- Main -->
+
+    <div id="main">
+      <div id="content" class="post">
+<h1 class="chapter">6. The model layer: an overview</h1>
+
+<p>Let's examine the model layer in more detail. In the introduction chapter, a model was shown as something that simply queries and writes to storage. The diagram below shows more details of the model layer:</p>
+
+<img src="assets/model-detail.png">
+
+<p>The model layer looks fairly similar across different single page app frameworks; there just aren't that many different ways to solve this problem. You need to ability to represent data items and sets of data items; you need a way to load in data; and you probably want to have some caching in place to avoid naively reloading data that you already have. Whether these exist as separate mechanisms, or as a part of single large model is mostly a implementation detail.</p>
+
+<p>The major difference is how collections are handled, and this is a result of choices made in the view layer - with observables, you want observable arrays, with events, you want collections.</p>
+
+<h2>Data source</h2>
+
+<ul>
+  <li>Common way of instantiating models from existing data</li>
+  <li>Fetching models by id</li>
+  <li>Fetching models by search</li>
+</ul>
+
+<p> A data source (or backend proxy / API) is responsible for reading from the backend using a simplified and more powerful API. It accepts JSON data, and returns JSON objects that are converted into Models.</p>
+
+<p>Note how the data source reads from the data store/cache, but queries the backend as well. Lookups by ID can be fetched directly from the cache, but more complicated queries need to ask the backend in order to search the full set of data.</p>
+
+
+<h2>Model</h2>
+
+<ul>
+  <li>A place to store data</li>
+  <li>Emits events when data changes</li>
+  <li>Can be serialized and persisted</li>
+</ul>
+
+
+<p>The model contains the actual data (attributes) and can be transformed into JSON in order to restore from or save to the backend. A model may have associations, it may have validation rules and it may have subscribers to changes on its data.</p>
+
+
+<h2>Collections</h2>
+
+<ul>
+  <li>Contains items</li>
+  <li>Emits events when items are added/removed</li>
+  <li>Has a defined item order</li>
+</ul>
+
+<p>Collections exist to make it easy to work with sets of data items. A collection might represent a subset of models, for example, a list of users. Collections are ordered: they represent a particular selection of models for some purpose, usually for drawing a view.</p>
+
+<p>You can implement a collection either:</p>
+
+<ul>
+  <li>As a model collection that emits events</li>
+  <li>As an observable array of items</li>
+</ul>
+
+<p>The approach you pick is dependent mostly on what kind of view layer you have in mind.</p>
+
+<p>If you think that views should contain their own behavior / logic, then you probably want collections that are aware of models. This is because collections contain models for the purpose of rendering; it makes sense to be able to access models (e.g. via their ID) and tailor some of the functionality for this purpose.</p>
+
+<p>If you think that views should mostly be markup - in other words, that views should not be "components" but rather be "thin bindings" that refer to other things by their name in the global scope - then you will probably prefer observable arrays. In this case, since views don't contain behavior, you will also probably have controllers for storing all the glue code that coordinates multiple views (by referring to them by name).</p>
+
+<h2>Data cache</h2>
+
+<ul>
+  <li>Caches models by id, allowing for faster retrieval</li>
+  <li>Handles saving data to the backend</li>
+  <li>Prevents duplicate instances of the same model from being instantiated</li>
+</ul>
+
+<p>A data store or data cache is used in managing the lifecycle of models, and in saving, updating and deleting the data represented in models. Models may become outdated, they may become unused and they may be preloaded in order to make subsequent data access faster. The difference between a collection and a cache is that the cache is not in any particular order, and the cache represents all the models that the client-side code has loaded and retained.</p>
+
+
+<div id="bottom_navi">
+  <a href="detail1.html"> &lt; &lt; Previous Chapter</a> | <a href="collections1.html">Next Chapter &gt; &gt;</a>
+</div>
+
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+        </div>
+      </div>
+
+
+      <div id="sidebar">
+        <h3><a href="index.html">Home</a></h3>
+        <h3><a href="detail1.html">Previous Chapter</a></h3>
+        <h3><a href="collections1.html">Next Chapter</a></h3>
+        <br>
+        
+      </div>
+
+
+    <div class="clear">
+    </div>
+
+    <div id="footer">
+      <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
+    </div>
+    </div>
+  </div>
+
+
+  </div>
+</body>
+</html>

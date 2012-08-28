@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>11. Implementing associations: hasOne, hasMany</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
+}
+</style>
+
+<script src="assets/jquery-1.6.1.min.js"></script>
+<link type="text/css" rel="stylesheet" href="assets/style.css"/>
+<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
+<script type="text/javascript">
+$(function() {
+   $('pre').each(function(i, el) {
+    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+   });
+});
+
+</script>
+<script type="text/javascript" src="assets/prettify.js"></script>
+<!-- Script runner -->
+<script type="text/javascript" src="assets/runner.js"></script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32878417-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </head>
+<body>
+  <div id="wrapper">
+    <div id="header">
+      <div id="brand">
+        <h1>Single page apps in depth</h1>
+        <span>a.k.a Mixu's single page app book</span>
+      </div>
+      <div id="navi">
+        <form class="search" action="http://www.google.com/search">
+          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
+          <input type="text" name="as_q" value="" class="search_field">
+          <input type="submit" value="Search" class="search_btn">
+        </form>
+      </div>
+    </div>
+
+    <div class="clear">
+      <hr>
+    </div>
+     <!-- Main -->
+
+    <div id="main">
+      <div id="content" class="post">
+<h1 class="chapter">11. Implementing associations: hasOne, hasMany</h1>
+
+<p><b>Defining associations</b>. Associations / relationships are sugar on top of the basic data source implementation. The idea is that you can predefine the associations between models, for example, that a post hasMany comments. This might be described as:</p>
+
+<pre class="prettyprint">
+function Post(args) {
+  Model.apply(this, args);
+  this.definition = {
+    tags: Tags,
+    comments: Comments
+    };
+}
+</pre>
+
+<p>We can fetch stuff manually without assocation support. For example, assume that posts.comment_ids is an array of ids:</p>
+
+<pre class="prettyprint">
+db.tag(post.comment_ids, function(tags) {
+  tags.forEach(function(tag)) {
+    // ...
+  });
+});
+</pre>
+
+<p>But given several levels of nesting (post has comment has author), this gets old pretty fast.</p>
+
+<p>It's the age-old problem of dealing with callbacks - which turns out to be pretty trivial once you add a couple of <a href="http://book.mixu.net/ch7.html">control flow patterns</a> to your repertoire. The fundamental ones are "series", "parallel" and "parallel but with limited concurrency". If you are unfamiliar with those, go read <a href="http://book.mixu.net/ch7.html">Chapter 7 - Control Flow of my previous book</a>.</p>
+
+<p><b>Don't pretend to have a blocking API</b>. Some frameworks have taken the approach that they pretend to provide a blocking API by returning a placeholder object. For example:</p>
+
+<pre class="prettyprint">
+var comments = post.get('comments');
+// we do not have the data for comments,
+// but we'll return a placeholder object for it
+</pre>
+
+<p>This is a very, very leaky abstraction. It just introduces complexity without really solving the issue, which is that you have to wait for the database to return results. I'd much rather allow the user to set a callback that gets called when the data has arrived; with a little bit of control flow you can easily ensure that the data is loaded - or build a higher level mechanism like we will be doing.</p>
+
+<p>APIs that <i>appear</i> not to incur the cost of IO but actually do are the leakiest of abstractions (<a href="http://www.mikealrogers.com/posts/the-way-of-node.html">Mikeal Rogers</a>). I'd much rather opt for the simple callback, since that allows me to explictly say that a piece of code should run only when the required data has arrived.</p>
+
+<h2>Building a nicer API for fetching associated records</h2>
+
+<p>Now, I don't want to do this either:</p>
+
+<pre class="prettyprint">
+post.get('tags', function(tags) {
+  post.get('comments').each(function(comment) {
+    comment.get('author', function(comments) {
+      // ...
+    });
+  });
+});
+</pre>
+
+<p>Instead, I think the right pattern (<a href="http://book.mixu.net/ch7.html">as advocated in my previous book</a>) is to tell the system what I want and pass a single callback that will run when the data is loaded:</p>
+
+<pre class="prettyprint">
+post.with(['tags', 'comments.author'], function(post) {
+  // post.tags; post.comments and post.comments[0..n].author should now be loaded
+});
+</pre>
+
+<p>Basically, you tell the API what you want as the input, and give it a callback to run when it has done your bidding. </p>
+
+<p><b>Implementation</b>. How can we build this? It is basically an API that takes a bunch of paths, looks up the metadata, makes data source calls to fetch by ID, and stores the data on the model, and then calls the continuation callback.</p>
+
+<p><i>The implementation section is still a work in progress, my apologies.</i></p>
+
+
+<div id="bottom_navi">
+  <a href="collections4.html"> &lt; &lt; Previous Chapter</a> | <a href="views1.html">Next Chapter &gt; &gt;</a>
+</div>
+
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+        </div>
+      </div>
+
+
+      <div id="sidebar">
+        <h3><a href="index.html">Home</a></h3>
+        <h3><a href="collections4.html">Previous Chapter</a></h3>
+        <h3><a href="views1.html">Next Chapter</a></h3>
+        <br>
+        
+      </div>
+
+
+    <div class="clear">
+    </div>
+
+    <div id="footer">
+      <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
+    </div>
+    </div>
+  </div>
+
+
+  </div>
+</body>
+</html>
