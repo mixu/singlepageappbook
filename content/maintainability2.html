@@ -1,6 +1,6 @@
 <h1 class="chapter">%chapter_number% Getting to maintainable</h2>
 
-<p>In this chapter, I'll look at how the ideas introduced in the previous chapter can be applied to real-world code: new code and legacy code. I'll also talk about distributing code - by setting up a private NPM server.</p>
+<p>In this chapter, I'll look at how the ideas introduced in the previous chapter can be applied to real-world code: new code and legacy code. I'll also talk about distributing code by setting up a private NPM server.</p>
 
 <p>Let's start with a bit of big-picture principles, then talk about legacy - and finally some special considerations re: new code. Today's new code is tomorrows' legacy code; the best you can do is delay falling into the bad patterns.</p>
 
@@ -16,13 +16,13 @@
 
 <h3>Extracting modules/packages from your architecture</h3>
 
-<p>First, just do a basic code quality pass and eliminate the bad practices outlined in the previous chapter.</p>
+<p>First, do a basic code quality pass and eliminate the bad practices outlined in the previous chapter.</p>
 
 <p>Then, start moving your files towards using the CommonJS pattern: explicit require()s and only a single export per file.</p>
 
-<p>Next, have a look at your architecture, and try to separate that hairball of code into distinct packages:</p>
+<p>Next, have a look at your architecture. Try to separate that hairball of code into distinct packages:</p>
 
-<p>Models and other reusable code (shared views/visual components) probably belong in a common package. This is the core of your application on which the rest of the application builds. You treat this like a 3rd party library in the sense that it is a separate package which you need to require() in your other modules. Try to keep the common package stateless - other packages instantiate things based on it, but the common package doesn't have stateful code itself.</p>
+<p>Models and other reusable code (shared views/visual components) probably belong in a common package. This is the core of your application on which the rest of the application builds. You treat this like a 3rd party library in the sense that it is a separate package which you need to <code>require()</code> in your other modules. Try to keep the common package stateless. Other packages instantiate things based on it, but the common package doesn't have stateful code itself.</p>
 
 <p>Beyond your core/common package, what are the smallest pieces that make sense? There is probably one for each "primary" activity in your application. To speed up loading your app, you want to make each activity a package that can be loaded independently after the common package has loaded (so that the initial loading time of the application does not increase as the number of packages increases). If your setup is complex, you probably want a single mechanism that takes care of calling the right initializer.</p>
 
@@ -30,7 +30,7 @@
 
 <p>Rethink your inheritance chains. Classes are a terrible substitute for a use-oriented API in most cases. Extending a class requires that you understand and often depend on the implementation details. APIs consisting of simple functions are better, so if you can, write a API. The API often looks like a state manipulation library (e.g. add an invite, remove an invite etc.); when instantiated with the related views and the views will generally hook into that API.</p>
 
-<p>Stop inheriting views from each other. Inheritance is mostly inappropriate for views. Sure, inherit from your framework, but don't build elaborate hierarchies for views. Views aren't supposed to have a lot of code in the first place so defining view hierarchies is mostly just done out of bad habit. Inheritance has it's uses, but those are fewer and further apart than you think.</p>
+<p>Stop inheriting views from each other. Inheritance is mostly inappropriate for views. Sure, inherit from your framework, but don't build elaborate hierarchies for views. Views aren't supposed to have a lot of code in the first place so defining view hierarchies is mostly just done out of bad habit. Inheritance has its uses, but those are fewer and further apart than you think.</p>
 
 <p> Almost every view in your app should be instantiable without depending on any other view. You should identify views that you want to reuse, and move those into a global app-specific module. If the views are not intended to be reused, then they should not be exposed outside of the activity. Reusable views should ideally be documented in an interactive catalog, like Twitter's Bootstrap.</p>
 
@@ -38,11 +38,11 @@
 
 <h3>Refactoring an existing module</h3>
 
-<p>Given an existing module:</p>
+<p>Given an existing module,</p>
 
 <p>1. Make sure each file defines and exports one thing. If you define a Account and a related Settings object, put those into two different files.</p>
 
-<p>2. Do not directly/implicitly add variables under window.*. Instead, always assign your export to <code>module.exports</code>. This makes it possible for other modules to use your module without the module being globally accessible under a particular name/namespace.</p>
+<p>2. Do not directly/implicitly add variables under <code>window.*</code>. Instead, always assign your export to <code>module.exports</code>. This makes it possible for other modules to use your module without the module being globally accessible under a particular name/namespace.</p>
 
 <p>3. Stop referring to other modules through a global name. Use <code>var $ = require('jquery')</code>, for example, to specify that your module depends on jQuery. If your module requires another local module, require it using the path: <code>var User = require('./model/user.js')</code>.</p>
 

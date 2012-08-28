@@ -27,7 +27,7 @@
 
 <p>Modular code is code which is separated into independent modules. The idea is that internal details of individual modules should be hidden behind a public interface, making each module easier to understand, test and refactor independently of others.</p>
 
-<p>Modularity is not just about code organization. You can have code that looks modular, but isn't: you can arrange your code in multiple modules and have namespaces, but that code can still expose its private details and have complex interdependencies through expectations about other parts of the code.</p>
+<p>Modularity is not just about code organization. You can have code that looks modular, but isn't. You can arrange your code in multiple modules and have namespaces, but that code can still expose its private details and have complex interdependencies through expectations about other parts of the code.</p>
 
 <img src="./assets/modularity.png" width="600">
 
@@ -39,11 +39,11 @@
 
 <p>The browser does not have a module system other than that it is capable of loading files containing Javascript. Everything in the root scope of those files is injected directly into the global scope under the <code>window</code> variable in the same order the script tags were specified.</p>
 
-<p>When people talk about "modular Javascript", what they often refer to is using namespaces. This is basically the approach where you pick a prefix like "<code>window.MyApp</code>" and assign everything underneath it, with the idea that when every object has it's own global name, we have achieved modularity.  Namespaces do create hierarchies, but they suffer from two problems:</p>
+<p>When people talk about "modular Javascript", what they often refer to is using namespaces. This is basically the approach where you pick a prefix like "<code>window.MyApp</code>" and assign everything underneath it, with the idea that when every object has its own global name, we have achieved modularity.  Namespaces do create hierarchies, but they suffer from two problems:</p>
 
-<p><b>Choices about privacy have to be made on a global basis</b>.  In a namespace-only system, you can have private variables and functions. But choices about privacy have to be made on a global basis within a single source file. Either you expose something in the global namespace, or you don't.</p>
+<p><b>Choices about privacy have to be made on a global basis</b>.  In a namespace-only system, you can have private variables and functions, but choices about privacy have to be made on a global basis within a single source file. Either you expose something in the global namespace, or you don't.</p>
 
-<p>The problem is that this does not provide enough control: with namespaces you cannot expose some detail to "related"/"friendly" users (e.g. within the same subsystem) without making that code globally accessible via the namespace.</p>
+<p>This does not provide enough control; with namespaces you cannot expose some detail to "related"/"friendly" users (e.g. within the same subsystem) without making that code globally accessible via the namespace.</p>
 
 <p>This leads to coupling through the globally accessible names. If you expose a detail, you have no control over whether some other piece of code can access and start depending on something you meant make visible only to a limited subsystem.</p>
 
@@ -175,7 +175,7 @@ module.exports = {
 };
 </pre>
 
-<p>Now, FooObserver can be instantiated/initialized separately since we are not forced to inialize it immediately. Even if the only production use case for FooObserver is that it is attached to window.Foo.Bar, this is still useful because setting up tests can be done with different configuration.</p>
+<p>Now, FooObserver can be instantiated/initialized separately since we are not forced to inialize it immediately. Even if the only production use case for FooObserver is that it is attached to <code>window.Foo.Bar</code>, this is still useful because setting up tests can be done with different configuration.</p>
 
 
 <h3>Do not modify objects you don't own</h3>
@@ -232,15 +232,15 @@ function Foo(){ /* ... */ }
 module.exports = Foo; // export a single variable
 </pre>
 
-<p>What about that <code>var Model</code> statement there? Isn't that in the global scope? No, there is no global scope here. Each module has it's own scope. This is like having each module implicitly wrapped in a anonymous function (which means that variables defined are local to the module).</p>
+<p>What about that <code>var Model</code> statement there? Isn't that in the global scope? No, there is no global scope here. Each module has its own scope. This is like having each module implicitly wrapped in a anonymous function (which means that variables defined are local to the module).</p>
 
-<p>Ok, what about requiring jQuery or some other library? There are basically two ways to require a file: either by specifying a file path (like <code>./lib/model.js</code>) or by requiring it by name: <code>var $ = require('jquery');</code>. Items required by file path are located directly by their name in the file system. Things required by name are "packages" and are searched by the require mechanism. In the case of Node, it uses a <a href="http://nodejs.org/api/modules.html">simple directory search</a>; in the browser; well, we can define bindings as you will see later.</p>
+<p>OK, what about requiring jQuery or some other library? There are basically two ways to require a file: either by specifying a file path (like <code>./lib/model.js</code>) or by requiring it by name: <code>var $ = require('jquery');</code>. Items required by file path are located directly by their name in the file system. Things required by name are "packages" and are searched by the require mechanism. In the case of Node, it uses a <a href="http://nodejs.org/api/modules.html">simple directory search</a>; in the browser; well, we can define bindings as you will see later.</p>
 
 <p><b>What are the benefits?</b></p>
 
 <p>Isn't this the same thing as just wrapping everything in a closure, which you might already be doing? No, not by a long shot.</p>
 
-<p><b>It does not accidentally modify global state and only exports one thing.</b> Each CommonJS module executes in it's own execution context. Variables are local to the module, not global. You can only export one object per module.</p>
+<p><b>It does not accidentally modify global state and only exports one thing.</b> Each CommonJS module executes in its own execution context. Variables are local to the module, not global. You can only export one object per module.</p>
 
 <p><b>Dependencies are easy to locate, without being modifiable or accessible in the global scope</b>. Ever been confused about where a particular function comes from, or what the dependencies of a particular piece of code are? Not anymore: dependencies have to be explicitly declared, and locating a piece of code just means looking at the file path in the require statement. There are no implied global variables.</p>
 
@@ -319,7 +319,7 @@ server.js
 
 <p>Here, we have a place for shared assets (<code>./assets/</code>); there is a shared library containing reusable parts, such as collections and models (<code>./common</code>).</p>
 
-<p>The <code>./modules/</code> directory contains subdirectories, each of which represents a individually initializable part of the application. Each subdirectory is it's own package, which can be loaded independently of others (as long as the common libraries are loaded).</p>
+<p>The <code>./modules/</code> directory contains subdirectories, each of which represents a individually initializable part of the application. Each subdirectory is its own package, which can be loaded independently of others (as long as the common libraries are loaded).</p>
 
 <p>The <code>index.js</code> file in each package exports a <code>initialize()</code> function that allows that particular package to be initialized when it is activated, given parameters such as the current URL and app configuration.</p>
 
