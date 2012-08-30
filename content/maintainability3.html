@@ -17,7 +17,7 @@ Writing something once produces just a rough draft. You want to be able to impro
 
 <p>Test <i>driven</i> development implies that tests should guide the development. I often use tests as TODO's when developing new functionality; no code is written until I know how the code should look like in the test. Tests are a contract: this is what this particular module needs to provide externally.</p>
 
-<p>I find that the greatest value comes from testing pure logic and hard-to-replicate-otherwise edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is  important to have good modularization/few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
+<p>I find that the greatest value comes from testing pure logic and otherwise-hard-to-replicate edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is  important to have good modularization/few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
 
 <h2>Test frameworks</h2>
 
@@ -33,7 +33,7 @@ Writing something once produces just a rough draft. You want to be able to impro
 
 <p>I like TJ's <a href="https://github.com/visionmedia/mocha">Mocha</a>, which has <a href="http://visionmedia.github.com/mocha/">a lot of awesome features</a>, such as support for all three specification styles, support for running tests in the browser, code coverage, Growl integration, documentation generation, airplane mode and a nyan cat test reporter. I like to use the "exports" style - it is the simplest thing that works.</p>
 
-<p>Some frameworks require you to use their assert() methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
+<p>Some frameworks require you to use their <code>assert()</code> methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
 
 <h2>Setting up and writing a test</h2>
 
