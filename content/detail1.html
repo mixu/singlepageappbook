@@ -27,7 +27,7 @@
 
 <p>Given the answers to those questions, you can determine how complex your view layer implementation needs to be, and what the output of your templating system should be.</p>
 
-<p>One answer would be to say that event handlers are bound using DOM selectors and data updates view granular. That gives you something like Backbone.js. There are other answers.</p>
+<p>One answer would be to say that event handlers are bound using DOM selectors and data updates "view-granular" (see below). That gives you something like Backbone.js. There are other answers.</p>
 
 <p>In this chapter, I will present a kind of typology for looking at the choices that people have made in writing a view layer. The dimensions/contrasts I look at are:</p>
 
@@ -53,7 +53,7 @@
   <li>Example: Github</li>
   <li>Pages are mostly static.</li>
   <li>You take a document that represents a mostly static piece of information already processed, and add a bit of interactivity via Javascript.</li>
-  <li>Changing data should cause a full page refresh in most cases.</li>
+  <li>Changing data usually causes a full page refresh.</li>
 </ul>
 </td>
 <td>
@@ -98,7 +98,7 @@
 
 <p>The way I see it, web apps are a mixture of various kinds of views. Some of those views involve more complicated interactions and benefit from the architecture designed for high-end interactivity. Other views are just simple components that add a bit of interactivity. Those views may be easier and cleaner to implement using less sophisticated methods.</p>
 
-<p>If never update a piece of data, and it can reasonably fit in the DOM without impacting performance, then it may be good candidate for a low-end approach. For example, collapsible sections and dropdown buttons that never change content but have some basic enhancements might work better as just markup without actually being bound to model data and/or without having an explicit view object.</p>
+<p>If you never update a piece of data, and it can reasonably fit in the DOM without impacting performance, then it may be good candidate for a low-end approach. For example, collapsible sections and dropdown buttons that never change content but have some basic enhancements might work better as just markup without actually being bound to model data and/or without having an explicit view object.</p>
 
 <p>On the other hand, things that get updated by the user will probably be best implemented using high-end, model-and-view backed objects. It is worth considering what makes sense in your particular use case and how far you can get with low-end elements that don't contain "core data". One way to do this is to maintain catalogue of low-end views/elements for your application, a la Twitter's Bootstrap. These low-end views are distinguished by the fact that they are not bound to / connected to any model data: they just implement simple behavior on top of HTML.</p>
 
@@ -113,9 +113,9 @@
 
 <p>Specific HTML+CSS markup structures are used to to make small parts of the document dynamic. You don't need to write Javascript or only need to write minimal Javascript to configure options. Have a look at Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> for a modern example.</p>
 
-<p>This approach works for implementing low-end interactivity, where the same data is never shown twice and where each action triggers a page reload. You can spot this approach by looking for a backend that responds with fully rendered HTML and/or a blob of Javascript which checks for the presence of particular CSS classes and conditionally actives itself (e.g. via event handlers on the root element or via <code>$().live()</code>).</p>
+<p>This approach works for implementing low-end interactivity, where the same data is never shown twice and where each action triggers a page reload. You can spot this approach by looking for a backend that responds with fully rendered HTML and/or a blob of Javascript which checks for the presence of particular CSS classes and conditionally activates itself (e.g. via event handlers on the root element or via <code>$().live()</code>).</p>
 
-<p><b>PJAX</b>. You have a page that is generated as HTML. Some user actions trigger code that replaces parts of the existing page with new server-generated HTML that you fetch via AJAX. You use PushState or the HTML5 history API to give the appearance of a page change. It's basically "HTML manipulation - Extreme Edition", and comes with the same basic limitations as pure HTML manipulation.</p>
+<p><b>PJAX</b>. You have a page that is generated as HTML. Some user action triggers code that replaces parts of the existing page with new server-generated HTML that you fetch via AJAX. You use PushState or the HTML5 history API to give the appearance of a page change. It's basically "HTML manipulation - Extreme Edition", and comes with the same basic limitations as pure HTML manipulation.</p>
 
 <p><b>Widgets</b>. The generated page is mostly a loader for Javascript. You instantiate widgets/rich controls that are written in JS and provided by your particular framework. These components can fetch more data from the server via a JSON API. Rendering happens on the client-side, but within the customization limitations of each widget. You mostly work with the widgets, not HTML or CSS. Examples: YUI2, Sproutcore.</p>
 
@@ -159,7 +159,7 @@ var model = new Todo({ title: 'foo', done: false }),
 
 <p>There two general modern single page app (view layer) approaches that start from a difference of view in what is primary: markup or code.</p>
 
-<p>If markup is primary, then on needs to start with a fairly intricate templating system that is capable of generating the metadata necessary to implement the functionality. You still need to translate the templating language into view objects in the background order to display views and make sure that data is updated. This hides some of the work from the user at the cost of added complexity.</p>
+<p>If markup is primary, then one needs to start with a fairly intricate templating system that is capable of generating the metadata necessary to implement the functionality. You still need to translate the templating language into view objects in the background in order to display views and make sure that data is updated. This hides some of the work from the user at the cost of added complexity.</p>
 
 <p>If code is primary, then we accept a bit more verbosity in exchange for a simpler overall implementation. The difference between these two can easily be at least an order of magnitude in terms of the size of the framework code.</p>
 
@@ -171,7 +171,7 @@ var model = new Todo({ title: 'foo', done: false }),
 
 <p>In the markup-driven views approach, ideally, there would be no view objects whatsoever. The goal is to have a sufficiently rich templating system that you do not need to have a view object that you instantiate or bind a model to. Instead, views are "thin bindings" with the ability to directly access variables using their names in the global scope; you can write markup-based directives to directly read in those variables and iterate over them. When you need logic, it is mostly for special cases, and that's where you add a controller. The ideal is that views aren't backed by objects, but by the view system/templating metadata (transformed into the appropriate set of bindings).</p>
 
-<p>Controllers are a result of non-reuseable views. If views are essentially more sophisticated versions strings of HTML (that bind to specific data) rather than objects that represent components, then it is more tempting to put the glue for those bindings in a separate object, the controller. This also has a nice familiar feeling to it from server-side frameworks (request-response frameworks). If you think of views as components that are reusable and consist of a template and a object, then you will more likely want to put behavior in the view object since it represents a singular, reusable thing.</p>
+<p>Controllers are a result of non-reuseable views. If views are just slightly more sophisticated versions of "strings of HTML" (that bind to specific data) rather than objects that represent components, then it is more tempting to put the glue for those bindings in a separate object, the controller. This also has a nice familiar feeling to it from server-side frameworks (request-response frameworks). If you think of views as components that are reusable and consist of a template and a object, then you will more likely want to put behavior in the view object since it represents a singular, reusable thing.</p>
 
 <p>Again, I don't like the word "controller". Occasionally, the distinction is made between "controllers specific to a view" and "controllers responsible for coordinating a particular application state". I'd find "view behavior" and "initialization code" to be more descriptive. I would much rather put the "controller code" specific to a view into the view object, and make the view generic enough to be reusable through configuration and events.</p>
 
@@ -259,9 +259,9 @@ foo
 
 <p>What are the benefits and disadvantages of each of these approaches?</p>
 
-<p><b>View-granular updates</b> mean that a value update causes the inner HTML of each view interested in that update to be re-rendered and inserted into the DOM. View-granular updates are simple: each view corresponds to a single element (and it's innerHTML) and only one DOM element needs to be tracked per view. The disadvantage is that since the view cannot render parts of itself individually, doing a redraw might reset things like text in input elements and keyboard focus if they are inside the view markup and in a non-default state. This can be worked around with a bit of coding, however.</p>
+<p><b>View-granular updates</b> mean that a value update causes the inner HTML of each view interested in that update to be re-rendered and inserted into the DOM. View-granular updates are simple: each view corresponds to a single element (and its innerHTML) and only one DOM element needs to be tracked per view. The disadvantage is that since the view cannot render parts of itself individually, doing a redraw might reset things like text in input elements and keyboard focus if they are inside the view markup and in a non-default state. This can be worked around with a bit of coding, however.</p>
 
-<p><b>Element-granular updates</b> mean that after a view is rendered once, parts of it can be updated separately as long as those parts can be wrapped in an element. Views have bound elements which represent values from some model/data that in the resulting markup are wrapped in framework-generated elements with DOM ids. The disadvantage is that there is much more to track (both in JS and in the DOM), and using CSS is not necessarily straightforward since bound values are wrapped inside elements, meaning that the CSS path to the element is not what you might expect (e.g. <code>p span</code> instead of <code>p</code>).</p>
+<p><b>Element-granular updates</b> mean that after a view is rendered once, parts of it can be updated separately as long as those parts can be wrapped in an element. Views have bound elements that represent values from some model/data that in the resulting markup are wrapped in framework-generated elements with DOM ids. The disadvantage is that there is much more to track (both in JS and in the DOM), and using CSS is not necessarily straightforward since bound values are wrapped inside elements, meaning that the CSS path to the element is not what you might expect (e.g. <code>p span</code> instead of <code>p</code>).</p>
 
 <p><b>String-granular updates</b> are the most complex. They provide the same functionality as element-granular updates, but also allow you to specify a bindings that do not correspond to elements, such as a <a href="http://blog.nateps.com/html-comments-the-unlikely-solution-to-valid">foreach without a container element</a>:</p>
 <pre>
@@ -275,16 +275,16 @@ foo
 &lt;/table&gt;
 </pre>
 
-<p>This could not be done using a element-granular approach, because you cannot insert an element other than a &lt;th&gt; or &lt;td&gt; inside a &lt;tr&gt;. If you place an invalid wrapper element like a &lt;div&gt; where the {{#people}} strings are, the browser will relocate it outside the table as a way recover from invalid markup. But without a element, you cannot refer to that particular part of the DOM in a manner that works in IE. So you need some other way which makes that part of the DOM accessible and hence replaceable in a more granular manner.</p>
+<p>This could not be done using a element-granular approach, because you cannot insert an element other than a &lt;th&gt; or &lt;td&gt; inside a &lt;tr&gt;. If you place an invalid wrapper element like a &lt;div&gt; where the {{#people}} strings are, the browser will relocate it outside the table as a way recover from invalid markup. But without an element, you cannot refer to that particular part of the DOM in a manner that works in IE. So you need some other way to make that part of the DOM accessible and hence replaceable in a more granular manner.</p>
 
 <p>There are two known techniques for this: &lt;script&gt; tags and &lt;!-- comment --&gt; tags stay in all DOM locations, even invalid DOM locations, so they can be used to implement a string-range-oriented rather than element-oriented way to access data, making string-granular updates possible. Script tags can be selected by id (likely faster) but influence CSS selectors that are based on adjacent siblings and can be invalid in certain locations. Comment tags, on the other hand, require (slow) DOM iteration in old browsers that don't have certain APIs, but are invisible to CSS and valid anywhere in the page. Performance-wise, the added machinery vs. view-granular approaches <a href="http://jsfiddle.net/jashkenas/CGSd5/">does incur a cost</a>. There are also still some special cases, like select elements on old IE version, where this approach doesn't work.</p>
 
 <h2>Conclusion</h2>
 
-<p>The single page app world is fairly confusing right now. Frameworks define themselves more in terms of what they do rather than how the accomplish it. Part of the reason is that the internals are unfamiliar to most people, since - let's face it - these are still the early days of single page apps. I hope that this chapter has helped a bit with finding vocabulary for describing different single page app frameworks.</p>
+<p>The single page app world is fairly confusing right now. Frameworks define themselves more in terms of what they do rather than how they accomplish it. Part of the reason is that the internals are unfamiliar to most people, since -- let's face it -- these are still the early days of single page apps. I hope this chapter has developed a vocabulary for describing different single page app frameworks.</p>
 
 <p>Frameworks encourage different kinds of patterns, some good, some bad. Starting from a few key ideas about what is important and what should define a single page app, frameworks have reached different conclusions. Some approaches are more complex, and the choice about what to make easy influences the kind of code you write.</p>
 
-<p>String-granular bindings lead to heavier models. Since model properties are directly observable in views, you tend add properties to models that don't represent backend data, but rather view state. Computed properties mean that model properties can actually represent pieces of logic. This makes your model properties into an API. In extreme cases, this leads to very specific and view-related model properties like "humanizedName" or "dataWithCommentInReverse" that you then observe from your view bindings.</p>
+<p>String-granular bindings lead to heavier models. Since model properties are directly observable in views, you tend to add properties to models that don't represent backend data, but rather view state. Computed properties mean that model properties can actually represent pieces of logic. This makes your model properties into an API. In extreme cases, this leads to very specific and view-related model properties like "humanizedName" or "dataWithCommentInReverse" that you then observe from your view bindings.</p>
 
 <p>There is a tradeoff between DRY and simplicity. When your templating system is less sophisticated, you tend to need to write more code, but that code will be simpler to troubleshoot. Basically, you can expect to understand the code you wrote, but fewer people are well versed in what might go wrong in your framework code. But of course, if nothing breaks, everything is fine either way. Personally, I believe that both approaches can be made to work.</p>
