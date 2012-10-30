@@ -128,14 +128,14 @@
 
 <h2>Change events</h2>
 
-<p>Model accessors (get/set) exist because we want to be able to intercept changes to the model data, and emit <code>change</code> events. Other parts of the app - mainly views - can then listen for those events and get an idea of what changed and what the previous value was. For example, we can respond to these:</p>
+<p>Model accessors (get/set) exist because we want to be able to intercept changes to the model data, and emit <code>change</code> events. Other parts of the app -- mainly views -- can then listen for those events and get an idea of what changed and what the previous value was. For example, we can respond to these:</p>
 
 <ul>
   <li>a set() for a value that is used elsewhere (to notify others of an update / to mark model as changed)</li>
   <li>a remove() for a value that is used elsewhere</li>
 </ul>
 
-<p>We will want to allow people to write <code>model.on('change', function() { .. })</code> to add listeners that are called to notify about changes. We'll use a EventEmitter for that.</p>
+<p>We will want to allow people to write <code>model.on('change', function() { .. })</code> to add listeners that are called to notify about changes. We'll use an EventEmitter for that.</p>
 
 
 <p>If you're not familiar with EventEmitters, they are just a standard interface for emitting (triggering) and binding callbacks to events (I've written more about them <a href="http://book.mixu.net/ch9.html">in my other book</a>.)</p>
@@ -227,7 +227,7 @@ badger.on('change', function(key, value, oldValue) {
 }
 </pre>
 
-<p>Since the constructor is just a ES3 regular constructor, the model code doesn't depend on any particular framework. You could use it in any other code without having to worry about compatibility. For example, I am planning on reusing the model code when I do a rewrite of my window manager.</p>
+<p>Since the constructor is just a normal ES3 constructor, the model code doesn't depend on any particular framework. You could use it in any other code without having to worry about compatibility. For example, I am planning on reusing the model code when I do a rewrite of my window manager.</p>
 
 <h2>Differences with Backbone.js</h2>
 
@@ -236,7 +236,7 @@ badger.on('change', function(key, value, oldValue) {
 <ul>
   <li>Each instance has a unique cid (client id) assigned to it.</li>
   <li>You can choose to silence change events by passing an additional parameter.</li>
-  <li>Changed values are accessible as the <code>changed</code> property of the model, in addition to being accessible as events; there are also many other convinient methods such as changedAttributes and previousAttributes.</li>
+  <li>Changed values are accessible as the <code>changed</code> property of the model, in addition to being accessible as events; there are also many other convenient methods such as changedAttributes and previousAttributes.</li>
   <li>There is support for HTML-escaping values and for a validate() function.</li>
   <li>.reset() is called .clear() and .remove() is .unset()</li>
   <li>Data source and data store methods (Model.save() and Model.destroy()) are implemented on the model, whereas I implement them in separate objects (first and last chapter of this section).</li>

@@ -41,9 +41,9 @@ var db.user = new DataSource();
 },
 </pre>
 
-<h2>Can loading items by search query</h2>
+<h2>Can load items by search query</h2>
 
-<p>The data source should support retrieving items by conditions other than id's. Since the details depend on the backend used, we'll just allow the user to add search terms via a object. The parameter are passed to the backend, which can then implement whatever is the appropriate thing (e.g. SQL query by name) to return the result JSON.</p>
+<p>The data source should support retrieving items by conditions other than IDs. Since the details depend on the backend used, we'll just allow the user to add search terms via an object. The parameters are passed to the backend, which can then implement whatever is appropriate (e.g. SQL query by name) to return the result JSON.</p>
 
 <pre class="prettyprint">
 'can load items by search query': function(done) {
