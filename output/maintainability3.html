@@ -71,7 +71,9 @@ $(function() {
 
 <img src="assets/tdd.png" height="200">
 
-<p>TDD is a set of rules for writing code: you write a failing test (red), then add just enough code to make it pass (green) and finally refactor where necessary (refactor). What I will talk about in this chapter is: how to set up testing for your project using Mocha; how to do dependency injection for your CommonJS modules and how you can test asynchronous code. The rest is best covered by some other book or tutorial; so if you haven't heard of TDD, get out from under that rock you've been living under and read <a href="https://www.google.com/search?q=test+driven+development+by+example">Kent Beck's book</a> and perhaps <a href="https://www.google.com/search?q=working+effectively+with+legacy+code">Michael Feather's book</a>.</p>
+<p>TDD is a set of rules for writing code: you write a failing test (red), then add just enough code to make it pass (green) and finally refactor where necessary (refactor).</p>
+
+<p>In this chapter, we discuss how to set up testing for your project using Mocha, how to do dependency injection for your CommonJS modules, and how you can test asynchronous code. The rest is best covered by some other book or tutorial; so if you haven't heard of TDD, get out from under that rock you've been living under and read <a href="https://www.google.com/search?q=test+driven+development+by+example">Kent Beck's book</a> and perhaps <a href="https://www.google.com/search?q=working+effectively+with+legacy+code">Michael Feather's book</a>.</p>
 
 <h2>Why write tests?</h2>
 
@@ -84,11 +86,11 @@ Writing something once produces just a rough draft. You want to be able to impro
 
 <p>Test <i>driven</i> development implies that tests should guide the development. I often use tests as TODO's when developing new functionality; no code is written until I know how the code should look like in the test. Tests are a contract: this is what this particular module needs to provide externally.</p>
 
-<p>I find that the greatest value comes from testing pure logic and hard-to-replicate-otherwise edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is  important to have good modularization/few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
+<p>I find that the greatest value comes from testing pure logic and otherwise-hard-to-replicate edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is important to have good modularization and few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
 
 <h2>Test frameworks</h2>
 
-<p>Use any test framework/runner <u>except don't use</u> <a href="https://github.com/pivotal/jasmine/issues/178">Jasmine</a>, which is terrible for asynchronous testing due to <a href="http://thelambdacalculus.wordpress.com/2011/02/28/5/">amount of boilerplate code</a> it requires.</p>
+<p>Use any test framework/runner <u>except</u> <a href="https://github.com/pivotal/jasmine/issues/178">Jasmine</a>, which is terrible for asynchronous testing due to the <a href="http://thelambdacalculus.wordpress.com/2011/02/28/5/">amount of boilerplate code</a> it requires.</p>
 
 <p>Test runners basically use one of three different styles for specifying tests:</p>
 
@@ -100,7 +102,7 @@ Writing something once produces just a rough draft. You want to be able to impro
 
 <p>I like TJ's <a href="https://github.com/visionmedia/mocha">Mocha</a>, which has <a href="http://visionmedia.github.com/mocha/">a lot of awesome features</a>, such as support for all three specification styles, support for running tests in the browser, code coverage, Growl integration, documentation generation, airplane mode and a nyan cat test reporter. I like to use the "exports" style - it is the simplest thing that works.</p>
 
-<p>Some frameworks require you to use their assert() methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
+<p>Some frameworks require you to use their <code>assert()</code> methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
 
 <h2>Setting up and writing a test</h2>
 
@@ -207,7 +209,7 @@ test:
 
 <p>This way, people can run the tests using "make test". Note that the Makefile requires tabs for indentation.</p>
 
-<p>I also like to make individual test files runnable via  <code>node ./path/to/test.js</code>. To do this, I add the following wrapper - detect whether the current module is the main script, and if so, run the tests directly (in this, case using Mocha):</p>
+<p>I also like to make individual test files runnable via  <code>node ./path/to/test.js</code>. To do this, I add the following wrapper to detect whether the current module is the main script, and if so, run the tests directly (in this case, using Mocha):</p>
 
 <pre class="prettyprint">
 // if this module is the script being run, then run the tests:
@@ -346,7 +348,7 @@ var c = new Channel();
   <li>Record events and assert</li>
 </ul>
 
-<p>Writing a workflow is the simplest case: you have a sequence of operations that need to happen; in your test you set up callbacks (possibly by replacing some functions with callbacks). At the end of the callback chain, you call <code>done()</code>. You probably also want to add an assertion counter to verify that all the callbacks were triggered.</p>
+<p>Writing a workflow is the simplest case: you have a sequence of operations that need to happen, and in your test you set up callbacks (possibly by replacing some functions with callbacks). At the end of the callback chain, you call <code>done()</code>. You probably also want to add an assertion counter to verify that all the callbacks were triggered.</p>
 
 <p>Here is a basic example of a workflow, note how each step in the flow takes a callback (e.g. assume we send a message or something):</p>
 
@@ -367,7 +369,7 @@ exports['can read a status'] = function(done) {
 
 <h2>Waiting for events using EventEmitter.when()</h2>
 
-<p>In some cases, you don't have a clearly defined order for things to happen. This is often the case when your interface is a EventEmitter. What's a EventEmitter? It's basically just Node's name for a event aggregator; the same functionality is present in many other Javascript projects - for example, jQuery uses <code>.bind()</code>/<code>.trigger()</code> for what is essentially the same thing.</p>
+<p>In some cases, you don't have a clearly defined order for things to happen. This is often the case when your interface is an EventEmitter. What's an EventEmitter? It's basically just Node's name for an event aggregator; the same functionality is present in many other Javascript projects - for example, jQuery uses <code>.bind()</code>/<code>.trigger()</code> for what is essentially the same thing.</p>
 
 <table class="table">
 <tr>
@@ -375,12 +377,12 @@ exports['can read a status'] = function(done) {
   <td>Node.js EventEmitter</td><td>jQuery</td>
 </tr>
 <tr>
-  <td>Attach a callback to a event</td>
+  <td>Attach a callback to an event</td>
   <td>.on(event, callback) / .addListener(event, callback)</td>
   <td>.bind(eventType, handler) (1.0) / .on(event, callback) (1.7)</td>
 </tr>
 <tr>
-  <td>Trigger a event</td>
+  <td>Trigger an event</td>
   <td>.emit(event, data, ...)</td>
   <td>.trigger(event, data, ...)</td>
 </tr>
@@ -440,9 +442,9 @@ exports['can subscribe'] = function(done) {
 
 <h2>Recording events and then asserting</h2>
 
-<p>Recording replacements (a.k.a spies and mocks) are used more frequently when it is not feasible to write a full replacement of the dependency, or when it is more convinient to collect output (e.g from operations that might happen in any order) and then assert that certain conditions are fulfilled.</p>
+<p>Recording replacements (a.k.a spies and mocks) are used more frequently when it is not feasible to write a full replacement of the dependency, or when it is more convenient to collect output (e.g from operations that might happen in any order) and then assert that certain conditions are fulfilled.</p>
 
-<p>For example, with a EventEmitter, we might not care in what order certain messages were emitted, just that they were emitted. Here is a simple example using a EventEmitter:</p>
+<p>For example, with an EventEmitter, we might not care in what order certain messages were emitted, just that they were emitted. Here is a simple example using an EventEmitter:</p>
 
 <pre class="prettyprint">
 exports['doIt sends a b c'] = function(done) {

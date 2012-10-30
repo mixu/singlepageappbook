@@ -44,7 +44,7 @@ $(function() {
 
     <div id="main">
       <div id="content" class="post">
-<p>This free book is the book I would have wanted when I started working with single page apps. It's not an API reference on a particular framework, rather, the focus is on discussing patterns, implementation choices and decent practices.</p>
+<p>This free book is what I wanted when I started working with single page apps. It's not an API reference on a particular framework, rather, the focus is on discussing patterns, implementation choices and decent practices.</p>
 
 <p>I'm taking a "code and concepts" approach to the topic -  the best way to learn how to use something is to understand how it is implemented. My ambition here is to decompose the problem of writing a web app, take a fresh look at it and hopefully make better decisions the next time you make one.</p>
 
@@ -93,13 +93,13 @@ $(function() {
 <p>Why do we want to write single page apps? The main reason is that they allow us to offer a
    more-native-app-like experience to the user.</p>
 
-<p>This would be hard to do with other approaches. Supporting rich interactions with multiple components on a page means that those components have many more intermediate states (e.g. menu open, menu item X selected, menu item Y selected, menu item clicked). Server-side rendering would be hard to implement for all the intermediate states - small view states do not map well to URLs.</p>
+<p>This is hard to do with other approaches. Supporting rich interactions with multiple components on a page means that those components have many more intermediate states (e.g. menu open, menu item X selected, menu item Y selected, menu item clicked). Server-side rendering is hard to implement for all the intermediate states - small view states do not map well to URLs.</p>
 
 <p>Single page apps are distinguished by their ability to redraw any part of the UI without requiring a server roundtrip to retrieve HTML. This is achieved by separating the data from the presentation of data by having a model layer that handles data and a view layer that reads from the models.</p>
 
 <p>Most projects start with high ambitions, and an imperfect understanding of the problem at hand. Our implementations tend to outpace our understanding. It is possible to write code without understanding the problem fully; that code is just more complex than it needs to be because of our lack of understanding.</p>
 
-<p>Good code comes from solving the same problem multiple times; or refactoring. Usually, this proceeds by noticing recurring patterns and replacing them with a mechanism that does the same thing in a consistent way - replacing a lot of "case-specific" code, which in fact was just there because we didn't see that a simpler mechanism could achieve the same thing.</p>
+<p>Good code comes from solving the same problem multiple times, or refactoring. Usually, this proceeds by noticing recurring patterns and replacing them with a mechanism that does the same thing in a consistent way - replacing a lot of "case-specific" code, which in fact was just there because we didn't see that a simpler mechanism could achieve the same thing.</p>
 
 <p>The architectures used in single page apps represent the result of this process: where you would do things in an ad-hoc way using jQuery, you now write code that takes advantage of standard mechanisms (e.g. for UI updates etc.).</p>
 
@@ -107,7 +107,8 @@ $(function() {
 
 <p>To write maintainable code, we need to keep things simple. This is a constant struggle; it is easy to add complexity (intertwinedness/dependencies) in order to solve a worthless problem; and it is easy to solve a problem in a way that doesn't reduce complexity. Namespaces are an example of the latter.</p>
 
-<p>With that in mind, let's look at how a modern web app is structured; and look at three different perspectives:</p>
+<p>With that in mind, let's look at how a modern web app is structured
+  from three different perspectives:</p>
 
 <ul>
   <li><b>Architecture</b>: what (conceptual) parts does our app consist of? How do the different parts communicate with each other? How do they depend on each other?</li>
@@ -239,7 +240,7 @@ $(function() {
 
 <p>Modularity is at the core of everything. Initially I had approached this very differently, but it turned out after ~ 20 drafts that nothing else is as important as getting modularization right.</p>
 
-<p>Good modularization makes building/packaging for the browser easy, it makes testing easier and it defines how maintainable the code is. It is the linchpin that makes it possible to write testable, packagable and maintainable code.</p>
+<p>Good modularization makes building and packaging for the browser easy, it makes testing easier and it defines how maintainable the code is. It is the linchpin that makes it possible to write testable, packagable and maintainable code.</p>
 
 <p>What is maintainable code?</p>
 
@@ -264,11 +265,11 @@ $(function() {
 
 <p>Modular code is code which is separated into independent modules. The idea is that internal details of individual modules should be hidden behind a public interface, making each module easier to understand, test and refactor independently of others.</p>
 
-<p>Modularity is not just about code organization. You can have code that looks modular, but isn't: you can arrange your code in multiple modules and have namespaces, but that code can still expose its private details and have complex interdependencies through expectations about other parts of the code.</p>
+<p>Modularity is not just about code organization. You can have code that looks modular, but isn't. You can arrange your code in multiple modules and have namespaces, but that code can still expose its private details and have complex interdependencies through expectations about other parts of the code.</p>
 
 <img src="./assets/modularity.png" width="600">
 
-<p>Compare the two cases above (1). In the case on the left, the blue module knows specifically about the orange module. It might refer to the other module directly via a global name; it might use the internal functions of the other module that are carelessly exposed. In any case, if that specific module is not there, then it will break.</p>
+<p>Compare the two cases above (1). In the case on the left, the blue module knows specifically about the orange module. It might refer to the other module directly via a global name; it might use the internal functions of the other module that are carelessly exposed. In any case, if that specific module is not there, it will break.</p>
 
 <p>In the case on the right, each module just knows about a public interface and nothing else about the other module. The blue module can use any other module that implements the same interface; more importantly, as long as the public interface remains consistent the orange module can change internally and can be replaced with a different implementation, such as a mock object for testing.</p>
 
@@ -276,21 +277,21 @@ $(function() {
 
 <p>The browser does not have a module system other than that it is capable of loading files containing Javascript. Everything in the root scope of those files is injected directly into the global scope under the <code>window</code> variable in the same order the script tags were specified.</p>
 
-<p>When people talk about "modular Javascript", what they often refer to is using namespaces. This is basically the approach where you pick a prefix like "<code>window.MyApp</code>" and assign everything underneath it, with the idea that when every object has it's own global name, we have achieved modularity.  Namespaces do create hierarchies, but they suffer from two problems:</p>
+<p>When people talk about "modular Javascript", what they often refer to is using namespaces. This is basically the approach where you pick a prefix like "<code>window.MyApp</code>" and assign everything underneath it, with the idea that when every object has its own global name, we have achieved modularity.  Namespaces do create hierarchies, but they suffer from two problems:</p>
 
-<p><b>Choices about privacy have to be made on a global basis</b>.  In a namespace-only system, you can have private variables and functions. But choices about privacy have to be made on a global basis within a single source file. Either you expose something in the global namespace, or you don't.</p>
+<p><b>Choices about privacy have to be made on a global basis</b>.  In a namespace-only system, you can have private variables and functions, but choices about privacy have to be made on a global basis within a single source file. Either you expose something in the global namespace, or you don't.</p>
 
-<p>The problem is that this does not provide enough control: with namespaces you cannot expose some detail to "related"/"friendly" users (e.g. within the same subsystem) without making that code globally accessible via the namespace.</p>
+<p>This does not provide enough control; with namespaces you cannot expose some detail to "related"/"friendly" users (e.g. within the same subsystem) without making that code globally accessible via the namespace.</p>
 
-<p>This leads to coupling through the globally accessible names. If you expose a detail, you have no control over whether some other piece of code can access and start depending on something you meant make visible only to a limited subsystem.</p>
+<p>This leads to coupling through the globally accessible names. If you expose a detail, you have no control over whether some other piece of code can access and start depending on something you meant to make visible only to a limited subsystem.</p>
 
-<p>We ought to be able to expose details to related code without exposing that code globally. Hiding details from unrelated modules is useful because it makes it possible to modify the implementation details without breaking dependent code.</p>
+<p>We should be able to expose details to related code without exposing that code globally. Hiding details from unrelated modules is useful because it makes it possible to modify the implementation details without breaking dependent code.</p>
 
 <p><b>Modules become dependent on global state.</b> The other problem with namespaces is that they do not provide any protection from global state. Global namespaces tend to lead to sloppy thinking: since you only have blunt control over visibility, it's easy to fall into the mode where you just add or modify things in the global scope (or a namespace under it).</p>
 
-<p>One of the major causes of complexity is writing code that has remote inputs (e.g. things referred to by global name that are defined and set up elsewhere) or global effects (e.g. where the order in which a module was included has impacts on other modules because it alters global variables). Code written using globals can have a different result depending on what is in the global scope (e.g. window.*).</p>
+<p>One of the major causes of complexity is writing code that has remote inputs (e.g. things referred to by global name that are defined and set up elsewhere) or global effects (e.g. where the order in which a module was included affects other modules because it alters global variables). Code written using globals can have a different result depending on what is in the global scope (e.g. window.*).</p>
 
-<p>Modules shouldn't add things to the global scope. Locally scoped data is easier to understand, change and test than globally scoped data. If things need to be put in the global scope, that code should be isolated and become a part of a initialization step. Namespaces don't provide a way to do this; in fact, they actively encourage you to change the global state and inject things into it whenever you feel like.</p>
+<p>Modules shouldn't add things to the global scope. Locally scoped data is easier to understand, change and test than globally scoped data. If things need to be put in the global scope, that code should be isolated and become a part of an initialization step. Namespaces don't provide a way to do this; in fact, they actively encourage you to change the global state and inject things into it whenever you want.</p>
 
 
 <h2>Examples of bad practices</h2>
@@ -315,7 +316,7 @@ var foo = 'bar';
 }());
 </pre>
 
-<p>If you actually want to register a global variable, then you should make it a big thing and only do it in one specific place in your module. This helps isolate instantiation from definition, and forces you to look at your ugly state initialization instead of hiding it in multiple places (where it can have surprising impacts):</p>
+<p>If you actually want to register a global variable, then you should make it a big thing and only do it in one specific place in your code. This isolates instantiation from definition, and forces you to look at your ugly state initialization instead of hiding it in multiple places (where it can have surprising impacts):</p>
 
 <pre class="prettyprint">
 function initialize(win) {
@@ -332,7 +333,7 @@ function initialize(win) {
 
 <p>Details that are not relevant to the users of the module should be hidden. Don't just blindly assign everything into a namespace. Otherwise anyone refactoring your code will have to treat the full set of functions as the public interface until proven differently (the "change and pray" method of refactoring).</p>
 
-<p>Don't define two things (or, oh, horror, more than two things!) in the same file, no matter how convinient it is for you right now. Each file should define and export just one thing.</p>
+<p>Don't define two things (or, oh, horror, more than two things!) in the same file, no matter how convenient it is for you right now. Each file should define and export just one thing.</p>
 
 <pre class="prettyprint">
 ;(function() {
@@ -351,7 +352,7 @@ function initialize(win) {
 })();
 </pre>
 
-<p>The code below does things right: the internal "<code>processBar</code>" function is local to the scope, so it cannot be accessed outside. It also only exports one thing, the current module.</p>
+<p>The code below does it properly: the internal "<code>processBar</code>" function is local to the scope, so it cannot be accessed outside. It also only exports one thing, the current module.</p>
 
 <pre class="prettyprint">
 ;(function() {
@@ -378,7 +379,7 @@ function initialize(win) {
 
 <p>Your code should differentiate between definition and instantiation/initialization. Combining these two together often leads to problems for testing and reusing components.</p>
 
-<p>For example, don't do this:</p>
+<p>Don't do this:</p>
 
 <pre class="prettyprint">
 function FooObserver() {
@@ -412,16 +413,16 @@ module.exports = {
 };
 </pre>
 
-<p>Now, FooObserver can be instantiated/initialized separately since we are not forced to inialize it immediately. Even if the only production use case for FooObserver is that it is attached to window.Foo.Bar, this is still useful because setting up tests can be done with different configuration.</p>
+<p>Now, FooObserver can be instantiated/initialized separately since we are not forced to initialize it immediately. Even if the only production use case for FooObserver is that it is attached to <code>window.Foo.Bar</code>, this is still useful because setting up tests can be done with different configuration.</p>
 
 
 <h3>Do not modify objects you don't own</h3>
 
 <p>While the other examples are about preventing other code from causing problems with your code, this one is about preventing your code from causing problems for other code.</p>
 
-<p>Many frameworks offer a <code>reopen</code> function which essentially allows you to modify the definition of a previously defined object prototype (e.g. class). Don't do this in your modules, unless the same code defined that object (and then, you should just put it in the definition).</p>
+<p>Many frameworks offer a <code>reopen</code> function that allows you to modify the definition of a previously defined object prototype (e.g. class). Don't do this in your modules, unless the same code defined that object (and then, you should just put it in the definition).</p>
 
-<p>If you think class inheritance is a solution to your problem, think harder. In most cases, you can find a better solution by preferring composition over inheritance: expose an interface that someone can <i>use</i> or emit events that can have custom handlers rather than forcing people to <i>extend</i> a type. There are limited cases where inheritance is useful, but those are mostly limited to frameworks.</p>
+<p>If you think class inheritance is a solution to your problem, think harder. In most cases, you can find a better solution by preferring composition over inheritance: expose an interface that someone can <i>use</i>, or emit events that can have custom handlers rather than forcing people to <i>extend</i> a type. There are limited cases where inheritance is useful, but those are mostly limited to frameworks.</p>
 
 <pre class="prettyprint">
 ;(function() {
@@ -437,7 +438,7 @@ module.exports = {
 })();
 </pre>
 
-<p>If you write a framework, for f*ck's sake do not modify built-in objects like <code>String</code> by adding new functions to them. Yes, you can save a few characters (e.g. <code>_(str).dasherize()</code> vs. <code>str.dasherize()</code>), but this is basically the same thing as making your special snowflake framework a global dependency. Play nice with everyone else and be respectful, put those special functions in a utility library instead.</p>
+<p>If you write a framework, for f*ck's sake do not modify built-in objects like <code>String</code> by adding new functions to them. Yes, you can save a few characters (e.g. <code>_(str).dasherize()</code> vs. <code>str.dasherize()</code>), but this is basically the same thing as making your special snowflake framework a global dependency. Play nice with everyone else and be respectful: put those special functions in a utility library instead.</p>
 
 <h2>Building modules and packages using CommonJS</h2>
 
@@ -447,11 +448,11 @@ module.exports = {
 
 <ul>
   <li>Privacy: we want more granular privacy than just global or local to the current closure.</li>
-  <li>Avoid putting things in the global namespace just so that they can be accessed.</li>
+  <li>Avoid putting things in the global namespace just so they can be accessed.</li>
   <li>We should be able to create packages that encompass multiple files and directories and be able to wrap full subsystems into a single closure.</li>
 </ul>
 
-<p><b>CommonJS modules</b>. CommonJS is the module format that Node.js uses natively. A CommonJS module is simply a piece of JS code which does two things:</p>
+<p><b>CommonJS modules</b>. CommonJS is the module format that Node.js uses natively. A CommonJS module is simply a piece of JS code that does two things:</p>
 
 <ul>
   <li>it uses <code>require()</code> statements to include dependencies</li>
@@ -469,15 +470,15 @@ function Foo(){ /* ... */ }
 module.exports = Foo; // export a single variable
 </pre>
 
-<p>What about that <code>var Model</code> statement there? Isn't that in the global scope? No, there is no global scope here. Each module has it's own scope. This is like having each module implicitly wrapped in a anonymous function (which means that variables defined are local to the module).</p>
+<p>What about that <code>var Model</code> statement there? Isn't that in the global scope? No, there is no global scope here. Each module has its own scope. This is like having each module implicitly wrapped in a anonymous function (which means that variables defined are local to the module).</p>
 
-<p>Ok, what about requiring jQuery or some other library? There are basically two ways to require a file: either by specifying a file path (like <code>./lib/model.js</code>) or by requiring it by name: <code>var $ = require('jquery');</code>. Items required by file path are located directly by their name in the file system. Things required by name are "packages" and are searched by the require mechanism. In the case of Node, it uses a <a href="http://nodejs.org/api/modules.html">simple directory search</a>; in the browser; well, we can define bindings as you will see later.</p>
+<p>OK, what about requiring jQuery or some other library? There are basically two ways to require a file: either by specifying a file path (like <code>./lib/model.js</code>) or by requiring it by name: <code>var $ = require('jquery');</code>. Items required by file path are located directly by their name in the file system. Things required by name are "packages" and are searched by the require mechanism. In the case of Node, it uses a <a href="http://nodejs.org/api/modules.html">simple directory search</a>; in the browser, well, we can define bindings as you will see later.</p>
 
 <p><b>What are the benefits?</b></p>
 
 <p>Isn't this the same thing as just wrapping everything in a closure, which you might already be doing? No, not by a long shot.</p>
 
-<p><b>It does not accidentally modify global state and only exports one thing.</b> Each CommonJS module executes in it's own execution context. Variables are local to the module, not global. You can only export one object per module.</p>
+<p><b>It does not accidentally modify global state, and it only exports one thing.</b> Each CommonJS module executes in its own execution context. Variables are local to the module, not global. You can only export one object per module.</p>
 
 <p><b>Dependencies are easy to locate, without being modifiable or accessible in the global scope</b>. Ever been confused about where a particular function comes from, or what the dependencies of a particular piece of code are? Not anymore: dependencies have to be explicitly declared, and locating a piece of code just means looking at the file path in the require statement. There are no implied global variables.</p>
 
@@ -505,7 +506,7 @@ module.exports = Foo; // export a single variable
 
 <p>The build process wraps all the files in closures with metadata, concatenates the output into a single file and adds a package-local <code>require()</code> implementation with the semantics described earlier (including files within the package by path and external libraries by their name).</p>
 
-<p>Basically, we are taking a wrapping closure generated by the build system and extending it accross all the modules in the package. This makes it possible to use <code>require()</code> inside the package to access other modules, while preventing external code from accessing those packages.</p>
+<p>Basically, we are taking a wrapping closure generated by the build system and extending it across all the modules in the package. This makes it possible to use <code>require()</code> inside the package to access other modules, while preventing external code from accessing those packages.</p>
 
 <p>Here is how this would look like as code:</p>
 
@@ -527,9 +528,9 @@ module.exports = Foo; // export a single variable
 }());
 </pre>
 
-<p>There is a local <code>require()</code> which can look up files. Each module exports a external interface following the CommonJS pattern. Finally, the package we have built here itself has a single file <code>index.js</code>, which defines what is exported from the module. This is usually a public API, or a subset of the classes in the module (things that are part of the public interface).</p>
+<p>There is a local <code>require()</code> that can look up files. Each module exports an external interface following the CommonJS pattern. Finally, the package we have built here itself has a single file <code>index.js</code> that defines what is exported from the module. This is usually a public API, or a subset of the classes in the module (things that are part of the public interface).</p>
 
-<p>Each package exports a single named variable, for example: <code>window.Todo = require('index.js');</code>. This way, only relevant parts of the module are exposed and the exposed parts are obvious. Other packages/code cannot access the modules in another package in any way unless they are exported from <code>index.js</code>. This prevents modules from developing hidden dependencies</p>
+<p>Each package exports a single named variable, for example: <code>window.Todo = require('index.js');</code>. This way, only relevant parts of the module are exposed and the exposed parts are obvious. Other packages/code cannot access the modules in another package in any way unless they are exported from <code>index.js</code>. This prevents modules from developing hidden dependencies.</p>
 
 <h2>Building an application out of packages</h2>
 
@@ -556,20 +557,20 @@ server.js
 
 <p>Here, we have a place for shared assets (<code>./assets/</code>); there is a shared library containing reusable parts, such as collections and models (<code>./common</code>).</p>
 
-<p>The <code>./modules/</code> directory contains subdirectories, each of which represents a individually initializable part of the application. Each subdirectory is it's own package, which can be loaded independently of others (as long as the common libraries are loaded).</p>
+<p>The <code>./modules/</code> directory contains subdirectories, each of which represents an individually initializable part of the application. Each subdirectory is its own package, which can be loaded independently of others (as long as the common libraries are loaded).</p>
 
-<p>The <code>index.js</code> file in each package exports a <code>initialize()</code> function that allows that particular package to be initialized when it is activated, given parameters such as the current URL and app configuration.</p>
+<p>The <code>index.js</code> file in each package exports an <code>initialize()</code> function that allows that particular package to be initialized when it is activated, given parameters such as the current URL and app configuration.</p>
 
 
 <h2>Using the glue build system</h2>
 
-<p>So, now we have a somewhat detailed spec for how we'd like to build.  Node has native support for require() which means that you can pretty much already do this, but what about the browser? We probably need a elaborate library for this?</p>
+<p>So, now we have a somewhat detailed spec for how we'd like to build.  Node has native support for require(), but what about the browser? We probably need a elaborate library for this?</p>
 
-<p>Nope. This isn't too hard, the build system itself is about a hundred fifty lines  of code plus another ninety or so for the require() implementation. When I say build, I mean something that is super-lightweight: wrapping code into closures, and providing a local, in-browser require() implementation. I'm not going to put the code here since it adds little to the discussion, but <a href="https://github.com/mixu/gluejs/blob/master/lib/glue.js">have a look</a>.</p>
+<p>Nope. This isn't hard: the build system itself is about a hundred fifty lines of code plus another ninety or so for the require() implementation. When I say build, I mean something that is super-lightweight: wrapping code into closures, and providing a local, in-browser require() implementation. I'm not going to put the code here since it adds little to the discussion, but <a href="https://github.com/mixu/gluejs/blob/master/lib/glue.js">have a look</a>.</p>
 
 <p>I've used <a href="https://github.com/azer/onejs/">onejs</a> and <a href="https://github.com/learnboost/browserbuild/">browserbuild</a> before. I wanted something a bit more scriptable, so (after contributing some code to those projects) I wrote <a href="http://mixu.net/gluejs/">gluejs</a>, which is tailored to the system I described above (mostly by having a more flexible API).</p>
 
-<p>With gluejs, you write your build scripts as small blocks of code. This is nice for hooking your build system into the rest of your tools - for example, by building a package on demand when a HTTP request arrives, or by creating custom build scripts that allow you to exclude or include features (such as debug builds) from code.</p>
+<p>With gluejs, you write your build scripts as small blocks of code. This is nice for hooking your build system into the rest of your tools - for example, by building a package on demand when a HTTP request arrives, or by creating custom build scripts that allow you to include or exclude features (such as debug builds) from code.</p>
 
 <p>Let's start by installing gluejs from npm:</p>
 
@@ -577,12 +578,12 @@ server.js
 $ npm install gluejs
 </pre>
 
-<p>There, now let's build something.</p>
+<p>Now let's build something.</p>
 
 
 <h2>Including files and building a package</h2>
 
-<p>Let's start with the basics. You use <code>include(path)</code> to add files. The path can be a single file, or a directory (which is included with all subdirectories). If you want to include a directory but exclude some files, use <code>exclude(regexp)</code> to filter out files from the build.</p>
+<p>Let's start with the basics. You use <code>include(path)</code> to add files. The path can be a single file, or a directory (which is included with all subdirectories). If you want to include a directory but exclude some files, use <code>exclude(regexp)</code> to filter files from the build.</p>
 
 <p>You define the name of the main file using <code>main(name)</code>; in the code below, it's "index.js". This is the file that gets exported from the package.</p>
 
@@ -597,18 +598,17 @@ new Glue()
   });
 </pre>
 
-<p>Each package exports a single variable, and that variable needs a name. In the example below, its "Todo", e.g. the package is assigned to <code>window.Todo</code>.</p>
+<p>Each package exports a single variable, and that variable needs a name. In the example below, it's "Todo" (e.g. the package is assigned to <code>window.Todo</code>).</p>
 
+<p>Finally, we have a <code>render(callback)</code> function. It takes a <code>function(err, txt)</code> as a parameter, and returns the rendered text as the second parameter of that function (the first parameter is used for returning errors, a Node convention). In the example, we just log the text out to console. If you put the code above in a file (and some .js files in "./todo"), you'll get your first package output to your console.</p>
 
-<p>Finally, we have a <code>render(callback)</code> function. It takes a <code>function(err, txt)</code> as a parameter, and returns the rendered text as the second parameter of that function (the first parameter is used for returning errors; a Node convention). In the example, we just log the text out to console. If you put the code above in a file (and some .js files in "./todo"), you'll get your first package output to your console.</p>
-
-<p>If you prefer rebuilding the file automatically, user<code>.watch()</code> instead of <code>.render()</code>. The callback function you pass to watch() will be called when the files in the build change.</p>
+<p>If you prefer rebuilding the file automatically, use <code>.watch()</code> instead of <code>.render()</code>. The callback function you pass to watch() will be called when the files in the build change.</p>
 
 <h2>Binding to global functions</h2>
 
 <p>We often want to bind a particular name, like <code>require('jquery')</code> to a external library. You can do this with <code>replace(moduleName, string)</code>.</p>
 
-<p>Here is an example call which builds a package in response to a HTTP GET:</p>
+<p>Here is an example call that builds a package in response to a HTTP GET:</p>
 
 <pre class="prettyprint">
 var fs = require('fs'),
@@ -662,9 +662,9 @@ Glue.concat([packageA, packageB], function(err, txt) {
 
 <h1 class="chapter">3. Getting to maintainable</h2>
 
-<p>In this chapter, I'll look at how the ideas introduced in the previous chapter can be applied to real-world code: new code and legacy code. I'll also talk about distributing code - by setting up a private NPM server.</p>
+<p>In this chapter, I'll look at how the ideas introduced in the previous chapter can be applied to real-world code, both new and legacy. I'll also talk about distributing code by setting up a private NPM server.</p>
 
-<p>Let's start with a bit of big-picture principles, then talk about legacy - and finally some special considerations re: new code. Today's new code is tomorrows' legacy code; the best you can do is delay falling into the bad patterns.</p>
+<p>Let's start with a some big-picture principles, then talk about legacy - and finally some special considerations for new code. Today's new code is tomorrow's legacy code, so try to avoid falling into bad habits.</p>
 
 <h2>Big picture</h2>
 
@@ -678,33 +678,33 @@ Glue.concat([packageA, packageB], function(err, txt) {
 
 <h3>Extracting modules/packages from your architecture</h3>
 
-<p>First, just do a basic code quality pass and eliminate the bad practices outlined in the previous chapter.</p>
+<p>First, do a basic code quality pass and eliminate the bad practices outlined in the previous chapter.</p>
 
-<p>Then, start moving your files towards using the CommonJS pattern: explicit require()s and only a single export per file.</p>
+<p>Then, start moving your files towards using the CommonJS pattern: explicit <code>require()</code>s and only a single export per file.</p>
 
-<p>Next, have a look at your architecture, and try to separate that hairball of code into distinct packages:</p>
+<p>Next, have a look at your architecture. Try to separate that hairball of code into distinct packages:</p>
 
-<p>Models and other reusable code (shared views/visual components) probably belong in a common package. This is the core of your application on which the rest of the application builds. You treat this like a 3rd party library in the sense that it is a separate package which you need to require() in your other modules. Try to keep the common package stateless - other packages instantiate things based on it, but the common package doesn't have stateful code itself.</p>
+<p>Models and other reusable code (shared views/visual components) probably belong in a common package. This is the core of your application on which the rest of the application builds. Treat this like a 3rd party library in the sense that it is a separate package that you need to <code>require()</code> in your other modules. Try to keep the common package stateless. Other packages instantiate things based on it, but the common package doesn't have stateful code itself.</p>
 
 <p>Beyond your core/common package, what are the smallest pieces that make sense? There is probably one for each "primary" activity in your application. To speed up loading your app, you want to make each activity a package that can be loaded independently after the common package has loaded (so that the initial loading time of the application does not increase as the number of packages increases). If your setup is complex, you probably want a single mechanism that takes care of calling the right initializer.</p>
 
 <p>Isolate the state initialization/instantiation code in each package by moving it into one place: the <code>index.js</code> for that particular package (or, if there is a lot of setup, in a separate file - but in one place only). "I hate state, and want as little as possible of it in my code". Export a single function <code>initialize()</code> that accepts setup parameters and sets up the whole module. This allows you to load a package without altering the global state. Each package is like a "mini-app": it should hide its details (non-reusable views, behavior and models).</p>
 
-<p>Rethink your inheritance chains. Classes are a terrible substitute for a use-oriented API in most cases. Extending a class requires that you understand and often depend on the implementation details. APIs consisting of simple functions are better, so if you can, write a API. The API often looks like a state manipulation library (e.g. add an invite, remove an invite etc.); when instantiated with the related views and the views will generally hook into that API.</p>
+<p>Rethink your inheritance chains. Classes are a terrible substitute for a use-oriented API in most cases. Extending a class requires that you understand and often depend on the implementation details. APIs consisting of simple functions are superior, so if you can, write an API. The API often looks like a state manipulation library (e.g. add an invite, remove an invite etc.); when instantiated with the related views and the views will generally hook into that API.</p>
 
-<p>Stop inheriting views from each other. Inheritance is mostly inappropriate for views. Sure, inherit from your framework, but don't build elaborate hierarchies for views. Views aren't supposed to have a lot of code in the first place so defining view hierarchies is mostly just done out of bad habit. Inheritance has it's uses, but those are fewer and further apart than you think.</p>
+<p>Stop inheriting views from each other. Inheritance is mostly inappropriate for views. Sure, inherit from your framework, but don't build elaborate hierarchies for views. Views aren't supposed to have a lot of code in the first place; defining view hierarchies is mostly just done out of bad habit. Inheritance has its uses, but those are fewer and further apart than you think.</p>
 
 <p> Almost every view in your app should be instantiable without depending on any other view. You should identify views that you want to reuse, and move those into a global app-specific module. If the views are not intended to be reused, then they should not be exposed outside of the activity. Reusable views should ideally be documented in an interactive catalog, like Twitter's Bootstrap.</p>
 
-<p>Extract persistent services. These are things that are active globally and that maintain state accross different activities. For example, a real-time backend and a data cache. But also other user state that is expected to persist across activities, like a list of opened items (e.g. if your app implements tabs within the application).</p>
+<p>Extract persistent services. These are things that are active globally and maintain state across different activities. For example, a real-time backend and a data cache. But also other user state that is expected to persist across activities, like a list of opened items (e.g. if your app implements tabs within the application).</p>
 
 <h3>Refactoring an existing module</h3>
 
-<p>Given an existing module:</p>
+<p>Given an existing module,</p>
 
 <p>1. Make sure each file defines and exports one thing. If you define a Account and a related Settings object, put those into two different files.</p>
 
-<p>2. Do not directly/implicitly add variables under window.*. Instead, always assign your export to <code>module.exports</code>. This makes it possible for other modules to use your module without the module being globally accessible under a particular name/namespace.</p>
+<p>2. Do not directly/implicitly add variables under <code>window.*</code>. Instead, always assign your export to <code>module.exports</code>. This makes it possible for other modules to use your module without the module being globally accessible under a particular name/namespace.</p>
 
 <p>3. Stop referring to other modules through a global name. Use <code>var $ = require('jquery')</code>, for example, to specify that your module depends on jQuery. If your module requires another local module, require it using the path: <code>var User = require('./model/user.js')</code>.</p>
 
@@ -712,7 +712,7 @@ Glue.concat([packageA, packageB], function(err, txt) {
 
 <p>For example, where you previously used to define a class and then immediately assign a instance of that class onto a global variable/namespace in the same file; you should move the instantatiation to a separate bootstrap file/function.</p>
 
-<p>5. If you have submodules (e.g. chat uses backend_service), do not directly expose them to the layer above. Initializing the submodule should be the task of the layer directly above it (and not two layers above it). Configuration can go from a top level initialize() function to initialize() functions in submodules, but keep the submodules of modules out of the reach of higher layers.</p>
+<p>5. If you have submodules (e.g. chat uses backend_service), do not directly expose them to the layer above. Initializing the submodule should be the task of the layer directly above it (and not two layers above it). Configuration can go from a top level initialize() function to initialize() functions in submodules, but keep the submodules of modules out of reach from higher layers.</p>
 
 <p>6. Try to minimize your external surface area.</p>
 
@@ -737,7 +737,7 @@ Glue.concat([packageA, packageB], function(err, txt) {
 
 <h2>Tooling: npm</h2>
 
-<p>Finally, let's talk about distribution. As your projects grow in scope and in modularity, you'll want to be able to load packages from different repositories easily. <a href="http://npmjs.org/">npm</a> is an awesome tool for creating and distributing small JS modules. If you haven't used it before, Google for a tutorial or <a href="http://npmjs.org/doc/">read the docs</a>, or check out <a href="http://blog.nodejitsu.com/npm-cheatsheet">Nodejitsu's npm cheatsheet</a>. Creating a npm package is simply a matter of following the CommonJS conventions and adding a bit of metadata via a <code>package.json</code> file. Here is a example <code>package.json</code></p>
+<p>Finally, let's talk about distribution. As your projects grow in scope and in modularity, you'll want to be able to load packages from different repositories easily. <a href="http://npmjs.org/">npm</a> is an awesome tool for creating and distributing small JS modules. If you haven't used it before, Google for a tutorial or <a href="http://npmjs.org/doc/">read the docs</a>, or check out <a href="http://blog.nodejitsu.com/npm-cheatsheet">Nodejitsu's npm cheatsheet</a>. Creating a npm package is simply a matter of following the CommonJS conventions and adding a bit of metadata via a <code>package.json</code> file. Here is an example <code>package.json</code></p>
 
 <pre class="prettyprint">
 { "name": "modulename",
@@ -754,7 +754,7 @@ Glue.concat([packageA, packageB], function(err, txt) {
 
 <p>You can publish your package to npm with one command (but do RTFM before you do so). If you need to keep your code private, you can use <code>git+ssh://user@host:project.git#tag-sha-or-branch</code> to specify dependencies as shown above.</p>
 
-<p>If your packages can be public and reusable by other people, then the public npm registry works. However, with private packages via git the problem is that you don't get the benefits semantic versioning. You can refer to a particular branch or commit sha, but this is less than ideal. If you update your module, then you need to go and bump up the tag or branch in both the project and in its dependencies. This isn't too bad, but ideally, we'd be able to say: </p>
+<p>If your packages can be public and reusable by other people, then the public npm registry works. The drawback to using private packages via git is that you don't get the benefits semantic versioning. You can refer to a particular branch or commit sha, but this is less than ideal. If you update your module, then you need to go and bump up the tag or branch in both the project and in its dependencies. This isn't too bad, but ideally, we'd be able to say: </p>
 
 <pre class="prettyprint">
 {
@@ -771,7 +771,9 @@ Glue.concat([packageA, packageB], function(err, txt) {
 
 <img src="assets/tdd.png" height="200">
 
-<p>TDD is a set of rules for writing code: you write a failing test (red), then add just enough code to make it pass (green) and finally refactor where necessary (refactor). What I will talk about in this chapter is: how to set up testing for your project using Mocha; how to do dependency injection for your CommonJS modules and how you can test asynchronous code. The rest is best covered by some other book or tutorial; so if you haven't heard of TDD, get out from under that rock you've been living under and read <a href="https://www.google.com/search?q=test+driven+development+by+example">Kent Beck's book</a> and perhaps <a href="https://www.google.com/search?q=working+effectively+with+legacy+code">Michael Feather's book</a>.</p>
+<p>TDD is a set of rules for writing code: you write a failing test (red), then add just enough code to make it pass (green) and finally refactor where necessary (refactor).</p>
+
+<p>In this chapter, we discuss how to set up testing for your project using Mocha, how to do dependency injection for your CommonJS modules, and how you can test asynchronous code. The rest is best covered by some other book or tutorial; so if you haven't heard of TDD, get out from under that rock you've been living under and read <a href="https://www.google.com/search?q=test+driven+development+by+example">Kent Beck's book</a> and perhaps <a href="https://www.google.com/search?q=working+effectively+with+legacy+code">Michael Feather's book</a>.</p>
 
 <h2>Why write tests?</h2>
 
@@ -784,11 +786,11 @@ Writing something once produces just a rough draft. You want to be able to impro
 
 <p>Test <i>driven</i> development implies that tests should guide the development. I often use tests as TODO's when developing new functionality; no code is written until I know how the code should look like in the test. Tests are a contract: this is what this particular module needs to provide externally.</p>
 
-<p>I find that the greatest value comes from testing pure logic and hard-to-replicate-otherwise edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is  important to have good modularization/few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
+<p>I find that the greatest value comes from testing pure logic and otherwise-hard-to-replicate edge cases. I tend not to test internal details (where you test the actual implementation rather than the public interface). I also avoid testing things that are hard to set up for testing; testing is a tool, not a goal in itself. This is why it is important to have good modularization and few dependencies: the easier your code is to test, the more likely it is that someone will want to write tests for it. For views, I'd test the logic (easy to test/easy to have errors in) and try to make it so that it can be tested separately from any visual properties (hard to test without a human looking at stuff).</p>
 
 <h2>Test frameworks</h2>
 
-<p>Use any test framework/runner <u>except don't use</u> <a href="https://github.com/pivotal/jasmine/issues/178">Jasmine</a>, which is terrible for asynchronous testing due to <a href="http://thelambdacalculus.wordpress.com/2011/02/28/5/">amount of boilerplate code</a> it requires.</p>
+<p>Use any test framework/runner <u>except</u> <a href="https://github.com/pivotal/jasmine/issues/178">Jasmine</a>, which is terrible for asynchronous testing due to the <a href="http://thelambdacalculus.wordpress.com/2011/02/28/5/">amount of boilerplate code</a> it requires.</p>
 
 <p>Test runners basically use one of three different styles for specifying tests:</p>
 
@@ -800,7 +802,7 @@ Writing something once produces just a rough draft. You want to be able to impro
 
 <p>I like TJ's <a href="https://github.com/visionmedia/mocha">Mocha</a>, which has <a href="http://visionmedia.github.com/mocha/">a lot of awesome features</a>, such as support for all three specification styles, support for running tests in the browser, code coverage, Growl integration, documentation generation, airplane mode and a nyan cat test reporter. I like to use the "exports" style - it is the simplest thing that works.</p>
 
-<p>Some frameworks require you to use their assert() methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
+<p>Some frameworks require you to use their <code>assert()</code> methods, Mocha doesn't. I use Node's built-in <a href="http://nodejs.org/api/assert.html">assert module</a> for writing my assertions. I'm not a fan of the "assertions-written-out-as-sentences" -style; plain asserts are more readable to me since they translate trivially to actual code and it's not like some non-coder is going to go poke around in your test suite.</p>
 
 <h2>Setting up and writing a test</h2>
 
@@ -907,7 +909,7 @@ test:
 
 <p>This way, people can run the tests using "make test". Note that the Makefile requires tabs for indentation.</p>
 
-<p>I also like to make individual test files runnable via  <code>node ./path/to/test.js</code>. To do this, I add the following wrapper - detect whether the current module is the main script, and if so, run the tests directly (in this, case using Mocha):</p>
+<p>I also like to make individual test files runnable via  <code>node ./path/to/test.js</code>. To do this, I add the following wrapper to detect whether the current module is the main script, and if so, run the tests directly (in this case, using Mocha):</p>
 
 <pre class="prettyprint">
 // if this module is the script being run, then run the tests:
@@ -1046,7 +1048,7 @@ var c = new Channel();
   <li>Record events and assert</li>
 </ul>
 
-<p>Writing a workflow is the simplest case: you have a sequence of operations that need to happen; in your test you set up callbacks (possibly by replacing some functions with callbacks). At the end of the callback chain, you call <code>done()</code>. You probably also want to add an assertion counter to verify that all the callbacks were triggered.</p>
+<p>Writing a workflow is the simplest case: you have a sequence of operations that need to happen, and in your test you set up callbacks (possibly by replacing some functions with callbacks). At the end of the callback chain, you call <code>done()</code>. You probably also want to add an assertion counter to verify that all the callbacks were triggered.</p>
 
 <p>Here is a basic example of a workflow, note how each step in the flow takes a callback (e.g. assume we send a message or something):</p>
 
@@ -1067,7 +1069,7 @@ exports['can read a status'] = function(done) {
 
 <h2>Waiting for events using EventEmitter.when()</h2>
 
-<p>In some cases, you don't have a clearly defined order for things to happen. This is often the case when your interface is a EventEmitter. What's a EventEmitter? It's basically just Node's name for a event aggregator; the same functionality is present in many other Javascript projects - for example, jQuery uses <code>.bind()</code>/<code>.trigger()</code> for what is essentially the same thing.</p>
+<p>In some cases, you don't have a clearly defined order for things to happen. This is often the case when your interface is an EventEmitter. What's an EventEmitter? It's basically just Node's name for an event aggregator; the same functionality is present in many other Javascript projects - for example, jQuery uses <code>.bind()</code>/<code>.trigger()</code> for what is essentially the same thing.</p>
 
 <table class="table">
 <tr>
@@ -1075,12 +1077,12 @@ exports['can read a status'] = function(done) {
   <td>Node.js EventEmitter</td><td>jQuery</td>
 </tr>
 <tr>
-  <td>Attach a callback to a event</td>
+  <td>Attach a callback to an event</td>
   <td>.on(event, callback) / .addListener(event, callback)</td>
   <td>.bind(eventType, handler) (1.0) / .on(event, callback) (1.7)</td>
 </tr>
 <tr>
-  <td>Trigger a event</td>
+  <td>Trigger an event</td>
   <td>.emit(event, data, ...)</td>
   <td>.trigger(event, data, ...)</td>
 </tr>
@@ -1140,9 +1142,9 @@ exports['can subscribe'] = function(done) {
 
 <h2>Recording events and then asserting</h2>
 
-<p>Recording replacements (a.k.a spies and mocks) are used more frequently when it is not feasible to write a full replacement of the dependency, or when it is more convinient to collect output (e.g from operations that might happen in any order) and then assert that certain conditions are fulfilled.</p>
+<p>Recording replacements (a.k.a spies and mocks) are used more frequently when it is not feasible to write a full replacement of the dependency, or when it is more convenient to collect output (e.g from operations that might happen in any order) and then assert that certain conditions are fulfilled.</p>
 
-<p>For example, with a EventEmitter, we might not care in what order certain messages were emitted, just that they were emitted. Here is a simple example using a EventEmitter:</p>
+<p>For example, with an EventEmitter, we might not care in what order certain messages were emitted, just that they were emitted. Here is a simple example using an EventEmitter:</p>
 
 <pre class="prettyprint">
 exports['doIt sends a b c'] = function(done) {
@@ -1217,7 +1219,7 @@ exports['doIt sends a b c'] = function(done) {
 
 <p>Given the answers to those questions, you can determine how complex your view layer implementation needs to be, and what the output of your templating system should be.</p>
 
-<p>One answer would be to say that event handlers are bound using DOM selectors and data updates view granular. That gives you something like Backbone.js. There are other answers.</p>
+<p>One answer would be to say that event handlers are bound using DOM selectors and data updates "view-granular" (see below). That gives you something like Backbone.js. There are other answers.</p>
 
 <p>In this chapter, I will present a kind of typology for looking at the choices that people have made in writing a view layer. The dimensions/contrasts I look at are:</p>
 
@@ -1243,7 +1245,7 @@ exports['doIt sends a b c'] = function(done) {
   <li>Example: Github</li>
   <li>Pages are mostly static.</li>
   <li>You take a document that represents a mostly static piece of information already processed, and add a bit of interactivity via Javascript.</li>
-  <li>Changing data should cause a full page refresh in most cases.</li>
+  <li>Changing data usually causes a full page refresh.</li>
 </ul>
 </td>
 <td>
@@ -1288,7 +1290,7 @@ exports['doIt sends a b c'] = function(done) {
 
 <p>The way I see it, web apps are a mixture of various kinds of views. Some of those views involve more complicated interactions and benefit from the architecture designed for high-end interactivity. Other views are just simple components that add a bit of interactivity. Those views may be easier and cleaner to implement using less sophisticated methods.</p>
 
-<p>If never update a piece of data, and it can reasonably fit in the DOM without impacting performance, then it may be good candidate for a low-end approach. For example, collapsible sections and dropdown buttons that never change content but have some basic enhancements might work better as just markup without actually being bound to model data and/or without having an explicit view object.</p>
+<p>If you never update a piece of data, and it can reasonably fit in the DOM without impacting performance, then it may be good candidate for a low-end approach. For example, collapsible sections and dropdown buttons that never change content but have some basic enhancements might work better as just markup without actually being bound to model data and/or without having an explicit view object.</p>
 
 <p>On the other hand, things that get updated by the user will probably be best implemented using high-end, model-and-view backed objects. It is worth considering what makes sense in your particular use case and how far you can get with low-end elements that don't contain "core data". One way to do this is to maintain catalogue of low-end views/elements for your application, a la Twitter's Bootstrap. These low-end views are distinguished by the fact that they are not bound to / connected to any model data: they just implement simple behavior on top of HTML.</p>
 
@@ -1303,9 +1305,9 @@ exports['doIt sends a b c'] = function(done) {
 
 <p>Specific HTML+CSS markup structures are used to to make small parts of the document dynamic. You don't need to write Javascript or only need to write minimal Javascript to configure options. Have a look at Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> for a modern example.</p>
 
-<p>This approach works for implementing low-end interactivity, where the same data is never shown twice and where each action triggers a page reload. You can spot this approach by looking for a backend that responds with fully rendered HTML and/or a blob of Javascript which checks for the presence of particular CSS classes and conditionally actives itself (e.g. via event handlers on the root element or via <code>$().live()</code>).</p>
+<p>This approach works for implementing low-end interactivity, where the same data is never shown twice and where each action triggers a page reload. You can spot this approach by looking for a backend that responds with fully rendered HTML and/or a blob of Javascript which checks for the presence of particular CSS classes and conditionally activates itself (e.g. via event handlers on the root element or via <code>$().live()</code>).</p>
 
-<p><b>PJAX</b>. You have a page that is generated as HTML. Some user actions trigger code that replaces parts of the existing page with new server-generated HTML that you fetch via AJAX. You use PushState or the HTML5 history API to give the appearance of a page change. It's basically "HTML manipulation - Extreme Edition", and comes with the same basic limitations as pure HTML manipulation.</p>
+<p><b>PJAX</b>. You have a page that is generated as HTML. Some user action triggers code that replaces parts of the existing page with new server-generated HTML that you fetch via AJAX. You use PushState or the HTML5 history API to give the appearance of a page change. It's basically "HTML manipulation - Extreme Edition", and comes with the same basic limitations as pure HTML manipulation.</p>
 
 <p><b>Widgets</b>. The generated page is mostly a loader for Javascript. You instantiate widgets/rich controls that are written in JS and provided by your particular framework. These components can fetch more data from the server via a JSON API. Rendering happens on the client-side, but within the customization limitations of each widget. You mostly work with the widgets, not HTML or CSS. Examples: YUI2, Sproutcore.</p>
 
@@ -1349,7 +1351,7 @@ var model = new Todo({ title: 'foo', done: false }),
 
 <p>There two general modern single page app (view layer) approaches that start from a difference of view in what is primary: markup or code.</p>
 
-<p>If markup is primary, then on needs to start with a fairly intricate templating system that is capable of generating the metadata necessary to implement the functionality. You still need to translate the templating language into view objects in the background order to display views and make sure that data is updated. This hides some of the work from the user at the cost of added complexity.</p>
+<p>If markup is primary, then one needs to start with a fairly intricate templating system that is capable of generating the metadata necessary to implement the functionality. You still need to translate the templating language into view objects in the background in order to display views and make sure that data is updated. This hides some of the work from the user at the cost of added complexity.</p>
 
 <p>If code is primary, then we accept a bit more verbosity in exchange for a simpler overall implementation. The difference between these two can easily be at least an order of magnitude in terms of the size of the framework code.</p>
 
@@ -1361,7 +1363,7 @@ var model = new Todo({ title: 'foo', done: false }),
 
 <p>In the markup-driven views approach, ideally, there would be no view objects whatsoever. The goal is to have a sufficiently rich templating system that you do not need to have a view object that you instantiate or bind a model to. Instead, views are "thin bindings" with the ability to directly access variables using their names in the global scope; you can write markup-based directives to directly read in those variables and iterate over them. When you need logic, it is mostly for special cases, and that's where you add a controller. The ideal is that views aren't backed by objects, but by the view system/templating metadata (transformed into the appropriate set of bindings).</p>
 
-<p>Controllers are a result of non-reuseable views. If views are essentially more sophisticated versions strings of HTML (that bind to specific data) rather than objects that represent components, then it is more tempting to put the glue for those bindings in a separate object, the controller. This also has a nice familiar feeling to it from server-side frameworks (request-response frameworks). If you think of views as components that are reusable and consist of a template and a object, then you will more likely want to put behavior in the view object since it represents a singular, reusable thing.</p>
+<p>Controllers are a result of non-reuseable views. If views are just slightly more sophisticated versions of "strings of HTML" (that bind to specific data) rather than objects that represent components, then it is more tempting to put the glue for those bindings in a separate object, the controller. This also has a nice familiar feeling to it from server-side frameworks (request-response frameworks). If you think of views as components that are reusable and consist of a template and a object, then you will more likely want to put behavior in the view object since it represents a singular, reusable thing.</p>
 
 <p>Again, I don't like the word "controller". Occasionally, the distinction is made between "controllers specific to a view" and "controllers responsible for coordinating a particular application state". I'd find "view behavior" and "initialization code" to be more descriptive. I would much rather put the "controller code" specific to a view into the view object, and make the view generic enough to be reusable through configuration and events.</p>
 
@@ -1449,9 +1451,9 @@ foo
 
 <p>What are the benefits and disadvantages of each of these approaches?</p>
 
-<p><b>View-granular updates</b> mean that a value update causes the inner HTML of each view interested in that update to be re-rendered and inserted into the DOM. View-granular updates are simple: each view corresponds to a single element (and it's innerHTML) and only one DOM element needs to be tracked per view. The disadvantage is that since the view cannot render parts of itself individually, doing a redraw might reset things like text in input elements and keyboard focus if they are inside the view markup and in a non-default state. This can be worked around with a bit of coding, however.</p>
+<p><b>View-granular updates</b> mean that a value update causes the inner HTML of each view interested in that update to be re-rendered and inserted into the DOM. View-granular updates are simple: each view corresponds to a single element (and its innerHTML) and only one DOM element needs to be tracked per view. The disadvantage is that since the view cannot render parts of itself individually, doing a redraw might reset things like text in input elements and keyboard focus if they are inside the view markup and in a non-default state. This can be worked around with a bit of coding, however.</p>
 
-<p><b>Element-granular updates</b> mean that after a view is rendered once, parts of it can be updated separately as long as those parts can be wrapped in an element. Views have bound elements which represent values from some model/data that in the resulting markup are wrapped in framework-generated elements with DOM ids. The disadvantage is that there is much more to track (both in JS and in the DOM), and using CSS is not necessarily straightforward since bound values are wrapped inside elements, meaning that the CSS path to the element is not what you might expect (e.g. <code>p span</code> instead of <code>p</code>).</p>
+<p><b>Element-granular updates</b> mean that after a view is rendered once, parts of it can be updated separately as long as those parts can be wrapped in an element. Views have bound elements that represent values from some model/data that in the resulting markup are wrapped in framework-generated elements with DOM ids. The disadvantage is that there is much more to track (both in JS and in the DOM), and using CSS is not necessarily straightforward since bound values are wrapped inside elements, meaning that the CSS path to the element is not what you might expect (e.g. <code>p span</code> instead of <code>p</code>).</p>
 
 <p><b>String-granular updates</b> are the most complex. They provide the same functionality as element-granular updates, but also allow you to specify a bindings that do not correspond to elements, such as a <a href="http://blog.nateps.com/html-comments-the-unlikely-solution-to-valid">foreach without a container element</a>:</p>
 <pre>
@@ -1465,17 +1467,17 @@ foo
 &lt;/table&gt;
 </pre>
 
-<p>This could not be done using a element-granular approach, because you cannot insert an element other than a &lt;th&gt; or &lt;td&gt; inside a &lt;tr&gt;. If you place an invalid wrapper element like a &lt;div&gt; where the {{#people}} strings are, the browser will relocate it outside the table as a way recover from invalid markup. But without a element, you cannot refer to that particular part of the DOM in a manner that works in IE. So you need some other way which makes that part of the DOM accessible and hence replaceable in a more granular manner.</p>
+<p>This could not be done using a element-granular approach, because you cannot insert an element other than a &lt;th&gt; or &lt;td&gt; inside a &lt;tr&gt;. If you place an invalid wrapper element like a &lt;div&gt; where the {{#people}} strings are, the browser will relocate it outside the table as a way recover from invalid markup. But without an element, you cannot refer to that particular part of the DOM in a manner that works in IE. So you need some other way to make that part of the DOM accessible and hence replaceable in a more granular manner.</p>
 
 <p>There are two known techniques for this: &lt;script&gt; tags and &lt;!-- comment --&gt; tags stay in all DOM locations, even invalid DOM locations, so they can be used to implement a string-range-oriented rather than element-oriented way to access data, making string-granular updates possible. Script tags can be selected by id (likely faster) but influence CSS selectors that are based on adjacent siblings and can be invalid in certain locations. Comment tags, on the other hand, require (slow) DOM iteration in old browsers that don't have certain APIs, but are invisible to CSS and valid anywhere in the page. Performance-wise, the added machinery vs. view-granular approaches <a href="http://jsfiddle.net/jashkenas/CGSd5/">does incur a cost</a>. There are also still some special cases, like select elements on old IE version, where this approach doesn't work.</p>
 
 <h2>Conclusion</h2>
 
-<p>The single page app world is fairly confusing right now. Frameworks define themselves more in terms of what they do rather than how the accomplish it. Part of the reason is that the internals are unfamiliar to most people, since - let's face it - these are still the early days of single page apps. I hope that this chapter has helped a bit with finding vocabulary for describing different single page app frameworks.</p>
+<p>The single page app world is fairly confusing right now. Frameworks define themselves more in terms of what they do rather than how they accomplish it. Part of the reason is that the internals are unfamiliar to most people, since -- let's face it -- these are still the early days of single page apps. I hope this chapter has developed a vocabulary for describing different single page app frameworks.</p>
 
 <p>Frameworks encourage different kinds of patterns, some good, some bad. Starting from a few key ideas about what is important and what should define a single page app, frameworks have reached different conclusions. Some approaches are more complex, and the choice about what to make easy influences the kind of code you write.</p>
 
-<p>String-granular bindings lead to heavier models. Since model properties are directly observable in views, you tend add properties to models that don't represent backend data, but rather view state. Computed properties mean that model properties can actually represent pieces of logic. This makes your model properties into an API. In extreme cases, this leads to very specific and view-related model properties like "humanizedName" or "dataWithCommentInReverse" that you then observe from your view bindings.</p>
+<p>String-granular bindings lead to heavier models. Since model properties are directly observable in views, you tend to add properties to models that don't represent backend data, but rather view state. Computed properties mean that model properties can actually represent pieces of logic. This makes your model properties into an API. In extreme cases, this leads to very specific and view-related model properties like "humanizedName" or "dataWithCommentInReverse" that you then observe from your view bindings.</p>
 
 <p>There is a tradeoff between DRY and simplicity. When your templating system is less sophisticated, you tend to need to write more code, but that code will be simpler to troubleshoot. Basically, you can expect to understand the code you wrote, but fewer people are well versed in what might go wrong in your framework code. But of course, if nothing breaks, everything is fine either way. Personally, I believe that both approaches can be made to work.</p>
 <h1 class="chapter">6. The model layer: an overview</h1>
@@ -1484,7 +1486,7 @@ foo
 
 <img src="assets/model-detail.png">
 
-<p>The model layer looks fairly similar across different single page app frameworks; there just aren't that many different ways to solve this problem. You need to ability to represent data items and sets of data items; you need a way to load in data; and you probably want to have some caching in place to avoid naively reloading data that you already have. Whether these exist as separate mechanisms, or as a part of single large model is mostly a implementation detail.</p>
+<p>The model layer looks fairly similar across different single page app frameworks because there just aren't that many different ways to solve this problem. You need the ability to represent data items and sets of data items; you need a way to load data; and you probably want to have some caching in place to avoid naively reloading data that you already have. Whether these exist as separate mechanisms or as a part of single large model is mostly an implementation detail.</p>
 
 <p>The major difference is how collections are handled, and this is a result of choices made in the view layer - with observables, you want observable arrays, with events, you want collections.</p>
 
@@ -1513,7 +1515,7 @@ foo
 <p>The model contains the actual data (attributes) and can be transformed into JSON in order to restore from or save to the backend. A model may have associations, it may have validation rules and it may have subscribers to changes on its data.</p>
 
 
-<h2>Collections</h2>
+<h2>Collection</h2>
 
 <ul>
   <li>Contains items</li>
@@ -1589,9 +1591,9 @@ var db.user = new DataSource();
 },
 </pre>
 
-<h2>Can loading items by search query</h2>
+<h2>Can load items by search query</h2>
 
-<p>The data source should support retrieving items by conditions other than id's. Since the details depend on the backend used, we'll just allow the user to add search terms via a object. The parameter are passed to the backend, which can then implement whatever is the appropriate thing (e.g. SQL query by name) to return the result JSON.</p>
+<p>The data source should support retrieving items by conditions other than IDs. Since the details depend on the backend used, we'll just allow the user to add search terms via an object. The parameters are passed to the backend, which can then implement whatever is appropriate (e.g. SQL query by name) to return the result JSON.</p>
 
 <pre class="prettyprint">
 'can load items by search query': function(done) {
@@ -2023,14 +2025,14 @@ server.on('request', function(req, res) {
 
 <h2>Change events</h2>
 
-<p>Model accessors (get/set) exist because we want to be able to intercept changes to the model data, and emit <code>change</code> events. Other parts of the app - mainly views - can then listen for those events and get an idea of what changed and what the previous value was. For example, we can respond to these:</p>
+<p>Model accessors (get/set) exist because we want to be able to intercept changes to the model data, and emit <code>change</code> events. Other parts of the app -- mainly views -- can then listen for those events and get an idea of what changed and what the previous value was. For example, we can respond to these:</p>
 
 <ul>
   <li>a set() for a value that is used elsewhere (to notify others of an update / to mark model as changed)</li>
   <li>a remove() for a value that is used elsewhere</li>
 </ul>
 
-<p>We will want to allow people to write <code>model.on('change', function() { .. })</code> to add listeners that are called to notify about changes. We'll use a EventEmitter for that.</p>
+<p>We will want to allow people to write <code>model.on('change', function() { .. })</code> to add listeners that are called to notify about changes. We'll use an EventEmitter for that.</p>
 
 
 <p>If you're not familiar with EventEmitters, they are just a standard interface for emitting (triggering) and binding callbacks to events (I've written more about them <a href="http://book.mixu.net/ch9.html">in my other book</a>.)</p>
@@ -2122,7 +2124,7 @@ badger.on('change', function(key, value, oldValue) {
 }
 </pre>
 
-<p>Since the constructor is just a ES3 regular constructor, the model code doesn't depend on any particular framework. You could use it in any other code without having to worry about compatibility. For example, I am planning on reusing the model code when I do a rewrite of my window manager.</p>
+<p>Since the constructor is just a normal ES3 constructor, the model code doesn't depend on any particular framework. You could use it in any other code without having to worry about compatibility. For example, I am planning on reusing the model code when I do a rewrite of my window manager.</p>
 
 <h2>Differences with Backbone.js</h2>
 
@@ -2131,7 +2133,7 @@ badger.on('change', function(key, value, oldValue) {
 <ul>
   <li>Each instance has a unique cid (client id) assigned to it.</li>
   <li>You can choose to silence change events by passing an additional parameter.</li>
-  <li>Changed values are accessible as the <code>changed</code> property of the model, in addition to being accessible as events; there are also many other convinient methods such as changedAttributes and previousAttributes.</li>
+  <li>Changed values are accessible as the <code>changed</code> property of the model, in addition to being accessible as events; there are also many other convenient methods such as changedAttributes and previousAttributes.</li>
   <li>There is support for HTML-escaping values and for a validate() function.</li>
   <li>.reset() is called .clear() and .remove() is .unset()</li>
   <li>Data source and data store methods (Model.save() and Model.destroy()) are implemented on the model, whereas I implement them in separate objects (first and last chapter of this section).</li>
@@ -2145,10 +2147,10 @@ badger.on('change', function(key, value, oldValue) {
 <ul>
   <li>contains items (or models)</li>
   <li>emits events when items are added/removed</li>
-  <li>is ordered; can be accessed by index via <code>at()</code> and by model id via <code>get()</code></li>
+  <li>is ordered; can be accessed by index via <code>at()</code> and by model ID via <code>get()</code></li>
 </ul>
 
-<p>In this chapter, we'll write a observable array, and then add some additional niceties on top of it to make it a collection (e.g. something that is specific to storing models).</p>
+<p>In this chapter, we'll write an observable array, and then add some additional niceties on top of it to make it a collection (e.g. something that is specific to storing models).</p>
 
 <h2>Storing Models and emitting events</h2>
 
@@ -2164,7 +2166,7 @@ util.inherits(Collection, events.EventEmitter);
 
 <p>To support passing a set of initial models, we call this.add() in the constructor.</p>
 
-<p><b>Resetting the collection</b>. Self-explanatory, really. We will use an array to store the models, because collections are ordered rather than indexed; and we will maintain a length property directly for convinience.</p>
+<p><b>Resetting the collection</b>. Self-explanatory, really. We will use an array to store the models, because collections are ordered rather than indexed; and we will maintain a length property directly for convenience.</p>
 
 <pre class="prettyprint">
 Collection.prototype.reset = function() {
@@ -2174,7 +2176,7 @@ Collection.prototype.reset = function() {
 };
 </pre>
 
-<p><b>Adding items</b>. We should be able to call <code>add(model)</code> and receive a "add" event when the model is added.</p>
+<p><b>Adding items</b>. We should be able to call <code>add(model)</code> and emit/listen for an "add" event when the model is added.</p>
 
 <pre class="prettyprint">
 Collection.prototype.add = function(model, at) {
@@ -2191,7 +2193,7 @@ Collection.prototype.add = function(model, at) {
 
 <p>To support calling <code>add([model1, model2])</code>, we'll check if the first parameter is an array and make multiple calls in that case.</p>
 
-<p>Other than that, we just use Array.splice to insert the model. The optional <code>at</code> param allows us to specify a particular index to add at. Finally, after each add, we emit the "add" event.s</p>
+<p>Other than that, we just use Array.splice to insert the model. The optional <code>at</code> param allows us to specify a particular index to add at. Finally, after each add, we emit the "add" event.</p>
 
 <p><b>Removing items</b>. We should be able to call <code>remove(model)</code> to remove a model, and receive events when the item is removed. Again, the code is rather trivial.</p>
 
@@ -2300,7 +2302,7 @@ Collection.prototype.add = function(model, at) {
 };
 </pre>
 
-<p>And we need to unbind when the model is removed, or the collection is reset:</p>
+<p>And we need to unbind when a model is removed, or the collection is reset:</p>
 
 <pre class="prettyprint">
 Collection.prototype.remove = function(model){
@@ -2362,7 +2364,7 @@ Model.prototype.url = function(method) {
 
 <p>When the model doesn't have a id, we will use the "create" endpoint, and when the model does have id, we'll use the "update"/"delete" endpoint. If you set Model.prototype.urlRoot to "http://localhost/user", then you'll get the urls above, or if your URLs are different, you can replace Model.prototype.url with your own function.</p>
 
-<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convinience, let's redirect <code>Model.save()</code> to the DataStore:</p>
+<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convenience, let's redirect <code>Model.save()</code> to the DataStore:</p>
 
 <pre class="prettyprint">
 Model.prototype.save = function(callback) {
@@ -2423,7 +2425,7 @@ Model.delete();
 
 <p><b>Data changes</b>. When the model ID changes, the cache should be updated to reflect this.</p>
 
-<p><b>Reference counting</b>. If you want to accurate count the number of models, you'll need to hook into Collection events (e.g. add / remove / reset). I'm not going to do that, because a simpler mechanism - for example, limiting model instances by age or by number - achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it'll be much easier to do something like this.</p>
+<p><b>Reference counting</b>. If you want an accurate count of the number of models, you must hook into Collection events (e.g. add / remove / reset). I'm not going to do that, because a simpler mechanism -- for example, limiting model instances by age or by number -- achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it'll be much easier to do something like this.</p>
 
 
 <h2>Implementing the data store / cache</h2>
@@ -2513,7 +2515,7 @@ post.with(['tags', 'comments.author'], function(post) {
   <li>as objects with lifecycles</li>
 </ul>
 
-<p>The simplest systems make string interpolation and array iteration more convinient. The more complex ones generate metadata that can be used as an input for other systems.</p>
+<p>The simplest systems make string interpolation and array iteration more convenient. More complicated ones generate metadata that can be used as an input for other systems.</p>
 
 <p><b>The simplest templating system</b></p>
 
@@ -2529,7 +2531,7 @@ function itemTemplate(base) {
 }
 </pre>
 
-<p>Of course, writing templates with this syntax is generally not preferred. Instead, templating libraries are used in order to get the best of both worlds: the nicest possible template definition syntax; and the performance of using native JS operations. Templating syntax should have no performance impact - you should always precompile your templates into their optimal JS equivalents.</p>
+<p>Of course, writing templates with this syntax is generally not preferred. Instead, templating libraries are used in order to get the best of both worlds: the nicest possible template definition syntax, and the performance of using native JS operations. Templating syntax should have no performance impact - you should always precompile your templates into their optimal JS equivalents.</p>
 
 <p><b>The optimal output for simple templates</b></p>
 
@@ -2588,7 +2590,7 @@ function itemTemplate(base) {
 
 <p><b>Displaying a list of items.</b> There are basically two ways, and they correspond to how sets of items are represented in the model layer.</p>
 
-<p>The first option corresponds with observable arrays: you use an expression like <code>each</code> to iterate over the items in the observable array:</p>
+<p>The first option corresponds to observable arrays: you use an expression like <code>each</code> to iterate over the items in the observable array:</p>
 
 <pre class="prettyprint">
 {{view App.TodoList}}
@@ -2612,7 +2614,7 @@ function itemTemplate(base) {
 
 <p>Observable arrays lead to less sophisticated list rendering behavior. This is because <code>each</code> is not really aware of the context in which it is operating. Collection views are aware of the use case (since they are components written for that specific view) and can hence optimize better for the specific use case and markup.</p>
 
-<p>For example, imagine a chat message list of 1000 items that is only updated by appending new messages to it. An observable array representing a list of messages that contains a thousand items that are rendered using a <code>each</code> iterator will render each item into the DOM. A collection view might add restrictions about the number of items rendered (e.g. only showing the most recent, or implementing incremental rendering by only rendering the visible messages in the DOM). The observable array also needs to keep track of every message, since there is no way of telling it that the messages, once rendered, will never be updated. A collection view can have custom rendering logic that optimizes the render based on this knowledge. </p>
+<p>For example, imagine a chat message list of 1000 items that is only updated by appending new messages to it. An observable array representing a list of messages that contains a thousand items that are rendered using a <code>each</code> iterator will render each item into the DOM. A collection view might add restrictions about the number of items rendered (e.g. only showing the most recent, or implementing incremental rendering by only rendering the visible messages in the DOM). The observable array also needs to keep track of every message, since there is no way of telling it that the messages, once rendered, will never be updated. A collection view can have custom rendering logic that optimizes the renderer based on this knowledge. </p>
 
 <p> If we choose the "each" route for collections, then optimizing rendering performance becomes harder, because the mechanism most frameworks provide is based on rendering every item and tracking every item. Collection views can be optimized more, at the cost of manually writing code.</p>
 
@@ -2636,7 +2638,7 @@ function itemTemplate(base) {
 {{/view}}
 </pre>
 
-<p>This means that the output from compiling the above markup to object/metadata info should yield three views: UserInfo, UserContact and UserPermissions. Nested view definition is linked directly with the ability instantiate and render a hierarchy of views from the resulting object; in the case above, the UserInfo view needs to know how to instantiate and render UserContact and UserPermissions in order to draw itself.</p>
+<p>This means that the output from compiling the above markup to object/metadata info should yield three views: UserInfo, UserContact and UserPermissions. Nested view definition is linked directly with the ability to instantiate and render a hierarchy of views from the resulting object; in the case above, the UserInfo view needs to know how to instantiate and render UserContact and UserPermissions in order to draw itself.</p>
 
 <p>In order to implement this, we need several things:</p>
 
@@ -2657,7 +2659,7 @@ function itemTemplate(base) {
 
 <p>The first option is simpler from a framework perspective, but requires that you handle calls to render() yourself. This is just coordination, so not much to discuss here.</p>
 
-<p>The second option relies on adding metadata about which pieces of data are used in the views - so that when a model data change occurs, the right views/bound elements can be updated. Let's have a look at how this might be done next.</p>
+<p>The second option relies on adding metadata about which pieces of data are used in the views, so that when a model data change occurs, the right views/bound elements can be updated. Let's have a look at how this might be done next.</p>
 
 <h3>Adding metadata to enable granular (re)-rendering</h3>
 
@@ -2679,7 +2681,7 @@ Framework
   });
 </pre>
 
-<p>Where <code>$('#$1')</code> is an expression which selects the part to update. I am glossing over the implementation of the DOM selection for the piece of DOM. One way that might be done - in the case of a element-granular view layer - would be to create templating function that wraps those updateable tokens with a span tag and assigns sequential ID numbers to them:</p>
+<p>Where <code>$('#$1')</code> is an expression which selects the part to update. I am glossing over the implementation of the DOM selection for the piece of DOM. One way that might be done - in the case of a element-granular view layer - would be to create a templating function that wraps those updateable tokens with a span tag and assigns sequential ID numbers to them:</p>
 
 <pre class="prettyprint">
 &lt;div id="$0"&gt;
@@ -2687,9 +2689,9 @@ Framework
 &lt;/div&gt;
 </pre>
 
-<p>The id attributes would need to be generated on demand when the view is rendered, so that the code that subscribes to the change can then refer to the updateable part of the string by it's ID. For string-granular updates, the same would be achieved by using <code>&lt;script&gt;</code> tags, as discussed in the overview chapter for the view layer.</p>
+<p>The id attributes would need to be generated on demand when the view is rendered, so that the code that subscribes to the change can then refer to the updateable part of the string by its ID. For string-granular updates, the same would be achieved by using <code>&lt;script&gt;</code> tags, as discussed in the overview chapter for the view layer.</p>
 
-<p>To avoid having to type the fully qualified name of the model data which we want to bind to, views can add a default scope in the context of which their bindings are evaluated:</p>
+<p>To avoid having to type the fully qualified name of the model data that we want to bind to, views can add a default scope in the context of their bindings:</p>
 <pre class="prettyprint">
 {{view scope="window.App.currentUser"}}
    Hello {{ name }}!
@@ -2704,7 +2706,7 @@ Framework
 <p>In this chapter, I will discuss the things that need to happen in order to respond to user events:</p>
 
 <ul>
-  <li>attaching events to HTML in order to react to user events</li>
+  <li>attaching listeners to DOM nodes in the HTML in order to react to user events</li>
   <li>handling cross-view communication</li>
   <li>abstracting common behavior in views</li>
 </ul>
@@ -2740,7 +2742,7 @@ Framework
 
 <p><b>Multiple view state change.</b> In this case, we want a single action to influence multiple views. For example, in Gmail, change the compactness of the app display density. This will cause all views to adjust their display density, making them visually more compact.</p>
 
-<p>There are two ways this might be implemented: one, by sending a transient message to which all views react and two, by having a setting in the global scope that all views poll or subscribe to.</p>
+<p>There are two ways this might be implemented: by sending a transient message to which all views react, or by having a setting in the global scope that all views poll/subscribe to.</p>
 
 </td></tr>
 
@@ -2811,13 +2813,13 @@ View.events = {
 
 <p>Both of these are obviously just ways to call the DOM API to add event listeners to elements. The difference is that DOM-selector-based event bindings can be implemented much more simply. The framework-generated event bindings require that the framework generates selectors to attach the event bindings, and that the metadata for what events to listen to and what to do needs to be extracted out of the template into metadata or a view object.</p>
 
-<p>I find it fairly hilarious that we've basically gone a full circle: when JS launched, it began with onclick handlers inside HTML. Then people started hating on JS within HTML. And now, we're back to defining onclick handlers; except that now those onclick handlers actually get compiled into JS objects that represent the DOM that are managed by a framework.</p>
+<p>I find it fairly hilarious that we've basically come full circle: when JS launched, it began with onclick handlers inside HTML. Then people started hating on JS within HTML. And now, we're back to defining onclick handlers; except that now those onclick handlers actually get compiled into JS objects that represent the DOM that are managed by a framework.</p>
 
-<p>Of course, things are a bit different this iteration; the patterns used are more sophisticated; we pass a custom scope to the event handler; the bindings for the onclick handlers are more intelligent and binding/unbinding events is handled by the framework. There is a certain declarativeness to writing onclick handlers this time around. But still, I find it funny.</p>
+<p>Of course, things are a bit different on this iteration: the patterns used are more sophisticated, we pass a custom scope to the event handler, the bindings for the onclick handlers are more intelligent, and binding/unbinding events is handled by the framework. There is a certain declarativeness to writing onclick handlers this time around. But still, I find it funny.</p>
 
 <h2>Implementing event bindings</h2>
 
-<p>There is reason why many frameworks make a view represent a single element; it makes binding events a lot easier if you can instantiate the element early on. The initial render workflow looks something like this:</p>
+<p>There is a reason why many frameworks make a view represent a single element: it makes binding events a lot easier if you can instantiate the element early on. The initial render workflow looks something like this:</p>
 
 <pre class="prettyprint">
 var el, buffer, view;
@@ -2839,7 +2841,7 @@ bindEvents(el);
   <li>Destroyed</li>
 </ul>
 
-<p>Event bindings need to keep track of what the state of view is, so that they can ensure that the events are bound when a DOM element exists (since the only way to bind events is to have a DOM element for it).</p>
+<p>Event bindings need to keep track of the view's state to ensure that the events are bound when a DOM element exists (since the only way to bind events is to have a DOM element for it).</p>
 
 <p>How would this look in terms of code? For DOM-based bindings, something like this:</p>
 
@@ -2883,7 +2885,7 @@ View.prototype.attach = function(el, events) {
 
 <p><b>Communication between views</b>. Some actions - like the example in Gmail where you change the display density - require that multiple views change in response to the same user event. We need to pick a nice way to represent these changes, and trigger the right changes.</p>
 
-<p>These are both coordination problems. We want to specify that when A happens, B and C should also happen. In essence, we are trying to bridge the gap between concrete DOM events and event handlers spread accross multiple views:</p>
+<p>These are both coordination problems. We want to specify that when A happens, B and C should also happen. In essence, we are trying to bridge the gap between concrete DOM events and event handlers spread across multiple views:</p>
 
 <pre>
 [Events] &lt; - &gt; [Event handlers / actions]
@@ -2904,7 +2906,7 @@ MessageView.onSelect = function() {
 };
 </pre>
 
-<p>However, the problem is that this is highly likely to lead to breakage since the views are tightly coupled: the messageview knows about the message model, the list view and the menu view.</p>
+<p>However, the problem is that this is highly brittle since the views are tightly coupled: the message view knows about the message model, the list view and the menu view.</p>
 
 <p><b>Using a mediating controller</b> One way is to use a mediating controller, which refers to the objects directly. This looks something like this:</p>
 
@@ -3034,7 +3036,7 @@ Framework.observe('App.Todos', function() { ... });
   <li>A collection change event. You might represent the user action as a change on a collection or an observable array. The set of items is changed by the user action, and this triggers interested listeners in the view layer to update their contents. Using a collection makes it easy to find out which model(s) are selected, which is useful in cases (like the selection example).</li>
 </ul>
 
-<p>Observables generally do not support triggering transient events, since they are based on the idea that everything is a property of a model or observable array. While model and observable array changes generally cover most actions, it may be that some actions are best represented as transient events. For example, clicking a user in a list to bring up a edit dialog might be better implemented as a transient event rather than, say, a list click event handler that is tightly coupled to a particular dialog.</p>
+<p>Observables generally do not support triggering transient events, since they are based on the idea that everything is a property of a model or observable array. While model and observable array changes generally cover most actions, it may be that some actions are best represented as transient events. For example, clicking a user in a list to bring up an edit dialog might be better implemented as a transient event rather than, say, a list click event handler that is tightly coupled to a particular dialog.</p>
 
 <p>With observables, every interaction, event if it is limited to a single activity, will exist as a property on the model or collection (unless the developer goes outside the framework). This is a disadvantage: each interaction adds to the global complexity of models.</p>
 
@@ -3052,7 +3054,7 @@ Framework.observe('App.Todos', function() { ... });
 
 <h3>Which one should I pick?</h3>
 
-<p>The observables basically make the choice to have the data accessed by it's global name (which is used to establish subscriptions).</p>
+<p>The observables basically make the choice to have the data accessed by its global name (which is used to establish subscriptions).</p>
 
 <p>The global events approach makes the choice of having the data be pushed via a global intermediary; each view only knows about this intermediary and instead of referring to things by their name in the global scope, the event data is received directly with the event.</p>
 

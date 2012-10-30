@@ -73,7 +73,7 @@ $(function() {
 
 <p><b>Communication between views</b>. Some actions - like the example in Gmail where you change the display density - require that multiple views change in response to the same user event. We need to pick a nice way to represent these changes, and trigger the right changes.</p>
 
-<p>These are both coordination problems. We want to specify that when A happens, B and C should also happen. In essence, we are trying to bridge the gap between concrete DOM events and event handlers spread accross multiple views:</p>
+<p>These are both coordination problems. We want to specify that when A happens, B and C should also happen. In essence, we are trying to bridge the gap between concrete DOM events and event handlers spread across multiple views:</p>
 
 <pre>
 [Events] &lt; - &gt; [Event handlers / actions]
@@ -94,7 +94,7 @@ MessageView.onSelect = function() {
 };
 </pre>
 
-<p>However, the problem is that this is highly likely to lead to breakage since the views are tightly coupled: the messageview knows about the message model, the list view and the menu view.</p>
+<p>However, the problem is that this is highly brittle since the views are tightly coupled: the message view knows about the message model, the list view and the menu view.</p>
 
 <p><b>Using a mediating controller</b> One way is to use a mediating controller, which refers to the objects directly. This looks something like this:</p>
 
@@ -224,7 +224,7 @@ Framework.observe('App.Todos', function() { ... });
   <li>A collection change event. You might represent the user action as a change on a collection or an observable array. The set of items is changed by the user action, and this triggers interested listeners in the view layer to update their contents. Using a collection makes it easy to find out which model(s) are selected, which is useful in cases (like the selection example).</li>
 </ul>
 
-<p>Observables generally do not support triggering transient events, since they are based on the idea that everything is a property of a model or observable array. While model and observable array changes generally cover most actions, it may be that some actions are best represented as transient events. For example, clicking a user in a list to bring up a edit dialog might be better implemented as a transient event rather than, say, a list click event handler that is tightly coupled to a particular dialog.</p>
+<p>Observables generally do not support triggering transient events, since they are based on the idea that everything is a property of a model or observable array. While model and observable array changes generally cover most actions, it may be that some actions are best represented as transient events. For example, clicking a user in a list to bring up an edit dialog might be better implemented as a transient event rather than, say, a list click event handler that is tightly coupled to a particular dialog.</p>
 
 <p>With observables, every interaction, event if it is limited to a single activity, will exist as a property on the model or collection (unless the developer goes outside the framework). This is a disadvantage: each interaction adds to the global complexity of models.</p>
 
@@ -242,7 +242,7 @@ Framework.observe('App.Todos', function() { ... });
 
 <h3>Which one should I pick?</h3>
 
-<p>The observables basically make the choice to have the data accessed by it's global name (which is used to establish subscriptions).</p>
+<p>The observables basically make the choice to have the data accessed by its global name (which is used to establish subscriptions).</p>
 
 <p>The global events approach makes the choice of having the data be pushed via a global intermediary; each view only knows about this intermediary and instead of referring to things by their name in the global scope, the event data is received directly with the event.</p>
 

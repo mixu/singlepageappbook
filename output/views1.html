@@ -77,7 +77,7 @@ $(function() {
   <li>as objects with lifecycles</li>
 </ul>
 
-<p>The simplest systems make string interpolation and array iteration more convinient. The more complex ones generate metadata that can be used as an input for other systems.</p>
+<p>The simplest systems make string interpolation and array iteration more convenient. More complicated ones generate metadata that can be used as an input for other systems.</p>
 
 <p><b>The simplest templating system</b></p>
 
@@ -93,7 +93,7 @@ function itemTemplate(base) {
 }
 </pre>
 
-<p>Of course, writing templates with this syntax is generally not preferred. Instead, templating libraries are used in order to get the best of both worlds: the nicest possible template definition syntax; and the performance of using native JS operations. Templating syntax should have no performance impact - you should always precompile your templates into their optimal JS equivalents.</p>
+<p>Of course, writing templates with this syntax is generally not preferred. Instead, templating libraries are used in order to get the best of both worlds: the nicest possible template definition syntax, and the performance of using native JS operations. Templating syntax should have no performance impact - you should always precompile your templates into their optimal JS equivalents.</p>
 
 <p><b>The optimal output for simple templates</b></p>
 
@@ -152,7 +152,7 @@ function itemTemplate(base) {
 
 <p><b>Displaying a list of items.</b> There are basically two ways, and they correspond to how sets of items are represented in the model layer.</p>
 
-<p>The first option corresponds with observable arrays: you use an expression like <code>each</code> to iterate over the items in the observable array:</p>
+<p>The first option corresponds to observable arrays: you use an expression like <code>each</code> to iterate over the items in the observable array:</p>
 
 <pre class="prettyprint">
 {{view App.TodoList}}
@@ -176,7 +176,7 @@ function itemTemplate(base) {
 
 <p>Observable arrays lead to less sophisticated list rendering behavior. This is because <code>each</code> is not really aware of the context in which it is operating. Collection views are aware of the use case (since they are components written for that specific view) and can hence optimize better for the specific use case and markup.</p>
 
-<p>For example, imagine a chat message list of 1000 items that is only updated by appending new messages to it. An observable array representing a list of messages that contains a thousand items that are rendered using a <code>each</code> iterator will render each item into the DOM. A collection view might add restrictions about the number of items rendered (e.g. only showing the most recent, or implementing incremental rendering by only rendering the visible messages in the DOM). The observable array also needs to keep track of every message, since there is no way of telling it that the messages, once rendered, will never be updated. A collection view can have custom rendering logic that optimizes the render based on this knowledge. </p>
+<p>For example, imagine a chat message list of 1000 items that is only updated by appending new messages to it. An observable array representing a list of messages that contains a thousand items that are rendered using a <code>each</code> iterator will render each item into the DOM. A collection view might add restrictions about the number of items rendered (e.g. only showing the most recent, or implementing incremental rendering by only rendering the visible messages in the DOM). The observable array also needs to keep track of every message, since there is no way of telling it that the messages, once rendered, will never be updated. A collection view can have custom rendering logic that optimizes the renderer based on this knowledge. </p>
 
 <p> If we choose the "each" route for collections, then optimizing rendering performance becomes harder, because the mechanism most frameworks provide is based on rendering every item and tracking every item. Collection views can be optimized more, at the cost of manually writing code.</p>
 
@@ -200,7 +200,7 @@ function itemTemplate(base) {
 {{/view}}
 </pre>
 
-<p>This means that the output from compiling the above markup to object/metadata info should yield three views: UserInfo, UserContact and UserPermissions. Nested view definition is linked directly with the ability instantiate and render a hierarchy of views from the resulting object; in the case above, the UserInfo view needs to know how to instantiate and render UserContact and UserPermissions in order to draw itself.</p>
+<p>This means that the output from compiling the above markup to object/metadata info should yield three views: UserInfo, UserContact and UserPermissions. Nested view definition is linked directly with the ability to instantiate and render a hierarchy of views from the resulting object; in the case above, the UserInfo view needs to know how to instantiate and render UserContact and UserPermissions in order to draw itself.</p>
 
 <p>In order to implement this, we need several things:</p>
 
@@ -221,7 +221,7 @@ function itemTemplate(base) {
 
 <p>The first option is simpler from a framework perspective, but requires that you handle calls to render() yourself. This is just coordination, so not much to discuss here.</p>
 
-<p>The second option relies on adding metadata about which pieces of data are used in the views - so that when a model data change occurs, the right views/bound elements can be updated. Let's have a look at how this might be done next.</p>
+<p>The second option relies on adding metadata about which pieces of data are used in the views, so that when a model data change occurs, the right views/bound elements can be updated. Let's have a look at how this might be done next.</p>
 
 <h3>Adding metadata to enable granular (re)-rendering</h3>
 
@@ -243,7 +243,7 @@ Framework
   });
 </pre>
 
-<p>Where <code>$('#$1')</code> is an expression which selects the part to update. I am glossing over the implementation of the DOM selection for the piece of DOM. One way that might be done - in the case of a element-granular view layer - would be to create templating function that wraps those updateable tokens with a span tag and assigns sequential ID numbers to them:</p>
+<p>Where <code>$('#$1')</code> is an expression which selects the part to update. I am glossing over the implementation of the DOM selection for the piece of DOM. One way that might be done - in the case of a element-granular view layer - would be to create a templating function that wraps those updateable tokens with a span tag and assigns sequential ID numbers to them:</p>
 
 <pre class="prettyprint">
 &lt;div id="$0"&gt;
@@ -251,9 +251,9 @@ Framework
 &lt;/div&gt;
 </pre>
 
-<p>The id attributes would need to be generated on demand when the view is rendered, so that the code that subscribes to the change can then refer to the updateable part of the string by it's ID. For string-granular updates, the same would be achieved by using <code>&lt;script&gt;</code> tags, as discussed in the overview chapter for the view layer.</p>
+<p>The id attributes would need to be generated on demand when the view is rendered, so that the code that subscribes to the change can then refer to the updateable part of the string by its ID. For string-granular updates, the same would be achieved by using <code>&lt;script&gt;</code> tags, as discussed in the overview chapter for the view layer.</p>
 
-<p>To avoid having to type the fully qualified name of the model data which we want to bind to, views can add a default scope in the context of which their bindings are evaluated:</p>
+<p>To avoid having to type the fully qualified name of the model data that we want to bind to, views can add a default scope in the context of their bindings:</p>
 <pre class="prettyprint">
 {{view scope="window.App.currentUser"}}
    Hello {{ name }}!

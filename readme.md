@@ -31,6 +31,10 @@ To rebuild the .epub and .mobi files:
 
 You need to install calibre first for the HTML to epub/mobi conversion.
 
+# Thanks
+
+Many many thanks to jamesarosen and ahizzle for their help!
+
 # Licence
 
 This book is available for free, but what I've written remains mine.

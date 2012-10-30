@@ -70,7 +70,7 @@ $(function() {
 <p>In this chapter, I will discuss the things that need to happen in order to respond to user events:</p>
 
 <ul>
-  <li>attaching events to HTML in order to react to user events</li>
+  <li>attaching listeners to DOM nodes in the HTML in order to react to user events</li>
   <li>handling cross-view communication</li>
   <li>abstracting common behavior in views</li>
 </ul>
@@ -106,7 +106,7 @@ $(function() {
 
 <p><b>Multiple view state change.</b> In this case, we want a single action to influence multiple views. For example, in Gmail, change the compactness of the app display density. This will cause all views to adjust their display density, making them visually more compact.</p>
 
-<p>There are two ways this might be implemented: one, by sending a transient message to which all views react and two, by having a setting in the global scope that all views poll or subscribe to.</p>
+<p>There are two ways this might be implemented: by sending a transient message to which all views react, or by having a setting in the global scope that all views poll/subscribe to.</p>
 
 </td></tr>
 
@@ -177,13 +177,13 @@ View.events = {
 
 <p>Both of these are obviously just ways to call the DOM API to add event listeners to elements. The difference is that DOM-selector-based event bindings can be implemented much more simply. The framework-generated event bindings require that the framework generates selectors to attach the event bindings, and that the metadata for what events to listen to and what to do needs to be extracted out of the template into metadata or a view object.</p>
 
-<p>I find it fairly hilarious that we've basically gone a full circle: when JS launched, it began with onclick handlers inside HTML. Then people started hating on JS within HTML. And now, we're back to defining onclick handlers; except that now those onclick handlers actually get compiled into JS objects that represent the DOM that are managed by a framework.</p>
+<p>I find it fairly hilarious that we've basically come full circle: when JS launched, it began with onclick handlers inside HTML. Then people started hating on JS within HTML. And now, we're back to defining onclick handlers; except that now those onclick handlers actually get compiled into JS objects that represent the DOM that are managed by a framework.</p>
 
-<p>Of course, things are a bit different this iteration; the patterns used are more sophisticated; we pass a custom scope to the event handler; the bindings for the onclick handlers are more intelligent and binding/unbinding events is handled by the framework. There is a certain declarativeness to writing onclick handlers this time around. But still, I find it funny.</p>
+<p>Of course, things are a bit different on this iteration: the patterns used are more sophisticated, we pass a custom scope to the event handler, the bindings for the onclick handlers are more intelligent, and binding/unbinding events is handled by the framework. There is a certain declarativeness to writing onclick handlers this time around. But still, I find it funny.</p>
 
 <h2>Implementing event bindings</h2>
 
-<p>There is reason why many frameworks make a view represent a single element; it makes binding events a lot easier if you can instantiate the element early on. The initial render workflow looks something like this:</p>
+<p>There is a reason why many frameworks make a view represent a single element: it makes binding events a lot easier if you can instantiate the element early on. The initial render workflow looks something like this:</p>
 
 <pre class="prettyprint">
 var el, buffer, view;
@@ -205,7 +205,7 @@ bindEvents(el);
   <li>Destroyed</li>
 </ul>
 
-<p>Event bindings need to keep track of what the state of view is, so that they can ensure that the events are bound when a DOM element exists (since the only way to bind events is to have a DOM element for it).</p>
+<p>Event bindings need to keep track of the view's state to ensure that the events are bound when a DOM element exists (since the only way to bind events is to have a DOM element for it).</p>
 
 <p>How would this look in terms of code? For DOM-based bindings, something like this:</p>
 

@@ -70,13 +70,13 @@ $(function() {
 <p>Why do we want to write single page apps? The main reason is that they allow us to offer a
    more-native-app-like experience to the user.</p>
 
-<p>This would be hard to do with other approaches. Supporting rich interactions with multiple components on a page means that those components have many more intermediate states (e.g. menu open, menu item X selected, menu item Y selected, menu item clicked). Server-side rendering would be hard to implement for all the intermediate states - small view states do not map well to URLs.</p>
+<p>This is hard to do with other approaches. Supporting rich interactions with multiple components on a page means that those components have many more intermediate states (e.g. menu open, menu item X selected, menu item Y selected, menu item clicked). Server-side rendering is hard to implement for all the intermediate states - small view states do not map well to URLs.</p>
 
 <p>Single page apps are distinguished by their ability to redraw any part of the UI without requiring a server roundtrip to retrieve HTML. This is achieved by separating the data from the presentation of data by having a model layer that handles data and a view layer that reads from the models.</p>
 
 <p>Most projects start with high ambitions, and an imperfect understanding of the problem at hand. Our implementations tend to outpace our understanding. It is possible to write code without understanding the problem fully; that code is just more complex than it needs to be because of our lack of understanding.</p>
 
-<p>Good code comes from solving the same problem multiple times; or refactoring. Usually, this proceeds by noticing recurring patterns and replacing them with a mechanism that does the same thing in a consistent way - replacing a lot of "case-specific" code, which in fact was just there because we didn't see that a simpler mechanism could achieve the same thing.</p>
+<p>Good code comes from solving the same problem multiple times, or refactoring. Usually, this proceeds by noticing recurring patterns and replacing them with a mechanism that does the same thing in a consistent way - replacing a lot of "case-specific" code, which in fact was just there because we didn't see that a simpler mechanism could achieve the same thing.</p>
 
 <p>The architectures used in single page apps represent the result of this process: where you would do things in an ad-hoc way using jQuery, you now write code that takes advantage of standard mechanisms (e.g. for UI updates etc.).</p>
 
@@ -84,7 +84,8 @@ $(function() {
 
 <p>To write maintainable code, we need to keep things simple. This is a constant struggle; it is easy to add complexity (intertwinedness/dependencies) in order to solve a worthless problem; and it is easy to solve a problem in a way that doesn't reduce complexity. Namespaces are an example of the latter.</p>
 
-<p>With that in mind, let's look at how a modern web app is structured; and look at three different perspectives:</p>
+<p>With that in mind, let's look at how a modern web app is structured
+  from three different perspectives:</p>
 
 <ul>
   <li><b>Architecture</b>: what (conceptual) parts does our app consist of? How do the different parts communicate with each other? How do they depend on each other?</li>
