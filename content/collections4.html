@@ -41,7 +41,7 @@ Model.prototype.url = function(method) {
 
 <p>When the model doesn't have a id, we will use the "create" endpoint, and when the model does have id, we'll use the "update"/"delete" endpoint. If you set Model.prototype.urlRoot to "http://localhost/user", then you'll get the urls above, or if your URLs are different, you can replace Model.prototype.url with your own function.</p>
 
-<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convinience, let's redirect <code>Model.save()</code> to the DataStore:</p>
+<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convenience, let's redirect <code>Model.save()</code> to the DataStore:</p>
 
 <pre class="prettyprint">
 Model.prototype.save = function(callback) {
