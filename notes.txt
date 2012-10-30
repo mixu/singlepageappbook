@@ -1,0 +1,292 @@
+
+
+maintainability3:
+- tdd style
+- tdd justification:
+
+"Test driven development is not valuable because it catches errors,
+but because it changes the way you think about interfaces between
+modules. Writing tests <i>before you write code</i> influences how you
+think about the public interface of your modules and their coupling,
+it provides a safety net for performing refactoring and it documents
+the expected behavior of the system."
+
+"Tests are a contract: this is what this particular module needs to
+provide externally."
+
+- use anything but Jasmine; Mixu likes Mocha (me too!)
+- prefers the exports['test description'] style for writing tests.
+  I've been using the BDD style, describe()/it().  His argument in
+  favor of exports style is that it's the 'simplest thing that works'.
+
+- nice, lucid description of the concept of "dependency injection".
+  Basically just the ability to swap in/out a module's dependency
+  explicitly... for example, by taking a db storage backend and swapping
+  it for a mock storage backend.
+  - two ways: pass as a param into the constructor, or swap out a
+  module for a different one that obeys the same contract.
+- example of constructor-param style: 
+
+function Channel(options) {
+  this.backend = options.backend || require('persistence');
+};
+
+- note that this is annoying because everywhere in your module you now
+  reference this.backend.send instead of this.send. you also now
+  always pass in this param even though you only need it for testing.
+  and you need to expose that param all the way up your stack for as long
+  as you want to be able to separate it out...
+
+- Module substitution: just add a function like _setBackend();  He
+  tried other approaches but the added complexity didn't pay off for
+  enough gains. Note: "Since module requires are cached, that private
+  closure and variable can be set for every call to the module, even
+  when the module is required from multiple different files."
+
+eg:
+<pre class="prettyprint">
+var Persistence = require('persistence');
+
+function Channel() { };
+Channel.prototype.publish = function(message) {
+  Persistence.send(message);
+};
+Channel._setBackend = function(backend) {
+  Persistence = backend;
+};
+module.exports = Channel;
+</pre>
+
+- Add EventEmitter.when(event, cb) as an extension to the EE API,
+  similar to EE.once(), except that the callback is only removed on
+  success. Clever.
+
+EventEmitter.when = function(event, callback) {
+  var self = this;
+  function check() {
+    if(callback.apply(this, arguments)) {
+      self.removeListener(event, check);
+    }
+  }
+  check.listener = callback;
+  self.on(event, check);
+  return this;
+};
+
+detail1: The View Layer
+- The view layer is the most complex part of a modern SPA.  After all
+that's the whole point of writing an SPA in the first place,
+better/richer interactions.
+- Low vs High interactivity: Github vs Gmail. Bot SPAs but with
+different approaches needed.
+- Close to server vs Close to client: closer to client =
+richer/faster/more dynamic user experience. close to server = faster
+DB/storage access.
+- Approaches:
+  - data in markup+html manipulation. have most of the data already
+  present in the DOM and use javascript to spruce it up (eg, take an
+  existing ul/li list and add some js to allow for filtering and
+  sorting).
+  - specific html/css markup - make small, targeted parts of the app
+  dynamic in a declarative fashion.
+  - PJAX - user action triggers code that replace part/parts of the
+  existing page with new content fetched from the server, then use the
+  HTML5 History API / PushState to give the appearance of a page
+  change.
+  - Widgets - generated page is just a loader for JS. The page
+  instantiates the widgets, then they go off and fetch more data via a
+  JSON API or something.  Mostly you work w/ widgets, not HTML or CSS.
+  - Markup-driven vs Model-backed views
+    - model-backed: you start with the model first. instantiate it,
+    then pass it to the view.  Views then attach themselves into the
+    DOM and render their content by running the model data through a
+    template.
+    - markup-driven: still have views/models, but the relationship is
+    inverted. views are wirtten using mostly markup (declarative
+    style). So the view accesses model data directly as needed.
+    - markup-driven vs model-backed are two very different styles.
+    - if you go markup-style, you need an intricate template system
+    capable of generating the metadata needed for the functionality.
+    Need to translate the templating language into view objects
+     - if you go model (ie, code)-style, it's more verbose to write
+     but simpler overall.  Framework code size can be vastly different
+     (he implies it's much smaller for model style)
+
+  - where to store view behaviour: view object or "controller" object?
+    Traditional MVC says "skinny controller, fat model".  Take it a
+    step further and nuke controller entirely, replace with just view
+    code + initialization code (to bind data/setup behaviour).
+
+  - "But writing code in your view is bad!" -- sure, if the "view" is
+    just a giant string of HTML.  But in an SPA, that's not the case
+    at all... You have the luxury of thinking at a higher level of
+    abstraction. In a SPA the init step for a view is just the first
+    step in interacting with a user.  A nicely self-contained
+    component with both presentation + behaviour (ie, well
+    modularized) is easier to use and test.
+
+  - Markup-driven style: ideally, there would be no view objects at
+    all; everything would be handled by the markup and data.
+
+  - Instead of overloading 'controller' to sometimes mean "code
+    pertaining to a specific view" as well as "code that coordinates
+    your overall application state", think of 
+      - view behaviour
+      - initialization code
+
+- Observables vs EventEmitter - not much difference. Observable =
+  global via name, EventEmitter = attach directly to object.
+  Markup-driven style tends to lead to the use of observables. He
+  dislikes observables b/c of the 'reference everything by global
+  string' issue.  Also observables tend to lead to larger models,
+  where you slam stuff in to the general model even though it's only
+  used in a particular view...
+
+- Update granularity: view vs element vs string.  Subtle but important
+  part of the view layer.
+    - view-granular: view is an element reference and you replace the
+  whole thing on update.
+    - element-granular: sub-addressable components exist in the DOM
+  and can be swapped out, need to be wrapped in DOM elements. if
+  you're adding these on in the framework, can mess with CSS that
+  might be in place... (eg, disrupting the class hierarchy)
+    - string-granular: most complex but most flexible.  use script
+  tags or comment tags to delimit updateable content (the latter b/c
+  the Range API is broken on IE?)
+
+- Conclusion: "There is a tradeoff between DRY and simplicity. When
+  your templating system is less sophisticated, you tend to need to
+  write more code, but that code will be simpler to troubleshoot.
+  Basically, you can expect to understand the code you wrote, but
+  fewer people are well versed in what might go wrong in your
+  framework code."
+
+- details2: data sources, models, collections
+  - data source: make a model out of stored data. fetch by ID or
+    search by some criteria.  Can also read from cache as appropriate to
+    improve performance
+  - model: translate between your app and guts/details of interacting
+    with the data source.  Emits events when data changes, otherwise
+    mostly just stores data.  May also have associations and
+    validations.
+  - collection: a list of models. emits events when items
+    added/removed, has a defined item ordering.  
+    - Implement as either
+      - Model collection that emits events
+      - Observable array of items
+  - cache: allow for faster retrieval, save to database storage,
+    prevent duplicates from being instantiated (?)
+
+- collections1: implementing a data source
+  - mixu builds a RESTful, chainable data source API with the
+    following features (written as test cases):
+    - load single item by ID
+    - load multiple items by ID
+    - load items by search query
+    - add search conditions using and()
+    - chainable API: not much code needed to do this! (pun)
+  - takes two params: URL and Model. URL is where to get the data,
+    Model is what to wrap the returned JSON with, if desired.
+    Otherwise they'll be plain javascript objects.
+  - if arg == number, assume model ID. if arg == array, assume it's a
+    list of IDs. if arg == object, assume it's a key:value search
+    param.
+  - example of this API in action
+Client
+  .get('http://www.google.com/')
+  .data({q: 'hello world'})
+  .end(function(err, data) {
+    console.log(data);
+  });
+
+- collections2: implementing a model
+  - data, events, persistence
+  - his own is quite small and portable, though suggests the Backbone
+    model is more "production-ready"
+
+- collections3: collections for real
+  - features:
+    - store items, emit events - .add()
+    - clear it out - .reset()
+    - remove items - .remove(model)
+    - retrieve by index/retrieve all - return this._items[index] /
+      this._items
+    - iteration: forEach, filter, map, every, some
+    - sorting: just need a comparator function, then pass that into
+      Array.sort
+  -  example usage:
+var items = new Collection();
+items.on('add', function(item) {
+  console.log('Added', item);
+});
+setInterval(function() {
+  items.add(Math.floor(Math.random() * 100));
+  console.log(items.all());
+}, 1000);
+
+  - creating a collection 
+    - listen on .add/.remove to maintain the direct-to-ID mapping as
+      well for .get
+    - listen for change events in the models, so that we know when
+      we've changed too
+    - unbind when a model is removed, or the entire collection gets reset
+
+- collections4: data cache
+  - Make Model.save/destroy calls now reference the datastore instead of a
+    direct operation.
+  - model lifecycle: 
+    - instantiation: new Model() and DataSource.find()
+  - persistence: create, update, delete -- remembering the cache as appropriate
+  - data changes: when a model changes, its cache entry should be
+    updated.
+  - reference counting: to keep track of how many things you have
+  - implementing the store/cache: .add .has .save. delete .reference
+  - (what is .reference?)
+
+- collections5: associations: hasOne, hasMany
+  - Basically sugar to make coding more pleasant
+  - Dealing w/ callbacks: series, parallel, parallel+capped
+    concurrency
+  - knocks against Promises style: "APIs that <i>appear</i> not to
+    incur the cost of IO but actually do are the leakiest of
+    abstractions"
+  - acknowledges that he doesn't want mega-rightward drift via
+    callback nesting either, though
+  - his approach? Declare the dependencies and then a callback to run
+    once all the deps are resolved (eg, loaded from DB, etc).
+
+- views1: templating systems
+  - types of views: ones that emit
+    - simple functions
+    - functions + metadata
+    - full-blown objects with lifecycles
+  - template = the thing that turns data into HTML
+  - use a templating lib to get the nicest possible template-writing
+    syntax, and the performance of using native JS otherwise
+  - this isn't performance-critical code, usually...
+  - element/string-granular rendering requires a templating system w/
+    full objects or functions+metadata...
+
+- views2: behavior: binding DOM events to HTML
+  - need to delay event registration and ensure that our handlers are
+    attached, but only once
+  - DOM-based event bindings: basically good ol' jquery style
+    $(selector).on('event', fn(){ dostuff(); });
+  - "There is reason why many frameworks make a view represent a
+    single element; it makes binding events a lot easier if you can
+    instantiate the element early on. The initial render workflow
+    looks something like this:"
+
+- views3: consuming events from the model layer
+  - re-rendering views in response to data changes
+  - communication between views
+  - these are both coordination problems. We want to bridge the gap
+    between the DOM events and event handlers scattered across
+    multiple views
+  - boils down to observables vs event emitters, which as mentioned
+    are basically just the same thing anyway
+  - different implications for observables vs event emitters:
+    observables are basically a form of global state, boo. at least
+    with a shared message bus (ie, global event emitter), it's just
+    that one piece that's actually global to all modules...
+  

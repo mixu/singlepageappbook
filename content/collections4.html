@@ -41,7 +41,7 @@ Model.prototype.url = function(method) {
 
 <p>When the model doesn't have a id, we will use the "create" endpoint, and when the model does have id, we'll use the "update"/"delete" endpoint. If you set Model.prototype.urlRoot to "http://localhost/user", then you'll get the urls above, or if your URLs are different, you can replace Model.prototype.url with your own function.</p>
 
-<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convinience, let's redirect <code>Model.save()</code> to the DataStore:</p>
+<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convenience, let's redirect <code>Model.save()</code> to the DataStore:</p>
 
 <pre class="prettyprint">
 Model.prototype.save = function(callback) {
@@ -102,7 +102,7 @@ Model.delete();
 
 <p><b>Data changes</b>. When the model ID changes, the cache should be updated to reflect this.</p>
 
-<p><b>Reference counting</b>. If you want to accurate count the number of models, you'll need to hook into Collection events (e.g. add / remove / reset). I'm not going to do that, because a simpler mechanism - for example, limiting model instances by age or by number - achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it'll be much easier to do something like this.</p>
+<p><b>Reference counting</b>. If you want an accurate count of the number of models, you must hook into Collection events (e.g. add / remove / reset). I'm not going to do that, because a simpler mechanism -- for example, limiting model instances by age or by number -- achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it'll be much easier to do something like this.</p>
 
 
 <h2>Implementing the data store / cache</h2>

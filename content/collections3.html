@@ -5,10 +5,10 @@
 <ul>
   <li>contains items (or models)</li>
   <li>emits events when items are added/removed</li>
-  <li>is ordered; can be accessed by index via <code>at()</code> and by model id via <code>get()</code></li>
+  <li>is ordered; can be accessed by index via <code>at()</code> and by model ID via <code>get()</code></li>
 </ul>
 
-<p>In this chapter, we'll write a observable array, and then add some additional niceties on top of it to make it a collection (e.g. something that is specific to storing models).</p>
+<p>In this chapter, we'll write an observable array, and then add some additional niceties on top of it to make it a collection (e.g. something that is specific to storing models).</p>
 
 <h2>Storing Models and emitting events</h2>
 
@@ -24,7 +24,7 @@ util.inherits(Collection, events.EventEmitter);
 
 <p>To support passing a set of initial models, we call this.add() in the constructor.</p>
 
-<p><b>Resetting the collection</b>. Self-explanatory, really. We will use an array to store the models, because collections are ordered rather than indexed; and we will maintain a length property directly for convinience.</p>
+<p><b>Resetting the collection</b>. Self-explanatory, really. We will use an array to store the models, because collections are ordered rather than indexed; and we will maintain a length property directly for convenience.</p>
 
 <pre class="prettyprint">
 Collection.prototype.reset = function() {
@@ -34,7 +34,7 @@ Collection.prototype.reset = function() {
 };
 </pre>
 
-<p><b>Adding items</b>. We should be able to call <code>add(model)</code> and receive a "add" event when the model is added.</p>
+<p><b>Adding items</b>. We should be able to call <code>add(model)</code> and emit/listen for an "add" event when the model is added.</p>
 
 <pre class="prettyprint">
 Collection.prototype.add = function(model, at) {
@@ -51,7 +51,7 @@ Collection.prototype.add = function(model, at) {
 
 <p>To support calling <code>add([model1, model2])</code>, we'll check if the first parameter is an array and make multiple calls in that case.</p>
 
-<p>Other than that, we just use Array.splice to insert the model. The optional <code>at</code> param allows us to specify a particular index to add at. Finally, after each add, we emit the "add" event.s</p>
+<p>Other than that, we just use Array.splice to insert the model. The optional <code>at</code> param allows us to specify a particular index to add at. Finally, after each add, we emit the "add" event.</p>
 
 <p><b>Removing items</b>. We should be able to call <code>remove(model)</code> to remove a model, and receive events when the item is removed. Again, the code is rather trivial.</p>
 
@@ -160,7 +160,7 @@ Collection.prototype.add = function(model, at) {
 };
 </pre>
 
-<p>And we need to unbind when the model is removed, or the collection is reset:</p>
+<p>And we need to unbind when a model is removed, or the collection is reset:</p>
 
 <pre class="prettyprint">
 Collection.prototype.remove = function(model){
