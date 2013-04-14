@@ -21,9 +21,15 @@ BookGen.generate = function(config) {
 
 BookGen.processFiles = function(config, files) {
   // load the layout
-  var header = handlebars.compile(new String(fs.readFileSync(config.layout + 'header.hdbs')));
-  var header_single = handlebars.compile(new String(fs.readFileSync(config.layout + 'header_single.hdbs')));
-  var footer = handlebars.compile(new String(fs.readFileSync(config.layout + 'footer.hdbs')));
+  var header = handlebars.compile(
+        fs.readFileSync(config.layout + 'header.hdbs').toString()
+      ),
+      header_single = handlebars.compile(
+        fs.readFileSync(config.layout + 'header_single.hdbs').toString()
+      ),
+      footer = handlebars.compile(
+        fs.readFileSync(config.layout + 'footer.hdbs').toString()
+      );
 
   if(config.input.order == 'sort') {
     // sort the files

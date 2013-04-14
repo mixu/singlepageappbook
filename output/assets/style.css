@@ -418,5 +418,6 @@ div .ref {
   border: 1px solid #E8E8E8;
   background-color: #FBFBDD;
   padding: .5em 1em;
+  margin-bottom: 1.5em;
   max-width: 580px;
 }

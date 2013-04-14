@@ -88,7 +88,7 @@ $(function() {
   <li><a href="views2.html">Behavior: binding DOM events to HTML and responding to events</a></li>
   <li><a href="views3.html">Consuming events from the model layer: communication between views and re-rendering views in response to model data changes</a></li>
 </ul>
-<h1 class="chapter">1. Modern web applications: a overview</h1>
+<h1 class="chapter">1. Modern web applications: an overview</h1>
 
 <p>Why do we want to write single page apps? The main reason is that they allow us to offer a
    more-native-app-like experience to the user.</p>
@@ -387,7 +387,7 @@ function FooObserver() {
 }
 
 var f = new FooObserver();
-FooObserver.observe('window.Foo.Bar');
+f.observe('window.Foo.Bar');
 
 module.exports = FooObserver;
 </pre>
@@ -408,7 +408,7 @@ module.exports = {
   initialize: function(win) {
     win.Foo.Bar = new Baz();
     var f = new FooObserver();
-    FooObserver.observe('window.Foo.Bar');
+    f.observe('window.Foo.Bar');
   }
 };
 </pre>

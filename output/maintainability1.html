@@ -216,7 +216,7 @@ function FooObserver() {
 }
 
 var f = new FooObserver();
-FooObserver.observe('window.Foo.Bar');
+f.observe('window.Foo.Bar');
 
 module.exports = FooObserver;
 </pre>
@@ -237,7 +237,7 @@ module.exports = {
   initialize: function(win) {
     win.Foo.Bar = new Baz();
     var f = new FooObserver();
-    FooObserver.observe('window.Foo.Bar');
+    f.observe('window.Foo.Bar');
   }
 };
 </pre>
