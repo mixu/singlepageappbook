@@ -202,7 +202,7 @@
 <p>So, how can we use this model class? Here is a simple example of how to define a model:</p>
 
 <pre class="prettyprint">function Photo(attr) {
-  Model.prototype.apply(this, attr);
+  Model.apply(this, attr);
 }
 
 Photo.prototype = new Model();
@@ -223,7 +223,7 @@ badger.on('change', function(key, value, oldValue) {
 
 <pre class="prettyprint">function Photo(attr) {
   attr.src || (attr.src = 'default.jpg');
-  Model.prototype.apply(this, attr);
+  Model.apply(this, attr);
 }
 </pre>
 
