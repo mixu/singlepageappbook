@@ -329,9 +329,12 @@ server.on('request', function(req, res) {
       data += part;
     });
     req.on('end', function() {
-      var search = JSON.parse(data);
-      // search the todos array by key - value pair
-      res.end(JSON.stringify(
+      var search = undefined;
+      try {
+        search = JSON.parse(data);
+      } catch (error) {}
+      res.end(typeof(search) === 'undefined' ? undefined : JSON.stringify(
+        // search the todos array by key - value pair
         todos.filter(function(item) {
           return Object.keys(search).every(function(key) {
             return item[key] &amp;&amp; item[key] == search[key];
