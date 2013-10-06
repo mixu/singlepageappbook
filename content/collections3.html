@@ -73,7 +73,7 @@ Collection.prototype.at = function(index) { return this._items[index]; };
 </pre>
 
 <pre class="prettyprint">
-Collection.prototype.all = function() { return this._items; };
+Collection.prototype.all = function() { return this._items.slice(); };
 </pre>
 
 <h2>Iteration</h2>
