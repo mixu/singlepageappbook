@@ -113,7 +113,7 @@
 
 <p>The default ("throw each JS file into the global namespace and hope that the result works") is terrible, because it makes unit testing - and by extension, refactoring - hard. This is because bad modularization leads to dependencies on global state and global names which make setting up tests hard.</p>
 
-<p>In addition, implicit dependencies make it very hard to know which modules depend whatever code you are refactoring; you basically rely on other people following good practice (don't depend on things I consider internal details) consistently. Explicit dependencies enforce a public interface, which means that refactoring becomes much less of a pain since others can only depend on what you expose. It also encourages thinking about the public interface more. The details of how to do this are in the chapters on maintainability and modularity.</p>
+<p>In addition, implicit dependencies make it very hard to know which modules depend on whatever code you are refactoring; you basically rely on other people following good practices (don't depend on things I consider internal details) consistently. Explicit dependencies enforce a public interface, which means that refactoring becomes much less of a pain since others can only depend on what you expose. It also encourages thinking about the public interface more. The details of how to do this are in the chapters on maintainability and modularity.</p>
 
 
 <h2>Run-time state</h2>
