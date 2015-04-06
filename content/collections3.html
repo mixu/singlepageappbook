@@ -58,7 +58,7 @@ Collection.prototype.add = function(model, at) {
 <pre class="prettyprint">
 Collection.prototype.remove = function(model){
   var index = this._items.indexOf(model);
-  if (index &lt; -1) {
+  if (index &gt; -1) {
     this._items.splice(index, 1);
     this.length = this._items.length;
     this.emit('remove', model, this);
