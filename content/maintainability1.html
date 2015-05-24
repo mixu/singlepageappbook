@@ -135,7 +135,7 @@ function initialize(win) {
 })();
 </pre>
 
-<p>A common pattern for classes (e.g. <a href="http://book.mixu.net/ch6.html">objects instantiated from a prototype</a>) is to simply mark class methods as private by starting them with a underscore. You can properly hide class methods by using .call/.apply to set "this", but I won't show it here; it's a minor detail.</p>
+<p>A common pattern for classes (e.g. <a href="http://book.mixu.net/ch6.html">objects instantiated from a prototype</a>) is to simply mark class methods as private by starting them with an underscore. You can properly hide class methods by using .call/.apply to set "this", but I won't show it here; it's a minor detail.</p>
 
 <h3>Do not mix definition and instantiation/initialization</h3>
 
@@ -154,7 +154,7 @@ f.observe('window.Foo.Bar');
 module.exports = FooObserver;
 </pre>
 
-<p>While this is a proper module (I'm excluding the wrapper here), it mixes initialization with definition. What you should do instead is have two parts, one responsible for definition, and the other performing the initialization for this particular use case. E.g. <code>foo_observer.js</code></p>
+<p>While this is a proper module (I'm excluding the wrapper here), it mixes initialization with definition. What you should do instead is have two parts: one responsible for definition, and the other performing the initialization for this particular use case. E.g. <code>foo_observer.js</code></p>
 
 <pre class="prettyprint">
 function FooObserver() {
@@ -326,7 +326,7 @@ server.js
 
 <h2>Using the glue build system</h2>
 
-<p>So, now we have a somewhat detailed spec for how we'd like to build.  Node has native support for require(), but what about the browser? We probably need a elaborate library for this?</p>
+<p>So, now we have a somewhat detailed spec for how we'd like to build.  Node has native support for require(), but what about the browser? We probably need an elaborate library for this?</p>
 
 <p>Nope. This isn't hard: the build system itself is about a hundred fifty lines of code plus another ninety or so for the require() implementation. When I say build, I mean something that is super-lightweight: wrapping code into closures, and providing a local, in-browser require() implementation. I'm not going to put the code here since it adds little to the discussion, but <a href="https://github.com/mixu/gluejs/blob/master/lib/glue.js">have a look</a>.</p>
 
@@ -368,7 +368,7 @@ new Glue()
 
 <h2>Binding to global functions</h2>
 
-<p>We often want to bind a particular name, like <code>require('jquery')</code> to a external library. You can do this with <code>replace(moduleName, string)</code>.</p>
+<p>We often want to bind a particular name, like <code>require('jquery')</code> to an external library. You can do this with <code>replace(moduleName, string)</code>.</p>
 
 <p>Here is an example call that builds a package in response to a HTTP GET:</p>
 
