@@ -1,33 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>13. Views - Behavior</title>
+    <title>12. Views - Templating</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style type="text/css">
-@font-face {
-  font-family: 'Droid Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
-}
-</style>
-
-<script src="assets/jquery-1.6.1.min.js"></script>
-<link type="text/css" rel="stylesheet" href="assets/style.css"/>
-<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
-<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
-<script type="text/javascript">
-$(function() {
-   $('pre').each(function(i, el) {
-    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-   });
-});
-
-</script>
-<script type="text/javascript" src="assets/prettify.js"></script>
-<!-- Script runner -->
-<script type="text/javascript" src="assets/runner.js"></script>
-<script type="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="assets/jquery-1.6.1.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="assets/style.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <script>
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-32878417-1']);
@@ -39,68 +22,41 @@ $(function() {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-
+    </script>
   </head>
 <body>
   <div id="wrapper">
     <div id="header">
-      <div id="brand">
-        <h1>Single page apps in depth</h1>
-        <span>a.k.a Mixu's single page app book</span>
-      </div>
-      <div id="navi">
-        <form class="search" action="http://www.google.com/search">
-          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
-          <input type="text" name="as_q" value="" class="search_field">
-          <input type="submit" value="Search" class="search_btn">
-        </form>
-      </div>
+    <h1>Single page apps in depth</h1>
+    <h2>a.k.a Mixu's single page app book</h2>
     </div>
-
     <div class="clear">
       <hr>
     </div>
-     <!-- Main -->
 
     <div id="main">
-      <div id="content" class="post">
-<h1 class="chapter">12. Views - Templating</h1>
-
-<h2>What's in a template?</h2>
-
+      <div id="container">
+        <div id="content" class="post"><h1 id="12-views-templating"><a class="header-link" href="#12-views-templating"></a>12. Views - Templating</h1>
+<h2 id="what-s-in-a-template-"><a class="header-link" href="#what-s-in-a-template-"></a>What&#39;s in a template?</h2>
 <p>I would classify templating systems not based on their input, but based on their output:</p>
-
-<ul>
-  <li>as simple functions</li>
-  <li>as functions and metadata</li>
-  <li>as objects with lifecycles</li>
+<ul class="list">
+<li>as simple functions</li>
+<li>as functions and metadata</li>
+<li>as objects with lifecycles</li>
 </ul>
-
 <p>The simplest systems make string interpolation and array iteration more convenient. More complicated ones generate metadata that can be used as an input for other systems.</p>
-
-<p><b>The simplest templating system</b></p>
-
+<p><strong>The simplest templating system</strong></p>
 <p>A template is the part of the view object that is responsible for generating HTML from input data. In other words, a template is a function which takes a single argument: base (context) and returns a string of HTML.</p>
-
-<pre class="prettyprint">
-function itemTemplate(base) {
-  return [
-    '&lt;li&gt;',
-      '&lt;div class="todo', (base.done ? ' done' : ''), '"&gt;', base.text, '&lt;/div&gt;',
-    '&lt;/li&gt;'
-  ].join('');
-}
-</pre>
-
-<p>Of course, writing templates with this syntax is generally not preferred. Instead, templating libraries are used in order to get the best of both worlds: the nicest possible template definition syntax, and the performance of using native JS operations. Templating syntax should have no performance impact - you should always precompile your templates into their optimal JS equivalents.</p>
-
-<p><b>The optimal output for simple templates</b></p>
-
-<p>In theory, unless a templating library does something extremely unusual, all of the templating libraries should have similar performance: after all, they only  perform string interpolation on an input and ought to compile to similar compiled JS output.</p>
-
+<pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">itemTemplate</span><span class="hljs-params">(base)</span> </span>{
+  <span class="hljs-keyword">return</span> [
+    <span class="hljs-string">'&lt;li&gt;'</span>,
+      <span class="hljs-string">'&lt;div class="todo'</span>, (base.done ? <span class="hljs-string">' done'</span> : <span class="hljs-string">''</span>), <span class="hljs-string">'"&gt;'</span>, base.text, <span class="hljs-string">'&lt;/div&gt;'</span>,
+    <span class="hljs-string">'&lt;/li&gt;'</span>
+  ].join(<span class="hljs-string">''</span>);
+}</code></pre><p>Of course, writing templates with this syntax is generally not preferred. Instead, templating libraries are used in order to get the best of both worlds: the nicest possible template definition syntax, and the performance of using native JS operations. Templating syntax should have no performance impact - you should always precompile your templates into their optimal JS equivalents.</p>
+<p><strong>The optimal output for simple templates</strong></p>
+<p>In theory, unless a templating library does something extremely unusual, all of the templating libraries should have similar performance: after all, they only perform string interpolation on an input and ought to compile to similar compiled JS output.</p>
 <p>Sadly, in the real world very few templating languages actually compile to the optimal markup. Have a look at the results from <a href="http://jsperf.com/dom-vs-innerhtml-based-templating/112">this benchmark</a>:</p>
-
 <table class="table">
   <tr>
     <td>Resig Micro-templating:</td><td>3,813,204</td><td>(3813 templates per ms; 61,008 in 16ms)</td>
@@ -116,197 +72,131 @@ function itemTemplate(base) {
   </tr>
 </table>
 
-<p>I'm not discussing the causes here, because even with the slowest templating engine, the rendering itself doesn't have a significant impact in terms of total time (since even the slowest engines can cope with hundreds of template renders per 16 ms). In other words - despite large differences (up to two orders of magnitude) in microbenchmarks - generating HTML from a compiled template is unlikely to be a bottleneck no matter how slow it is, except on mobile browsers.</p>
 
-<p><b>Outputting metadata / objects with lifecycles</b></p>
-
+<p>I&#39;m not discussing the causes here, because even with the slowest templating engine, the rendering itself doesn&#39;t have a significant impact in terms of total time (since even the slowest engines can cope with hundreds of template renders per 16 ms). In other words - despite large differences (up to two orders of magnitude) in microbenchmarks - generating HTML from a compiled template is unlikely to be a bottleneck no matter how slow it is, except on mobile browsers.</p>
+<p><strong>Outputting metadata / objects with lifecycles</strong></p>
 <p>As I noted in the overview chapter for the view layer, the key difference between view layer implementations is their update granularity: whether views are redrawn as a whole (view-granular) or can be rendered at element-granularity or string-granularity.</p>
-
 <p>View-granular systems can just use the simple output where a compiled template is represented as a function that takes a set of data and returns a string. Element-granular and string-granular view layers need more metadata, because they need to convert the bindings into code that keeps track of and updates the right parts of the view.</p>
-
-<p>Hence, element-granular and string-granular rendering requires a templating system that outputs objects / metadata in addition to strings. Notice that this doesn't generally affect what features are supported in the templating language: it just affects how granular the updates are and the syntax for defining things like event handlers.</p>
-
-<h2>Templating language features</h2>
-
-<p>Let's have a look at some common templating language features. Sadly, I don't have the time right now to write a templating system - as cool and fun that would be, I'm pretty sure it would be a low payoff in terms of writing a book.</p>
-
-<p><b>String interpolation</b> allows us to insert values into HTML. Dependending on the update granularity, the tokens can be updated either only by re-rendering the whole view, or a single element, or by updating the content of the element with string-granular updates.</p>
-
-<pre class="prettyprint">
-&lt;div&gt;
+<p>Hence, element-granular and string-granular rendering requires a templating system that outputs objects / metadata in addition to strings. Notice that this doesn&#39;t generally affect what features are supported in the templating language: it just affects how granular the updates are and the syntax for defining things like event handlers.</p>
+<h2 id="templating-language-features"><a class="header-link" href="#templating-language-features"></a>Templating language features</h2>
+<p>Let&#39;s have a look at some common templating language features. Sadly, I don&#39;t have the time right now to write a templating system - as cool and fun that would be, I&#39;m pretty sure it would be a low payoff in terms of writing a book.</p>
+<p><strong>String interpolation</strong> allows us to insert values into HTML. Dependending on the update granularity, the tokens can be updated either only by re-rendering the whole view, or a single element, or by updating the content of the element with string-granular updates.</p>
+<pre class="hljs"><code><span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
    Hello {{ name }}!
-&lt;/div&gt;
-</pre>
-
-<p><b>Escaping HTML</b>. It is generally a bad practice not to escape the values inserted into HTML, since this might allow malicious users to inject Javascript into your application that would then run with the privileges of whomever is using the application. Most templating libraries default to escaping HTML. For example, mustache uses <code>{{name}}</code> for escaped HTML and <code>{{{name}}}</code> ("triple mustache") for unescaped strings.</p>
-
-<p><b>Simple expressions</b>. Expressions are code within a template. Many templating libraries support either a few fixed expressions / conditions, or allow for almost any JS code to be used as an expression.</p>
-
-<pre class="prettyprint">
- &lt;li&gt;&lt;div class="todo {{ done? }}"&gt;{{ text }}&lt;/div&gt;&lt;/li&gt;
-</pre>
-
-<p>I don't have a strong opinion about logic-in-views vs. logicless views + helpers. In the end, if you need logic in your views, you will need to write it somewhere. Intricate logic in views is a bad idea, but so is having a gazillion helpers. Finding the right balance depends on the use case.</p>
-
-<p>Generally, templating engines support <code>{{if expr}}</code> and <code>{{else}}</code>for checking whether a value is set to a truthy value. If the templating library doesn't support logic in views, then it usually supports helpers, which are external functions that can be called from the template and contain the logic that would otherwise be in the template.</p>
-
-<p><b>Displaying a list of items.</b> There are basically two ways, and they correspond to how sets of items are represented in the model layer.</p>
-
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span></code></pre><p><strong>Escaping HTML</strong>. It is generally a bad practice not to escape the values inserted into HTML, since this might allow malicious users to inject Javascript into your application that would then run with the privileges of whomever is using the application. Most templating libraries default to escaping HTML. For example, mustache uses <code>{{name}}</code> for escaped HTML and <code>{{{name}}}</code> (&quot;triple mustache&quot;) for unescaped strings.</p>
+<p><strong>Simple expressions</strong>. Expressions are code within a template. Many templating libraries support either a few fixed expressions / conditions, or allow for almost any JS code to be used as an expression.</p>
+<pre class="hljs"><code> <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"todo {{ done? }}"</span>&gt;</span>{{ text }}<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span></code></pre><p>I don&#39;t have a strong opinion about logic-in-views vs. logicless views + helpers. In the end, if you need logic in your views, you will need to write it somewhere. Intricate logic in views is a bad idea, but so is having a gazillion helpers. Finding the right balance depends on the use case.</p>
+<p>Generally, templating engines support <code>{{if expr}}</code> and <code>{{else}}</code>for checking whether a value is set to a truthy value. If the templating library doesn&#39;t support logic in views, then it usually supports helpers, which are external functions that can be called from the template and contain the logic that would otherwise be in the template.</p>
+<p><strong>Displaying a list of items.</strong> There are basically two ways, and they correspond to how sets of items are represented in the model layer.</p>
 <p>The first option corresponds to observable arrays: you use an expression like <code>each</code> to iterate over the items in the observable array:</p>
-
-<pre class="prettyprint">
-{{view App.TodoList}}
-&lt;ul&gt;
+<pre class="hljs"><code>{{view App.TodoList}}
+<span class="hljs-tag">&lt;<span class="hljs-title">ul</span>&gt;</span>
   {{each todos}}
     {{view App.TodoView}}
-     &lt;li&gt;&lt;div class="todo {{ done? }}"&gt;{{ text }}&lt;/div&gt;&lt;/li&gt;
+     <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"todo {{ done? }}"</span>&gt;</span>{{ text }}<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
     {{/view}}
   {{/each}}
-&lt;/ul&gt;
-{{/view}}
-</pre>
-
-<p>The second option corresponds with collections of models, where the view is bound to a collection and has additional logic for rendering the items. This might look something like this:</p>
-
-<pre class="prettyprint">
-{{collectionview App.TodoList tag=ul collection=Todos}}
-   &lt;li&gt;&lt;div class="todo {{ done? }}"&gt;{{ text }}&lt;/div&gt;&lt;/li&gt;
-{{/collectionview}}
-</pre>
-
-<p>Observable arrays lead to less sophisticated list rendering behavior. This is because <code>each</code> is not really aware of the context in which it is operating. Collection views are aware of the use case (since they are components written for that specific view) and can hence optimize better for the specific use case and markup.</p>
-
-<p>For example, imagine a chat message list of 1000 items that is only updated by appending new messages to it. An observable array representing a list of messages that contains a thousand items that are rendered using a <code>each</code> iterator will render each item into the DOM. A collection view might add restrictions about the number of items rendered (e.g. only showing the most recent, or implementing incremental rendering by only rendering the visible messages in the DOM). The observable array also needs to keep track of every message, since there is no way of telling it that the messages, once rendered, will never be updated. A collection view can have custom rendering logic that optimizes the renderer based on this knowledge. </p>
-
-<p> If we choose the "each" route for collections, then optimizing rendering performance becomes harder, because the mechanism most frameworks provide is based on rendering every item and tracking every item. Collection views can be optimized more, at the cost of manually writing code.</p>
-
-<h3>Nested view definition</h3>
-
+<span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+{{/view}}</code></pre><p>The second option corresponds with collections of models, where the view is bound to a collection and has additional logic for rendering the items. This might look something like this:</p>
+<pre class="hljs"><code>{{collectionview App.TodoList tag=ul collection=Todos}}
+   <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"todo {{ done? }}"</span>&gt;</span>{{ text }}<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+{{/collectionview}}</code></pre><p>Observable arrays lead to less sophisticated list rendering behavior. This is because <code>each</code> is not really aware of the context in which it is operating. Collection views are aware of the use case (since they are components written for that specific view) and can hence optimize better for the specific use case and markup.</p>
+<p>For example, imagine a chat message list of 1000 items that is only updated by appending new messages to it. An observable array representing a list of messages that contains a thousand items that are rendered using a <code>each</code> iterator will render each item into the DOM. A collection view might add restrictions about the number of items rendered (e.g. only showing the most recent, or implementing incremental rendering by only rendering the visible messages in the DOM). The observable array also needs to keep track of every message, since there is no way of telling it that the messages, once rendered, will never be updated. A collection view can have custom rendering logic that optimizes the renderer based on this knowledge.</p>
+<p>If we choose the &quot;each&quot; route for collections, then optimizing rendering performance becomes harder, because the mechanism most frameworks provide is based on rendering every item and tracking every item. Collection views can be optimized more, at the cost of manually writing code.</p>
+<h3 id="nested-view-definition"><a class="header-link" href="#nested-view-definition"></a>Nested view definition</h3>
 <p>Templating libraries usually only support defining one template at a time, since they do not have an opinion about how templates are used in the view layer. However, if the output from your templating system is a set of views (objects / metadata) rather than a set of templates (functions that take data arguments), then you can add support for nested view definition.</p>
-
 <p>For example, defining a UserInfo view that contains a UserContact and UserPermissions view, both of which are defined inside the App.UserInfo view:</p>
-
-<pre class="prettyprint">
-{{view App.UserInfo}}
-&lt;ul&gt;
-  &lt;li&gt;User information&lt;/li&gt;
+<pre class="hljs"><code>{{view App.UserInfo}}
+<span class="hljs-tag">&lt;<span class="hljs-title">ul</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span>User information<span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
   {{view App.UserContact}}
     ...
   {{/view}}
   {{view App.UserPermissions}}
     ...
   {{/view}}
-&lt;/ul&gt;
-{{/view}}
-</pre>
-
-<p>This means that the output from compiling the above markup to object/metadata info should yield three views: UserInfo, UserContact and UserPermissions. Nested view definition is linked directly with the ability to instantiate and render a hierarchy of views from the resulting object; in the case above, the UserInfo view needs to know how to instantiate and render UserContact and UserPermissions in order to draw itself.</p>
-
+<span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+{{/view}}</code></pre><p>This means that the output from compiling the above markup to object/metadata info should yield three views: UserInfo, UserContact and UserPermissions. Nested view definition is linked directly with the ability to instantiate and render a hierarchy of views from the resulting object; in the case above, the UserInfo view needs to know how to instantiate and render UserContact and UserPermissions in order to draw itself.</p>
 <p>In order to implement this, we need several things:</p>
-
-<ul>
-  <li>A template parser that outputs objects/metadata</li>
-  <li>A view layer that is capable of rendering child views from templates</li>
-  <li>Optionally, the ability to only render the updated views in the hierarchy</li>
+<ul class="list">
+<li>A template parser that outputs objects/metadata</li>
+<li>A view layer that is capable of rendering child views from templates</li>
+<li>Optionally, the ability to only render the updated views in the hierarchy</li>
 </ul>
-
 <p>The first two are obvious: given markup like the one in the example, we want to return objects for each view. Additionally, views that contain other views have to store a reference to those views so that they can instantiate them when they are drawing themselves.</p>
-
 <p>What about the ability to only render the updated views in the hierarchy? Well, imagine a scenario where you need to re-render a top-level view that contains other views. If you want to avoid re-rendering all of the HTML, then you have two choices:</p>
-
-<ul>
-  <li>Write the render() function yourself, so that it calls the nested render() functions only when relevant</li>
-  <li>After the initial render, only perform direct updates (e.g. via element-granular or string-granular bindings)</li>
+<ul class="list">
+<li>Write the render() function yourself, so that it calls the nested render() functions only when relevant</li>
+<li>After the initial render, only perform direct updates (e.g. via element-granular or string-granular bindings)</li>
 </ul>
-
 <p>The first option is simpler from a framework perspective, but requires that you handle calls to render() yourself. This is just coordination, so not much to discuss here.</p>
-
-<p>The second option relies on adding metadata about which pieces of data are used in the views, so that when a model data change occurs, the right views/bound elements can be updated. Let's have a look at how this might be done next.</p>
-
-<h3>Adding metadata to enable granular (re)-rendering</h3>
-
+<p>The second option relies on adding metadata about which pieces of data are used in the views, so that when a model data change occurs, the right views/bound elements can be updated. Let&#39;s have a look at how this might be done next.</p>
+<h3 id="adding-metadata-to-enable-granular-re-rendering"><a class="header-link" href="#adding-metadata-to-enable-granular-re-rendering"></a>Adding metadata to enable granular (re)-rendering</h3>
 <p>The basic idea here is to take one set of strings (the names/paths to the model data in the global scope), and translate them into subscriptions on model changes (e.g. callbacks that do the right thing). For example, given this templating input:</p>
-
-<pre class="prettyprint">
-{{view}}
+<pre class="hljs"><code>{{view}}
    Hello {{ window.App.currentUser.name }}!
-{{/view}}
-</pre>
-
-<p>... the output should be a view object, a template and a event subscription that updates the piece of the DOM represented by the <code>{{window.App.currentUser.name}}</code> token. References to items can be considered to be dependencies: when a observed value changes, then the element related to it should change. They might result in a subscription being established like this:</p>
-
-<pre class="prettyprint">
-Framework
-  .observe('window.App.currentUser.name')
-  .on('change', function(model) {
-    $('#$1').update(model);
-  });
-</pre>
-
-<p>Where <code>$('#$1')</code> is an expression which selects the part to update. I am glossing over the implementation of the DOM selection for the piece of DOM. One way that might be done - in the case of a element-granular view layer - would be to create a templating function that wraps those updateable tokens with a span tag and assigns sequential ID numbers to them:</p>
-
-<pre class="prettyprint">
-&lt;div id="$0"&gt;
-   Hello &lt;span id="$1"&gt;Foo&lt;/span&gt;!
-&lt;/div&gt;
-</pre>
-
-<p>The id attributes would need to be generated on demand when the view is rendered, so that the code that subscribes to the change can then refer to the updateable part of the string by its ID. For string-granular updates, the same would be achieved by using <code>&lt;script&gt;</code> tags, as discussed in the overview chapter for the view layer.</p>
-
+{{/view}}</code></pre><p>... the output should be a view object, a template and a event subscription that updates the piece of the DOM represented by the <code>{{window.App.currentUser.name}}</code> token. References to items can be considered to be dependencies: when a observed value changes, then the element related to it should change. They might result in a subscription being established like this:</p>
+<pre class="hljs"><code>Framework
+  .observe(<span class="hljs-string">'window.App.currentUser.name'</span>)
+  .on(<span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span> </span>{
+    $(<span class="hljs-string">'#$1'</span>).update(model);
+  });</code></pre><p>Where <code>$(&#39;#$1&#39;)</code> is an expression which selects the part to update. I am glossing over the implementation of the DOM selection for the piece of DOM. One way that might be done - in the case of a element-granular view layer - would be to create a templating function that wraps those updateable tokens with a span tag and assigns sequential ID numbers to them:</p>
+<pre class="hljs"><code>&lt;div id=<span class="hljs-string">"$0"</span>&gt;
+   Hello &lt;span id=<span class="hljs-string">"$1"</span>&gt;Foo&lt;<span class="hljs-regexp">/span&gt;!
+&lt;/</span>div&gt;</code></pre><p>The id attributes would need to be generated on demand when the view is rendered, so that the code that subscribes to the change can then refer to the updateable part of the string by its ID. For string-granular updates, the same would be achieved by using <code>&lt;script&gt;</code> tags, as discussed in the overview chapter for the view layer.</p>
 <p>To avoid having to type the fully qualified name of the model data that we want to bind to, views can add a default scope in the context of their bindings:</p>
-<pre class="prettyprint">
-{{view scope="window.App.currentUser"}}
+<pre class="hljs"><code>{{view scope="window.App.currentUser"}}
    Hello {{ name }}!
-{{/view}}
-</pre>
+{{/view}}</code></pre><p>This addition makes the subscription strings less verbose.</p>
+<p>This is the gist of granular re-rendering. There are additional things to consider, such as registering and unregistering the listeners during the view life cycle (e.g. when the view is active, it should be subscribed; when it is removed, it should be unsubscribed). Additionally, in some cases there is an expression that needs to be evaluated when the observed value changes. These are left as an exercise to the reader, at least until I have more time to think about them.</p>
 
-<p>This addition makes the subscription strings less verbose.</p>
-
-<p>This is the gist of granular re-rendering. There are additional things to consider, such as registering and unregistering the listeners during the view life cycle (e.g. when the view is active, it should be subscribed; when it is removed, it should be unsubscribed). Additionally, in some cases there is an expression that needs to be evaluated when the observed value changes. These are left as an excercise to the reader, at least until I have more time to think about them.</p>
-
-<div id="bottom_navi">
-  <a href="collections5.html"> &lt; &lt; Previous Chapter</a> | <a href="views2.html">Next Chapter &gt; &gt;</a>
-</div>
-
-
-        <div id="disqus_thread"></div>
-        <script type="text/javascript">
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
-
-            /* * * DON'T EDIT BELOW THIS LINE * * */
-            (function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+         <div id="bottom_navi">
+              <a href="collections5.html"> &lt; &lt; Previous Chapter</a> |
+              <a href="views2.html">Next Chapter &gt; &gt;</a>
+         </div>
         </div>
       </div>
-
-
-      <div id="sidebar">
-        <h3><a href="index.html">Home</a></h3>
+    </div>
+    <div id="sidebar">
+      <h3><a href="index.html">Home</a></h3>
+      <h3><a href="single-page.html">Single page HTML</a></h3>
         <h3><a href="collections5.html">Previous Chapter</a></h3>
         <h3><a href="views2.html">Next Chapter</a></h3>
-        <br>
-        
-      </div>
 
-
+      <h3>Other books</h3>
+        <ul class="spaced">
+          <li>
+            <a href="http://book.mixu.net/css/">Learn CSS Layout the pedantic way</a> (2015)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/distsys/">Distributed systems: for fun and profit</a> (2013)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/node/">Mixu's Node book</a> (2012)
+          </li>
+        </ul>
+    </div>
     <div class="clear">
     </div>
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
     <div id="footer">
       <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
     </div>
-    </div>
-  </div>
-
-
   </div>
 </body>
 </html>

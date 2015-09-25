@@ -3,31 +3,14 @@
   <head>
     <title>10. Implementing a data cache</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style type="text/css">
-@font-face {
-  font-family: 'Droid Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
-}
-</style>
-
-<script src="assets/jquery-1.6.1.min.js"></script>
-<link type="text/css" rel="stylesheet" href="assets/style.css"/>
-<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
-<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
-<script type="text/javascript">
-$(function() {
-   $('pre').each(function(i, el) {
-    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-   });
-});
-
-</script>
-<script type="text/javascript" src="assets/prettify.js"></script>
-<!-- Script runner -->
-<script type="text/javascript" src="assets/runner.js"></script>
-<script type="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="assets/jquery-1.6.1.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="assets/style.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <script>
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-32878417-1']);
@@ -39,190 +22,114 @@ $(function() {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-
+    </script>
   </head>
 <body>
   <div id="wrapper">
     <div id="header">
-      <div id="brand">
-        <h1>Single page apps in depth</h1>
-        <span>a.k.a Mixu's single page app book</span>
-      </div>
-      <div id="navi">
-        <form class="search" action="http://www.google.com/search">
-          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
-          <input type="text" name="as_q" value="" class="search_field">
-          <input type="submit" value="Search" class="search_btn">
-        </form>
-      </div>
+    <h1>Single page apps in depth</h1>
+    <h2>a.k.a Mixu's single page app book</h2>
     </div>
-
     <div class="clear">
       <hr>
     </div>
-     <!-- Main -->
 
     <div id="main">
-      <div id="content" class="post">
-<h1 class="chapter">10. Implementing a data cache</h1>
-
+      <div id="container">
+        <div id="content" class="post"><h1 id="10-implementing-a-data-cache"><a class="header-link" href="#10-implementing-a-data-cache"></a>10. Implementing a data cache</h1>
 <p>There are three reasons why we want a data store:</p>
-
-<ul>
-  <li>To have a central mechanism for saving data.</li>
-  <li>To retrieve cached models quickly.</li>
-  <li>To prevent duplicate instances of the same model being created.</li>
+<ul class="list">
+<li>To have a central mechanism for saving data.</li>
+<li>To retrieve cached models quickly.</li>
+<li>To prevent duplicate instances of the same model being created.</li>
 </ul>
-
 <p>The first two are obvious: we need to handle saving, and when possible, use caching to make unambiguous retrievals fast. The only clearly unambigous type of retrieval is fetching a model by id.</p>
-
-<p>The last reason is less obvious. Why is it bad to have duplicate instance of the same model? Well, first, it is inefficient to have the same data twice; but more importantly, it is very confusing if you can have two instances that represent the same object but are separate objects. For example, if you have a data cache that always returns a new object rather than reusing an existing one, then you can have situations where you change the model data, or add a model data listener, but this change does not actually work as expected because the object you used is a different instance. We'll tackle this after looking at saving and caching.</p>
-
-<h2>Implementing save()</h2>
-
-<p><b>Serializing models into JSON</b>. In order to send the model data, we need the ability to transform a model into a string. JSON is the obvious choice for serializing data. We need to add a additional method to the model:</p>
-
-<pre class="prettyprint">
-Model.prototype.json = function() {
-  return JSON.stringify(this._data);
-};
-</pre>
-
-<p><b>Mapping to the right backend URL</b>. We also need to know where to save the model:</p>
-
-<pre class="prettyprint">
-Model.prototype.url = function(method) {
-  return this.prototype.urlRoot +
-    (method == 'create' ? '' : encodeURIComponent(this.id));
-};
-</pre>
-
-<p>There are three kinds of persistence operations (since reads are handled by the data source):</p>
-
-<ul>
-  <li>"create": PUT /user</li>
-  <li>"update": POST /user/id</li>
-  <li>"delete": DELETE /user/id</li>
+<p>The last reason is less obvious. Why is it bad to have duplicate instance of the same model? Well, first, it is inefficient to have the same data twice; but more importantly, it is very confusing if you can have two instances that represent the same object but are separate objects. For example, if you have a data cache that always returns a new object rather than reusing an existing one, then you can have situations where you change the model data, or add a model data listener, but this change does not actually work as expected because the object you used is a different instance. We&#39;ll tackle this after looking at saving and caching.</p>
+<h2 id="implementing-save-"><a class="header-link" href="#implementing-save-"></a>Implementing save()</h2>
+<p><strong>Serializing models into JSON</strong>. In order to send the model data, we need the ability to transform a model into a string. JSON is the obvious choice for serializing data. We need to add a additional method to the model:</p>
+<pre class="hljs"><code>Model.prototype.json = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>.stringify(<span class="hljs-keyword">this</span>._data);
+};</code></pre><p><strong>Mapping to the right backend URL</strong>. We also need to know where to save the model:</p>
+<pre class="hljs"><code>Model.prototype.url = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(method)</span> </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.prototype.urlRoot +
+    (method == <span class="hljs-string">'create'</span> ? <span class="hljs-string">''</span> : <span class="hljs-built_in">encodeURIComponent</span>(<span class="hljs-keyword">this</span>.id));
+};</code></pre><p>There are three kinds of persistence operations (since reads are handled by the data source):</p>
+<ul class="list">
+<li>&quot;create&quot;: PUT /user</li>
+<li>&quot;update&quot;: POST /user/id</li>
+<li>&quot;delete&quot;: DELETE /user/id</li>
 </ul>
-
-<p>When the model doesn't have a id, we will use the "create" endpoint, and when the model does have id, we'll use the "update"/"delete" endpoint. If you set Model.prototype.urlRoot to "http://localhost/user", then you'll get the urls above, or if your URLs are different, you can replace Model.prototype.url with your own function.</p>
-
-<p><b>Connecting Model.save() with the DataStore</b>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convenience, let's redirect <code>Model.save()</code> to the DataStore:</p>
-
-<pre class="prettyprint">
-Model.prototype.save = function(callback) {
-  DataStore.save(this, callback);
-};
-</pre>
-
-<p>And do the same thing for <code>Model.destroy</code>:</p>
-
-<pre class="prettyprint">
-Model.prototype.destroy = function(callback) {
-  DataStore.delete(this, callback);
-};
-</pre>
-
-<p>Note that we allow the user to pass a callback, which will be called when the backend operation completes.</p>
-
-<h2>Managing the model lifecycle</h2>
-
+<p>When the model doesn&#39;t have a id, we will use the &quot;create&quot; endpoint, and when the model does have id, we&#39;ll use the &quot;update&quot;/&quot;delete&quot; endpoint. If you set Model.prototype.urlRoot to &quot;<a href="http://localhost/user">http://localhost/user</a>&quot;, then you&#39;ll get the urls above, or if your URLs are different, you can replace Model.prototype.url with your own function.</p>
+<p><strong>Connecting Model.save() with the DataStore</strong>. Reading is done via the data source, but create, update and delete are done via the data store. For the sake of convenience, let&#39;s redirect <code>Model.save()</code> to the DataStore:</p>
+<pre class="hljs"><code>Model.prototype.save = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+  DataStore.save(<span class="hljs-keyword">this</span>, callback);
+};</code></pre><p>And do the same thing for <code>Model.destroy</code>:</p>
+<pre class="hljs"><code>Model.prototype.destroy = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+  DataStore.delete(<span class="hljs-keyword">this</span>, callback);
+};</code></pre><p>Note that we allow the user to pass a callback, which will be called when the backend operation completes.</p>
+<h2 id="managing-the-model-lifecycle"><a class="header-link" href="#managing-the-model-lifecycle"></a>Managing the model lifecycle</h2>
 <p>Since the data store is responsible for caching the model and making sure that duplicate instances do not exist, we need to have a more detailed look at the lifecycle of the model.</p>
-
-<p><b>Instantiation</b>. There are two ways to instantiate a model:</p>
-
-<pre class="prettyprint">
-new Model();
-</pre>
-
-<p>The cache should do nothing in this case, models that are not saved are not cached.</p>
-
-<pre class="prettyprint">
-DataSource.find(conditions, function(model) { ... });
-</pre>
-
-<p>Here, the models are fetched from the backend using some conditions. If the conditions are just model IDs, then the data source should check the cache first.</p>
-
+<p><strong>Instantiation</strong>. There are two ways to instantiate a model:</p>
+<pre class="hljs"><code><span class="hljs-keyword">new</span> Model();</code></pre><p>The cache should do nothing in this case, models that are not saved are not cached.</p>
+<pre class="hljs"><code>DataSource.find(conditions, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span> </span>{ ... });</code></pre><p>Here, the models are fetched from the backend using some conditions. If the conditions are just model IDs, then the data source should check the cache first.</p>
 <p>When models are instantiated from data with an ID, they should be registered with the cache.</p>
-
-<p><b>Persistence operations: create, update, delete</b>. </p>
-
-<pre class="prettyprint">
-Model.save(); // model.id is not set
-</pre>
-
-<p>Once the backend returns the model id, add the model to the data cache, so that it can be found by id.</p>
-
-<pre class="prettyprint">
-Model.save(); // model.id is set
-</pre>
-
-<p>Add the model to the data cache, so that it can be found by id.</p>
-
-<pre class="prettyprint">
-Model.delete();
-</pre>
-
-<p>Remove the model from the data cache, and from any collections it may be in.</p>
-
-
-<p><b>Data changes</b>. When the model ID changes, the cache should be updated to reflect this.</p>
-
-<p><b>Reference counting</b>. If you want an accurate count of the number of models, you must hook into Collection events (e.g. add / remove / reset). I'm not going to do that, because a simpler mechanism -- for example, limiting model instances by age or by number -- achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it'll be much easier to do something like this.</p>
-
-
-<h2>Implementing the data store / cache</h2>
-
+<p><strong>Persistence operations: create, update, delete</strong>.</p>
+<pre class="hljs"><code>Model.save(); <span class="hljs-comment">// model.id is not set</span></code></pre><p>Once the backend returns the model id, add the model to the data cache, so that it can be found by id.</p>
+<pre class="hljs"><code>Model.save(); <span class="hljs-comment">// model.id is set</span></code></pre><p>Add the model to the data cache, so that it can be found by id.</p>
+<pre class="hljs"><code>Model.delete();</code></pre><p>Remove the model from the data cache, and from any collections it may be in.</p>
+<p><strong>Data changes</strong>. When the model ID changes, the cache should be updated to reflect this.</p>
+<p><strong>Reference counting</strong>. If you want an accurate count of the number of models, you must hook into Collection events (e.g. add / remove / reset). I&#39;m not going to do that, because a simpler mechanism -- for example, limiting model instances by age or by number -- achieves the essential benefits without the overhead of counting. When ES6 WeakMaps are more common, it&#39;ll be much easier to do something like this.</p>
+<h2 id="implementing-the-data-store-cache"><a class="header-link" href="#implementing-the-data-store-cache"></a>Implementing the data store / cache</h2>
 <p>DataStore.add(), DataStore.has(), DataStore.save(), DataStore.delete(), DataStore.reference().</p>
+<p><em>The implementation section is still a work in progress, my apologies.</em></p>
 
-
-<p><i>The implementation section is still a work in progress, my apologies.</i></p>
-
-
-<div id="bottom_navi">
-  <a href="collections3.html"> &lt; &lt; Previous Chapter</a> | <a href="collections5.html">Next Chapter &gt; &gt;</a>
-</div>
-
-
-        <div id="disqus_thread"></div>
-        <script type="text/javascript">
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
-
-            /* * * DON'T EDIT BELOW THIS LINE * * */
-            (function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+         <div id="bottom_navi">
+              <a href="collections3.html"> &lt; &lt; Previous Chapter</a> |
+              <a href="collections5.html">Next Chapter &gt; &gt;</a>
+         </div>
         </div>
       </div>
-
-
-      <div id="sidebar">
-        <h3><a href="index.html">Home</a></h3>
+    </div>
+    <div id="sidebar">
+      <h3><a href="index.html">Home</a></h3>
+      <h3><a href="single-page.html">Single page HTML</a></h3>
         <h3><a href="collections3.html">Previous Chapter</a></h3>
         <h3><a href="collections5.html">Next Chapter</a></h3>
-        <br>
-        
-      </div>
 
-
+      <h3>Other books</h3>
+        <ul class="spaced">
+          <li>
+            <a href="http://book.mixu.net/css/">Learn CSS Layout the pedantic way</a> (2015)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/distsys/">Distributed systems: for fun and profit</a> (2013)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/node/">Mixu's Node book</a> (2012)
+          </li>
+        </ul>
+    </div>
     <div class="clear">
     </div>
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
     <div id="footer">
       <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
     </div>
-    </div>
-  </div>
-
-
   </div>
 </body>
 </html>

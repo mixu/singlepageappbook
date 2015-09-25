@@ -1,0 +1,25 @@
+.blue {
+  background-color: #a6cee3;
+  border: 3px solid #1f78b4;
+}
+
+.green {
+  background-color: #b2df8a;
+  border: 3px solid #33a02c;
+}
+
+.red {
+  background-color: #fb9a99;
+  border: 3px solid #e31a1c;
+}
+
+.orange {
+  background-color: #fdbf6f;
+  border: 3px solid #ff7f00;
+}
+
+.violet {
+  background-color: #cab2d6;
+  border: 3px solid #6a3d9a;
+}
+

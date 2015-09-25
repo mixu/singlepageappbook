@@ -1,33 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>3. Getting to maintainable</title>
+    <title>3.Getting to maintainable</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style type="text/css">
-@font-face {
-  font-family: 'Droid Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
-}
-</style>
-
-<script src="assets/jquery-1.6.1.min.js"></script>
-<link type="text/css" rel="stylesheet" href="assets/style.css"/>
-<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
-<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
-<script type="text/javascript">
-$(function() {
-   $('pre').each(function(i, el) {
-    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-   });
-});
-
-</script>
-<script type="text/javascript" src="assets/prettify.js"></script>
-<!-- Script runner -->
-<script type="text/javascript" src="assets/runner.js"></script>
-<script type="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="assets/jquery-1.6.1.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="assets/style.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <script>
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-32878417-1']);
@@ -39,181 +22,121 @@ $(function() {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-
+    </script>
   </head>
 <body>
   <div id="wrapper">
     <div id="header">
-      <div id="brand">
-        <h1>Single page apps in depth</h1>
-        <span>a.k.a Mixu's single page app book</span>
-      </div>
-      <div id="navi">
-        <form class="search" action="http://www.google.com/search">
-          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
-          <input type="text" name="as_q" value="" class="search_field">
-          <input type="submit" value="Search" class="search_btn">
-        </form>
-      </div>
+    <h1>Single page apps in depth</h1>
+    <h2>a.k.a Mixu's single page app book</h2>
     </div>
-
     <div class="clear">
       <hr>
     </div>
-     <!-- Main -->
 
     <div id="main">
-      <div id="content" class="post">
-<h1 class="chapter">3. Getting to maintainable</h2>
-
-<p>In this chapter, I'll look at how the ideas introduced in the previous chapter can be applied to real-world code, both new and legacy. I'll also talk about distributing code by setting up a private NPM server.</p>
-
-<p>Let's start with a some big-picture principles, then talk about legacy - and finally some special considerations for new code. Today's new code is tomorrow's legacy code, so try to avoid falling into bad habits.</p>
-
-<h2>Big picture</h2>
-
-<p><b>Use a build system and a module convention that supports granular privacy</b>. Namespaces suck, because they don't let you hide things that are internal to a package within that package.  Build systems that don't support this force you to write bad code.</p>
-
-<p><b>Independent packages/modules</b>. Keep different parts of an app separate: avoid global names and variables, make each part independently instantiable and testable.</p>
-
-<p><b>Do not intermingle state and definition</b>. You should be able to load a module without causing any side-effects. Isolate code that creates state (instances / variables) in one place, and keep it tiny.</p>
-
-<p><b>Small external surface</b>. Keep the publicly accessible API small and clearly indicated, as this allows you refactor and reach better implementations.</p>
-
-<h3>Extracting modules/packages from your architecture</h3>
-
+      <div id="container">
+        <div id="content" class="post"><h1 id="3-getting-to-maintainable"><a class="header-link" href="#3-getting-to-maintainable"></a>3.Getting to maintainable</h1>
+<p>In this chapter, I&#39;ll look at how the ideas introduced in the previous chapter can be applied to real-world code, both new and legacy. I&#39;ll also talk about distributing code by setting up a private NPM server.</p>
+<p>Let&#39;s start with a some big-picture principles, then talk about legacy - and finally some special considerations for new code. Today&#39;s new code is tomorrow&#39;s legacy code, so try to avoid falling into bad habits.</p>
+<h2 id="big-picture"><a class="header-link" href="#big-picture"></a>Big picture</h2>
+<p><strong>Use a build system and a module convention that supports granular privacy</strong>. Namespaces suck, because they don&#39;t let you hide things that are internal to a package within that package. Build systems that don&#39;t support this force you to write bad code.</p>
+<p><strong>Independent packages/modules</strong>. Keep different parts of an app separate: avoid global names and variables, make each part independently instantiable and testable.</p>
+<p><strong>Do not intermingle state and definition</strong>. You should be able to load a module without causing any side-effects. Isolate code that creates state (instances / variables) in one place, and keep it tiny.</p>
+<p><strong>Small external surface</strong>. Keep the publicly accessible API small and clearly indicated, as this allows you refactor and reach better implementations.</p>
+<h3 id="extracting-modules-packages-from-your-architecture"><a class="header-link" href="#extracting-modules-packages-from-your-architecture"></a>Extracting modules/packages from your architecture</h3>
 <p>First, do a basic code quality pass and eliminate the bad practices outlined in the previous chapter.</p>
-
 <p>Then, start moving your files towards using the CommonJS pattern: explicit <code>require()</code>s and only a single export per file.</p>
-
 <p>Next, have a look at your architecture. Try to separate that hairball of code into distinct packages:</p>
-
-<p>Models and other reusable code (shared views/visual components) probably belong in a common package. This is the core of your application on which the rest of the application builds. Treat this like a 3rd party library in the sense that it is a separate package that you need to <code>require()</code> in your other modules. Try to keep the common package stateless. Other packages instantiate things based on it, but the common package doesn't have stateful code itself.</p>
-
-<p>Beyond your core/common package, what are the smallest pieces that make sense? There is probably one for each "primary" activity in your application. To speed up loading your app, you want to make each activity a package that can be loaded independently after the common package has loaded (so that the initial loading time of the application does not increase as the number of packages increases). If your setup is complex, you probably want a single mechanism that takes care of calling the right initializer.</p>
-
-<p>Isolate the state initialization/instantiation code in each package by moving it into one place: the <code>index.js</code> for that particular package (or, if there is a lot of setup, in a separate file - but in one place only). "I hate state, and want as little as possible of it in my code". Export a single function <code>initialize()</code> that accepts setup parameters and sets up the whole module. This allows you to load a package without altering the global state. Each package is like a "mini-app": it should hide its details (non-reusable views, behavior and models).</p>
-
+<p>Models and other reusable code (shared views/visual components) probably belong in a common package. This is the core of your application on which the rest of the application builds. Treat this like a 3rd party library in the sense that it is a separate package that you need to <code>require()</code> in your other modules. Try to keep the common package stateless. Other packages instantiate things based on it, but the common package doesn&#39;t have stateful code itself.</p>
+<p>Beyond your core/common package, what are the smallest pieces that make sense? There is probably one for each &quot;primary&quot; activity in your application. To speed up loading your app, you want to make each activity a package that can be loaded independently after the common package has loaded (so that the initial loading time of the application does not increase as the number of packages increases). If your setup is complex, you probably want a single mechanism that takes care of calling the right initializer.</p>
+<p>Isolate the state initialization/instantiation code in each package by moving it into one place: the <code>index.js</code> for that particular package (or, if there is a lot of setup, in a separate file - but in one place only). &quot;I hate state, and want as little as possible of it in my code&quot;. Export a single function <code>initialize()</code> that accepts setup parameters and sets up the whole module. This allows you to load a package without altering the global state. Each package is like a &quot;mini-app&quot;: it should hide its details (non-reusable views, behavior and models).</p>
 <p>Rethink your inheritance chains. Classes are a terrible substitute for a use-oriented API in most cases. Extending a class requires that you understand and often depend on the implementation details. APIs consisting of simple functions are superior, so if you can, write an API. The API often looks like a state manipulation library (e.g. add an invite, remove an invite etc.); when instantiated with the related views and the views will generally hook into that API.</p>
-
-<p>Stop inheriting views from each other. Inheritance is mostly inappropriate for views. Sure, inherit from your framework, but don't build elaborate hierarchies for views. Views aren't supposed to have a lot of code in the first place; defining view hierarchies is mostly just done out of bad habit. Inheritance has its uses, but those are fewer and further apart than you think.</p>
-
-<p> Almost every view in your app should be instantiable without depending on any other view. You should identify views that you want to reuse, and move those into a global app-specific module. If the views are not intended to be reused, then they should not be exposed outside of the activity. Reusable views should ideally be documented in an interactive catalog, like Twitter's Bootstrap.</p>
-
+<p>Stop inheriting views from each other. Inheritance is mostly inappropriate for views. Sure, inherit from your framework, but don&#39;t build elaborate hierarchies for views. Views aren&#39;t supposed to have a lot of code in the first place; defining view hierarchies is mostly just done out of bad habit. Inheritance has its uses, but those are fewer and further apart than you think.</p>
+<p>Almost every view in your app should be instantiable without depending on any other view. You should identify views that you want to reuse, and move those into a global app-specific module. If the views are not intended to be reused, then they should not be exposed outside of the activity. Reusable views should ideally be documented in an interactive catalog, like Twitter&#39;s Bootstrap.</p>
 <p>Extract persistent services. These are things that are active globally and maintain state across different activities. For example, a real-time backend and a data cache. But also other user state that is expected to persist across activities, like a list of opened items (e.g. if your app implements tabs within the application).</p>
-
-<h3>Refactoring an existing module</h3>
-
+<h3 id="refactoring-an-existing-module"><a class="header-link" href="#refactoring-an-existing-module"></a>Refactoring an existing module</h3>
 <p>Given an existing module,</p>
-
 <p>1. Make sure each file defines and exports one thing. If you define a Account and a related Settings object, put those into two different files.</p>
-
 <p>2. Do not directly/implicitly add variables under <code>window.*</code>. Instead, always assign your export to <code>module.exports</code>. This makes it possible for other modules to use your module without the module being globally accessible under a particular name/namespace.</p>
-
-<p>3. Stop referring to other modules through a global name. Use <code>var $ = require('jquery')</code>, for example, to specify that your module depends on jQuery. If your module requires another local module, require it using the path: <code>var User = require('./model/user.js')</code>.</p>
-
+<p>3. Stop referring to other modules through a global name. Use <code>var $ = require(&#39;jquery&#39;)</code>, for example, to specify that your module depends on jQuery. If your module requires another local module, require it using the path: <code>var User = require(&#39;./model/user.js&#39;)</code>.</p>
 <p>4. Delay concrete instatiation as long as possible by extracting module state setup into a single bootstrap file/function. Defining a module should be separate from running the module. This allows small parts of the system to be tested independently since you can now require your module without running it.</p>
-
 <p>For example, where you previously used to define a class and then immediately assign a instance of that class onto a global variable/namespace in the same file; you should move the instantatiation to a separate bootstrap file/function.</p>
-
 <p>5. If you have submodules (e.g. chat uses backend_service), do not directly expose them to the layer above. Initializing the submodule should be the task of the layer directly above it (and not two layers above it). Configuration can go from a top level initialize() function to initialize() functions in submodules, but keep the submodules of modules out of reach from higher layers.</p>
-
 <p>6. Try to minimize your external surface area.</p>
-
 <p>7. Write package-local tests. Each package should be have unit and integration tests which can be run independently of other packages (other than 3rd party libraries and the common package).</p>
-
 <p>8. Start using npm with semantic versioning for distributing dependencies. Npm makes it easy to distribute and use small modules of Javascript.</p>
-
-<h2>Guidelines for new projects</h2>
-
+<h2 id="guidelines-for-new-projects"><a class="header-link" href="#guidelines-for-new-projects"></a>Guidelines for new projects</h2>
 <p>Start with the package.json file.</p>
-
 <p>Add a single bootstrap function. Loading modules should not have side-effects.</p>
-
 <p>Write tests before functionality.</p>
-
-<p><b>Hide implementation details</b>. Each module should be isolated into its own scope; modules expose a limited public interface and not their implementation details.</p>
-
+<p><strong>Hide implementation details</strong>. Each module should be isolated into its own scope; modules expose a limited public interface and not their implementation details.</p>
 <p>Minimize your exports. Small surface area.</p>
-
-<p><b>Localize dependencies.</b> Modules that are related to each other should be able to work together, while modules that are not related/far from each other should not be able to access each other.</p>
-
-
-<h2>Tooling: npm</h2>
-
-<p>Finally, let's talk about distribution. As your projects grow in scope and in modularity, you'll want to be able to load packages from different repositories easily. <a href="http://npmjs.org/">npm</a> is an awesome tool for creating and distributing small JS modules. If you haven't used it before, Google for a tutorial or <a href="http://npmjs.org/doc/">read the docs</a>, or check out <a href="http://blog.nodejitsu.com/npm-cheatsheet">Nodejitsu's npm cheatsheet</a>. Creating a npm package is simply a matter of following the CommonJS conventions and adding a bit of metadata via a <code>package.json</code> file. Here is an example <code>package.json</code></p>
-
-<pre class="prettyprint">
-{ "name": "modulename",
-  "description": "Foo for bar",
-  "version": "0.0.1",
-  "dependencies": {
-    "underscore": "1.1.x",
-    "foo": "git+ssh://git@github.com:mixu/foo.git#0.4.1"
+<p><strong>Localize dependencies.</strong> Modules that are related to each other should be able to work together, while modules that are not related/far from each other should not be able to access each other.</p>
+<h2 id="tooling-npm"><a class="header-link" href="#tooling-npm"></a>Tooling: npm</h2>
+<p>Finally, let&#39;s talk about distribution. As your projects grow in scope and in modularity, you&#39;ll want to be able to load packages from different repositories easily. <a href="http://npmjs.org/">npm</a> is an awesome tool for creating and distributing small JS modules. If you haven&#39;t used it before, Google for a tutorial or <a href="http://npmjs.org/doc/">read the docs</a>, or check out <a href="http://blog.nodejitsu.com/npm-cheatsheet">Nodejitsu&#39;s npm cheatsheet</a>. Creating a npm package is simply a matter of following the CommonJS conventions and adding a bit of metadata via a <code>package.json</code> file. Here is an example <code>package.json</code></p>
+<pre class="hljs"><code>{ <span class="hljs-string">"name"</span>: <span class="hljs-string">"modulename"</span>,
+  <span class="hljs-string">"description"</span>: <span class="hljs-string">"Foo for bar"</span>,
+  <span class="hljs-string">"version"</span>: <span class="hljs-string">"0.0.1"</span>,
+  <span class="hljs-string">"dependencies"</span>: {
+    <span class="hljs-string">"underscore"</span>: <span class="hljs-string">"1.1.x"</span>,
+    <span class="hljs-string">"foo"</span>: <span class="hljs-string">"git+ssh://git@github.com:mixu/foo.git#0.4.1"</span>
   }
-}
-</pre>
-
-<p>This package can then be installed with all of its dependencies by running <code>npm install</code>. To increment the module version, just run <code>npm version patch</code> (or "minor" or "major").</p>
-
+}</code></pre><p>This package can then be installed with all of its dependencies by running <code>npm install</code>. To increment the module version, just run <code>npm version patch</code> (or &quot;minor&quot; or &quot;major&quot;).</p>
 <p>You can publish your package to npm with one command (but do RTFM before you do so). If you need to keep your code private, you can use <code>git+ssh://user@host:project.git#tag-sha-or-branch</code> to specify dependencies as shown above.</p>
+<p>If your packages can be public and reusable by other people, then the public npm registry works. The drawback to using private packages via git is that you don&#39;t get the benefits semantic versioning. You can refer to a particular branch or commit sha, but this is less than ideal. If you update your module, then you need to go and bump up the tag or branch in both the project and in its dependencies. This isn&#39;t too bad, but ideally, we&#39;d be able to say:</p>
+<pre class="hljs"><code>{
+  <span class="hljs-string">"dependencies"</span>: { <span class="hljs-string">"foo"</span>: <span class="hljs-string">"&gt;1.x.x"</span> }
+}</code></pre><p>which will automatically select the latest release within the specified major release version.</p>
+<p>Right now, your best bet is to <a href="https://github.com/isaacs/npmjs.org">install a local version npm</a> if you want to work with semantic version numbers rather than git tags or branches. This involves some CouchDB setup. If you need a read-only cache (which is very useful for speeding up/improving reliability of large simultaneous deploys), have a look at <a href="https://github.com/mixu/npm_lazy">npm_lazy</a>; it uses static files instead of CouchDB for simpler setup. I am working on a private npm server that&#39;s easier to set up, but haven&#39;t quite gotten it completed due to writing this book. But once it&#39;s done, I&#39;ll update this section.</p>
 
-<p>If your packages can be public and reusable by other people, then the public npm registry works. The drawback to using private packages via git is that you don't get the benefits semantic versioning. You can refer to a particular branch or commit sha, but this is less than ideal. If you update your module, then you need to go and bump up the tag or branch in both the project and in its dependencies. This isn't too bad, but ideally, we'd be able to say: </p>
-
-<pre class="prettyprint">
-{
-  "dependencies": { "foo": "&gt;1.x.x" }
-}
-</pre>
-
-<p>which will automatically select the latest release within the specified major release version.</p>
-
-<p>Right now, your best bet is to <a href="https://github.com/isaacs/npmjs.org">install a local version npm</a> if you want to work with semantic version numbers rather than git tags or branches. This involves some CouchDB setup. If you need a read-only cache (which is very useful for speeding up/improving reliability of large simultaneous deploys), have a look at <a href="https://github.com/mixu/npm_lazy">npm_lazy</a>; it uses static files instead of CouchDB for simpler setup. I am working on a private npm server that's easier to set up, but haven't quite gotten it completed due to writing this book. But once it's done, I'll update this section.</p>
-
-<div id="bottom_navi">
-  <a href="maintainability1.html"> &lt; &lt; Previous Chapter</a> | <a href="maintainability3.html">Next Chapter &gt; &gt;</a>
-</div>
-
-
-        <div id="disqus_thread"></div>
-        <script type="text/javascript">
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
-
-            /* * * DON'T EDIT BELOW THIS LINE * * */
-            (function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+         <div id="bottom_navi">
+              <a href="maintainability1.html"> &lt; &lt; Previous Chapter</a> |
+              <a href="maintainability3.html">Next Chapter &gt; &gt;</a>
+         </div>
         </div>
       </div>
-
-
-      <div id="sidebar">
-        <h3><a href="index.html">Home</a></h3>
+    </div>
+    <div id="sidebar">
+      <h3><a href="index.html">Home</a></h3>
+      <h3><a href="single-page.html">Single page HTML</a></h3>
         <h3><a href="maintainability1.html">Previous Chapter</a></h3>
         <h3><a href="maintainability3.html">Next Chapter</a></h3>
-        <br>
-        
-      </div>
 
-
+      <h3>Other books</h3>
+        <ul class="spaced">
+          <li>
+            <a href="http://book.mixu.net/css/">Learn CSS Layout the pedantic way</a> (2015)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/distsys/">Distributed systems: for fun and profit</a> (2013)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/node/">Mixu's Node book</a> (2012)
+          </li>
+        </ul>
+    </div>
     <div class="clear">
     </div>
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
     <div id="footer">
       <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
     </div>
-    </div>
-  </div>
-
-
   </div>
 </body>
 </html>

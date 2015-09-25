@@ -3,31 +3,14 @@
   <head>
     <title>7. Implementing a data source</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style type="text/css">
-@font-face {
-  font-family: 'Droid Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
-}
-</style>
-
-<script src="assets/jquery-1.6.1.min.js"></script>
-<link type="text/css" rel="stylesheet" href="assets/style.css"/>
-<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
-<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
-<script type="text/javascript">
-$(function() {
-   $('pre').each(function(i, el) {
-    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-   });
-});
-
-</script>
-<script type="text/javascript" src="assets/prettify.js"></script>
-<!-- Script runner -->
-<script type="text/javascript" src="assets/runner.js"></script>
-<script type="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="assets/jquery-1.6.1.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="assets/style.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <script>
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-32878417-1']);
@@ -39,108 +22,60 @@ $(function() {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-
+    </script>
   </head>
 <body>
   <div id="wrapper">
     <div id="header">
-      <div id="brand">
-        <h1>Single page apps in depth</h1>
-        <span>a.k.a Mixu's single page app book</span>
-      </div>
-      <div id="navi">
-        <form class="search" action="http://www.google.com/search">
-          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
-          <input type="text" name="as_q" value="" class="search_field">
-          <input type="submit" value="Search" class="search_btn">
-        </form>
-      </div>
+    <h1>Single page apps in depth</h1>
+    <h2>a.k.a Mixu's single page app book</h2>
     </div>
-
     <div class="clear">
       <hr>
     </div>
-     <!-- Main -->
 
     <div id="main">
-      <div id="content" class="post">
-<h1 class="chapter">7. Implementing a data source</h1>
-
+      <div id="container">
+        <div id="content" class="post"><h1 id="7-implementing-a-data-source"><a class="header-link" href="#7-implementing-a-data-source"></a>7. Implementing a data source</h1>
 <p>In this chapter, I will look at implementing a data source.</p>
-
-<h2>Defining a REST-based, chainable API for the data source</h2>
-
-<p>Let's start off by writing some tests in order to specify what we want from the data source we will build. It's much easier to understand the code once we have an idea of what the end result should look like.</p>
-
+<h2 id="defining-a-rest-based-chainable-api-for-the-data-source"><a class="header-link" href="#defining-a-rest-based-chainable-api-for-the-data-source"></a>Defining a REST-based, chainable API for the data source</h2>
+<p>Let&#39;s start off by writing some tests in order to specify what we want from the data source we will build. It&#39;s much easier to understand the code once we have an idea of what the end result should look like.</p>
 <p>Given the following fixture:</p>
-
-<pre class="prettyprint">
-var fixture = [
-  { name: 'a', id: 1, role: 2 },
-  { name: 'b', id: 2, role: 4, organization: 1 },
-  { name: 'c', id: 3, role: 4, organization: 2 }
+<pre class="hljs"><code>var fixture = [
+  { <span class="hljs-string">name:</span> <span class="hljs-string">'a'</span>, <span class="hljs-string">id:</span> <span class="hljs-number">1</span>, <span class="hljs-string">role:</span> <span class="hljs-number">2</span> },
+  { <span class="hljs-string">name:</span> <span class="hljs-string">'b'</span>, <span class="hljs-string">id:</span> <span class="hljs-number">2</span>, <span class="hljs-string">role:</span> <span class="hljs-number">4</span>, <span class="hljs-string">organization:</span> <span class="hljs-number">1</span> },
+  { <span class="hljs-string">name:</span> <span class="hljs-string">'c'</span>, <span class="hljs-string">id:</span> <span class="hljs-number">3</span>, <span class="hljs-string">role:</span> <span class="hljs-number">4</span>, <span class="hljs-string">organization:</span> <span class="hljs-number">2</span> }
 ];
-var db.user = new DataSource();
-</pre>
-
-<p>... here are tests describing how I'd like the data source to work:</p>
-
-<h2>Can load a single item by ID</h2>
-
-<pre class="prettyprint">
-'can load a single item by ID': function(done) {
-  db.user(1, function(user) {
-    assert.equal(fixture[0], user);
+var db.user = <span class="hljs-keyword">new</span> DataSource();</code></pre><p>... here are tests describing how I&#39;d like the data source to work:</p>
+<h2 id="can-load-a-single-item-by-id"><a class="header-link" href="#can-load-a-single-item-by-id"></a>Can load a single item by ID</h2>
+<pre class="hljs"><code><span class="hljs-string">'can load a single item by ID'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span></span> {
+  db.user(<span class="hljs-number">1</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span> {
+    <span class="hljs-built_in">assert</span>.equal(fixture[<span class="hljs-number">0</span>], user);
     done();
   });
-},
-</pre>
-
-<h2>Can load multiple items by ID</h2>
-
-<pre class="prettyprint">
-'can load multiple items by ID': function(done) {
-  db.user([1, 2, 3], function(users) {
-    assert.deepEqual(fixture, users);
+},</code></pre><h2 id="can-load-multiple-items-by-id"><a class="header-link" href="#can-load-multiple-items-by-id"></a>Can load multiple items by ID</h2>
+<pre class="hljs"><code><span class="hljs-string">'can load multiple items by ID'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span></span> {
+  db.user([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(users)</span></span> {
+    <span class="hljs-built_in">assert</span>.deepEqual(fixture, users);
     done();
   });
-},
-</pre>
-
-<h2>Can load items by search query</h2>
-
-<p>The data source should support retrieving items by conditions other than IDs. Since the details depend on the backend used, we'll just allow the user to add search terms via an object. The parameters are passed to the backend, which can then implement whatever is appropriate (e.g. SQL query by name) to return the result JSON.</p>
-
-<pre class="prettyprint">
-'can load items by search query': function(done) {
-  db.user({ name: 'c'}, function(user) {
-    assert.deepEqual(fixture[2], user);
+},</code></pre><h2 id="can-load-items-by-search-query"><a class="header-link" href="#can-load-items-by-search-query"></a>Can load items by search query</h2>
+<p>The data source should support retrieving items by conditions other than IDs. Since the details depend on the backend used, we&#39;ll just allow the user to add search terms via an object. The parameters are passed to the backend, which can then implement whatever is appropriate (e.g. SQL query by name) to return the result JSON.</p>
+<pre class="hljs"><code><span class="hljs-string">'can load items by search query'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span></span> {
+  db.user({ name: <span class="hljs-string">'c'</span>}, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span> {
+    <span class="hljs-built_in">assert</span>.deepEqual(fixture[<span class="hljs-number">2</span>], user);
     done();
   });
-},
-</pre>
-
-<h2>Can add more search conditions using and()</h2>
-
-<p>We'll also support incrementally defining search parameters:</p>
-
-<pre class="prettyprint">
-'should allow for adding more conditions using and()': function(done) {
-  db.user({ role: 4 })
-    .and({ organization: 1 }, function(users) {
-    assert.deepEqual(fixture[1], users);
+},</code></pre><h2 id="can-add-more-search-conditions-using-and-"><a class="header-link" href="#can-add-more-search-conditions-using-and-"></a>Can add more search conditions using and()</h2>
+<p>We&#39;ll also support incrementally defining search parameters:</p>
+<pre class="hljs"><code><span class="hljs-string">'should allow for adding more conditions using and()'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(done)</span></span> {
+  db.user({ role: <span class="hljs-number">4</span> })
+    .<span class="hljs-keyword">and</span>({ organization: <span class="hljs-number">1</span> }, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(users)</span></span> {
+    <span class="hljs-built_in">assert</span>.deepEqual(fixture[<span class="hljs-number">1</span>], users);
     done();
   });
-},
-</pre>
-
-
-
-<h2>Implementing the chainable data source API</h2>
-
+},</code></pre><h2 id="implementing-the-chainable-data-source-api"><a class="header-link" href="#implementing-the-chainable-data-source-api"></a>Implementing the chainable data source API</h2>
 <p>The full implementation for a chainable data source API is below. It almost fits on one screen.</p>
-
 <table>
 <tr><td class="left" style="background-color: #fbfbfb;">
 <div class="code">
@@ -161,15 +96,15 @@ var db.user = new DataSource();
 </td><td class="right" style="background-color: #fbfbfb;">
 
   <div class="green"><p>The data source accepts two parameters:</p>
-    <ul>
-      <li><code>url</code>, which is a function that returns a URL for a particular id</li>
+    <ul class="list">
+      <li><code>uri</code>, which is a function that returns a URL for a particular id</li>
       <li><code>model</code>, an optional parameter; if given, the results will be instances of that model instead of plain Javacript objects (e.g. JSON parsed as a JS object).</li>
     </ul>
   </div>
 
   <div class="blue">
     <p>The idea behind chainable APIs is that the actual action is delayed until a callback is passed to the API.</p>
-    <p><code>conditions</code> is a simple array of all the parameters (model ID's and search parameters) passed to the current data source search.</p>
+    <p><code>conditions</code> is a simple array of all the parameters (model ID&#39;s and search parameters) passed to the current data source search.</p>
     <p>Also note how all the functions return <code>this</code>. That allows function calls to be written one after another.</p>
   </div>
 
@@ -184,7 +119,7 @@ var db.user = new DataSource();
 <div class="orange">      params = {},</div>
 <div class="orange">      urls = [];</div>
 <div class="orange">  function process(arg) {</div>
-<div class="yellow">    if(typeof arg == 'number') {</div>
+<div class="yellow">    if(typeof arg == &#39;number&#39;) {</div>
 <div class="red">      urls.push(self.uri(arg));</div>
 <div class="yellow">    } else if (Array.isArray(arg)) {</div>
 <div class="yellow">      urls = urls.concat(arg.map(function(id) {</div>
@@ -209,7 +144,7 @@ var db.user = new DataSource();
   </div>
 
   <div class="yellow">
-    <p><code>process(arg)</code> looks at the type of each argument. If the argument is a number, we assume it's a model ID. If it is an array, then it is considered an array of IDs. Objects are assumed to be search parameters (key: value pairs).</p>
+    <p><code>process(arg)</code> looks at the type of each argument. If the argument is a number, we assume it&#39;s a model ID. If it is an array, then it is considered an array of IDs. Objects are assumed to be search parameters (key: value pairs).</p>
   </div>
 
   <div class="red">
@@ -282,180 +217,161 @@ var db.user = new DataSource();
 
 </table>
 
-<h2>Making ajax a bit nicer: Client</h2>
-
+<h2 id="making-ajax-a-bit-nicer-client"><a class="header-link" href="#making-ajax-a-bit-nicer-client"></a>Making ajax a bit nicer: Client</h2>
 <p>Since I wanted the same code to work in Node and in the browser, I added a (chainable) HTTP interface that works both with jQuery and Node.js. Here is a usage example:</p>
-
-<pre class="prettyprint">
-Client
-  .get('http://www.google.com/')
-  .data({q: 'hello world'})
-  .end(function(err, data) {
+<pre class="hljs"><code>Client
+  .<span class="hljs-keyword">get</span>(<span class="hljs-string">'http://www.google.com/'</span>)
+  .data({q: <span class="hljs-string">'hello world'</span>})
+  .end(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err, data)</span> </span>{
     console.log(data);
-  });
-</pre>
+  });</code></pre><p>And the full source code: for jQuery (~40 lines; below) and <a href="https://github.com/mixu/minimal/blob/master/client.js">for Node</a> (~70 lines; w/JSON parsing).</p>
+<pre class="hljs"><code><span class="hljs-keyword">var</span> $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'jquery'</span>);
 
-<p>And the full source code:  for jQuery (~40 lines; below) and <a href="https://github.com/mixu/minimal/blob/master/client.js">for Node</a> (~70 lines; w/JSON parsing).</p>
-
-<pre class="prettyprint">
-var $ = require('jquery');
-
-function Client(opts) {
-  this.opts = opts || {};
-  this.opts.dataType || (this.opts.dataType = 'json');
-  this.opts.cache = false;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Client</span><span class="hljs-params">(opts)</span> </span>{
+  <span class="hljs-keyword">this</span>.opts = opts || {};
+  <span class="hljs-keyword">this</span>.opts.dataType || (<span class="hljs-keyword">this</span>.opts.dataType = <span class="hljs-string">'json'</span>);
+  <span class="hljs-keyword">this</span>.opts.cache = <span class="hljs-literal">false</span>;
 };
 
-Client.prototype.data = function(data) {
-  if(!data || Object.keys(data).length == 0) return this;
-  if(this.opts.type == 'GET') {
-    this.opts.url += '?'+jQuery.param(data);
-  } else {
-    this.opts.contentType = 'application/json';
-    this.opts.data = JSON.stringify(data);
+Client.prototype.data = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(data)</span> </span>{
+  <span class="hljs-keyword">if</span>(!data || <span class="hljs-built_in">Object</span>.keys(data).length == <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.opts.type == <span class="hljs-string">'GET'</span>) {
+    <span class="hljs-keyword">this</span>.opts.url += <span class="hljs-string">'?'</span>+jQuery.param(data);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">this</span>.opts.contentType = <span class="hljs-string">'application/json'</span>;
+    <span class="hljs-keyword">this</span>.opts.data = <span class="hljs-built_in">JSON</span>.stringify(data);
   }
-  return this;
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 };
 
-Client.prototype.end = function(callback) {
-  this.opts.error = function(j, t, err) {
+Client.prototype.end = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+  <span class="hljs-keyword">this</span>.opts.error = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(j, t, err)</span> </span>{
     callback &amp;&amp; callback(err);
   };
-  this.opts.success = function(data, t, j) {
-    callback &amp;&amp; callback(undefined, data);
+  <span class="hljs-keyword">this</span>.opts.success = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(data, t, j)</span> </span>{
+    callback &amp;&amp; callback(<span class="hljs-literal">undefined</span>, data);
   };
-  $.ajax(this.opts);
+  $.ajax(<span class="hljs-keyword">this</span>.opts);
 };
 
-module.exports.parse = Client.parse = function(callback) {
-  return function(err, response) {
-    callback &amp;&amp; callback(undefined, response);
+<span class="hljs-built_in">module</span>.exports.parse = Client.parse = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err, response)</span> </span>{
+    callback &amp;&amp; callback(<span class="hljs-literal">undefined</span>, response);
   };
 };
 
-['get', 'post', 'put', 'delete'].forEach(function(method) {
-  module.exports[method] = function(urlStr) {
-    return new Client({
+[<span class="hljs-string">'get'</span>, <span class="hljs-string">'post'</span>, <span class="hljs-string">'put'</span>, <span class="hljs-string">'delete'</span>].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(method)</span> </span>{
+  <span class="hljs-built_in">module</span>.exports[method] = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(urlStr)</span> </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Client({
       type: method.toUpperCase(), url: urlStr
     });
   };
-});
-</pre>
-
-<h2>Putting it all together</h2>
-
-<p>Now, that's a fairly useful data source implementation; minimal yet useful. You can certainly reuse it with your framework, since there are no framework dependencies; it's all (ES5) standard Javascript.</p>
-
-<p><b>Defining a data source</b></p>
-
-<p>Now, let's create a page that allows us to use the datasource to retrieve data. For example, you might want to use the datasource with a model. You may have noticed that I slipped in support for instantiating models from the result (see the this.model parameter in implementation). This means that we can ask the data source to instantiate objects from a given model constructor by passing the <code>model</code> option:</p>
-
-<pre class="prettyprint">
-// Find instances of Todo using Todo.find()
-Todo.find = new DataSource({
-  uri: function(id) {
-    return 'http://localhost:8080/api/todo/'
-      + (id ? encodeURIComponent(id) : 'search');
+});</code></pre><h2 id="putting-it-all-together"><a class="header-link" href="#putting-it-all-together"></a>Putting it all together</h2>
+<p>Now, that&#39;s a fairly useful data source implementation; minimal yet useful. You can certainly reuse it with your framework, since there are no framework dependencies; it&#39;s all (ES5) standard Javascript.</p>
+<p><strong>Defining a data source</strong></p>
+<p>Now, let&#39;s create a page that allows us to use the datasource to retrieve data. For example, you might want to use the datasource with a model. You may have noticed that I slipped in support for instantiating models from the result (see the this.model parameter in implementation). This means that we can ask the data source to instantiate objects from a given model constructor by passing the <code>model</code> option:</p>
+<pre class="hljs"><code><span class="hljs-comment">// Find instances of Todo using Todo.find()</span>
+Todo.find = <span class="hljs-keyword">new</span> DataSource({
+  uri: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id)</span> </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'http://localhost:8080/api/todo/'</span>
+      + (id ? <span class="hljs-built_in">encodeURIComponent</span>(id) : <span class="hljs-string">'search'</span>);
   },
   model: Todo
-});
-</pre>
-
-<p>As you can see, the uri function simply returns the right URL depending on whether the search is about a specific ID or just a search.</p>
-
+});</code></pre><p>As you can see, the uri function simply returns the right URL depending on whether the search is about a specific ID or just a search.</p>
 <p>The code also demostrates composition over inheritance. The inheritance-based way of setting up this same functionality would be to inherit from another object that has the data source functionality. With composition, we can simply assign the DataSource to any plain old JS object to add the ability to retrieve JSON data by calling a function.</p>
-
-<p><b>Building a backend</b>.</p>
-
+<p><strong>Building a backend</strong>.</p>
 <p>The server-side for the datasource can be fairly simple: there are two cases - reading a model by ID, and searching for a model by property.</p>
-
-<pre class="prettyprint">
-var http = require('http'),
-    url = require('url');
-var todos = [
-      { id: 1, title: 'aa', done: false },
-      { id: 2, title: 'bb', done: true },
-      { id: 3, title: 'cc', done: false }
+<pre class="hljs"><code><span class="hljs-keyword">var</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>),
+    url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>);
+<span class="hljs-keyword">var</span> todos = [
+      { id: <span class="hljs-number">1</span>, title: <span class="hljs-string">'aa'</span>, done: <span class="hljs-literal">false</span> },
+      { id: <span class="hljs-number">2</span>, title: <span class="hljs-string">'bb'</span>, done: <span class="hljs-literal">true</span> },
+      { id: <span class="hljs-number">3</span>, title: <span class="hljs-string">'cc'</span>, done: <span class="hljs-literal">false</span> }
     ],
     server = http.createServer();
 
-var idRe = new RegExp('^/api/todo/([0-9]+)[^0-9]*$'),
-    searchRe = new RegExp('^/api/todo/search.*$');
+<span class="hljs-keyword">var</span> idRe = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^/api/todo/([0-9]+)[^0-9]*$'</span>),
+    searchRe = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^/api/todo/search.*$'</span>);
 
-server.on('request', function(req, res) {
-  res.setHeader('content-type', 'application/json');
-  if(idRe.test(req.url)) {
-    var parts = idRe.exec(req.url);
-    // return the ID
-    if(todos[parts[1]]) {
-      res.end(JSON.stringify(todos[parts[1]]));
+server.on(<span class="hljs-string">'request'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(req, res)</span> </span>{
+  res.setHeader(<span class="hljs-string">'content-type'</span>, <span class="hljs-string">'application/json'</span>);
+  <span class="hljs-keyword">if</span>(idRe.test(req.url)) {
+    <span class="hljs-keyword">var</span> parts = idRe.exec(req.url);
+    <span class="hljs-comment">// return the ID</span>
+    <span class="hljs-keyword">if</span>(todos[parts[<span class="hljs-number">1</span>]]) {
+      res.end(<span class="hljs-built_in">JSON</span>.stringify(todos[parts[<span class="hljs-number">1</span>]]));
     }
-  } else if (searchRe.test(req.url)) {
-    var data = '';
-    req.on('data', function(part) {
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (searchRe.test(req.url)) {
+    <span class="hljs-keyword">var</span> data = <span class="hljs-string">''</span>;
+    req.on(<span class="hljs-string">'data'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(part)</span> </span>{
       data += part;
     });
-    req.on('end', function() {
-      var search = JSON.parse(data);
-      // search the todos array by key - value pair
-      res.end(JSON.stringify(
-        todos.filter(function(item) {
-          return Object.keys(search).every(function(key) {
-            return item[key] &amp;&amp; item[key] == search[key];
+    req.on(<span class="hljs-string">'end'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+      <span class="hljs-keyword">var</span> search = <span class="hljs-literal">undefined</span>;
+      <span class="hljs-keyword">try</span> {
+        search = <span class="hljs-built_in">JSON</span>.parse(data);
+      } <span class="hljs-keyword">catch</span> (error) {}
+      res.end(<span class="hljs-keyword">typeof</span>(search) === <span class="hljs-string">'undefined'</span> ? <span class="hljs-literal">undefined</span> : <span class="hljs-built_in">JSON</span>.stringify(
+        <span class="hljs-comment">// search the todos array by key - value pair</span>
+        todos.filter(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span> </span>{
+          <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.keys(search).every(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(key)</span> </span>{
+            <span class="hljs-keyword">return</span> item[key] &amp;amp;&amp;amp; item[key] == search[key];
           });
         })
       ));
     });
-  } else {
-    console.log('Unknown', req.url);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Unknown'</span>, req.url);
     res.end();
   }
-});
-</pre>
-
-<div id="bottom_navi">
-  <a href="detail2.html"> &lt; &lt; Previous Chapter</a> | <a href="collections2.html">Next Chapter &gt; &gt;</a>
-</div>
-
-
-        <div id="disqus_thread"></div>
-        <script type="text/javascript">
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
-
-            /* * * DON'T EDIT BELOW THIS LINE * * */
-            (function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+});</code></pre>
+         <div id="bottom_navi">
+              <a href="detail2.html"> &lt; &lt; Previous Chapter</a> |
+              <a href="collections2.html">Next Chapter &gt; &gt;</a>
+         </div>
         </div>
       </div>
-
-
-      <div id="sidebar">
-        <h3><a href="index.html">Home</a></h3>
+    </div>
+    <div id="sidebar">
+      <h3><a href="index.html">Home</a></h3>
+      <h3><a href="single-page.html">Single page HTML</a></h3>
         <h3><a href="detail2.html">Previous Chapter</a></h3>
         <h3><a href="collections2.html">Next Chapter</a></h3>
-        <br>
-        
-      </div>
 
-
+      <h3>Other books</h3>
+        <ul class="spaced">
+          <li>
+            <a href="http://book.mixu.net/css/">Learn CSS Layout the pedantic way</a> (2015)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/distsys/">Distributed systems: for fun and profit</a> (2013)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/node/">Mixu's Node book</a> (2012)
+          </li>
+        </ul>
+    </div>
     <div class="clear">
     </div>
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
     <div id="footer">
       <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
     </div>
-    </div>
-  </div>
-
-
   </div>
 </body>
 </html>

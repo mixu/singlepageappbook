@@ -3,31 +3,14 @@
   <head>
     <title>9. Collections</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style type="text/css">
-@font-face {
-  font-family: 'Droid Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Droid Sans'), local('DroidSans'), url('DroidSans.woff') format('woff');
-}
-</style>
-
-<script src="assets/jquery-1.6.1.min.js"></script>
-<link type="text/css" rel="stylesheet" href="assets/style.css"/>
-<link type="text/css" rel="stylesheet" href="assets/assert.css"/>
-<link type="text/css" rel="stylesheet" href="assets/prettify.css"/>
-<script type="text/javascript">
-$(function() {
-   $('pre').each(function(i, el) {
-    $(this).html($(this).html().replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-   });
-});
-
-</script>
-<script type="text/javascript" src="assets/prettify.js"></script>
-<!-- Script runner -->
-<script type="text/javascript" src="assets/runner.js"></script>
-<script type="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="assets/jquery-1.6.1.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="assets/style.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/assert.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <script>
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-32878417-1']);
@@ -39,257 +22,170 @@ $(function() {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-</script>
-
+    </script>
   </head>
 <body>
   <div id="wrapper">
     <div id="header">
-      <div id="brand">
-        <h1>Single page apps in depth</h1>
-        <span>a.k.a Mixu's single page app book</span>
-      </div>
-      <div id="navi">
-        <form class="search" action="http://www.google.com/search">
-          <input type="hidden" name="as_sitesearch" value="singlepageappbook.com">
-          <input type="text" name="as_q" value="" class="search_field">
-          <input type="submit" value="Search" class="search_btn">
-        </form>
-      </div>
+    <h1>Single page apps in depth</h1>
+    <h2>a.k.a Mixu's single page app book</h2>
     </div>
-
     <div class="clear">
       <hr>
     </div>
-     <!-- Main -->
 
     <div id="main">
-      <div id="content" class="post">
-<h1 class="chapter">9. Collections</h1>
-
-<p>What's in a collection? A collection:</p>
-
-<ul>
-  <li>contains items (or models)</li>
-  <li>emits events when items are added/removed</li>
-  <li>is ordered; can be accessed by index via <code>at()</code> and by model ID via <code>get()</code></li>
+      <div id="container">
+        <div id="content" class="post"><h1 id="9-collections"><a class="header-link" href="#9-collections"></a>9. Collections</h1>
+<p>What&#39;s in a collection? A collection:</p>
+<ul class="list">
+<li>contains items (or models)</li>
+<li>emits events when items are added/removed</li>
+<li>is ordered; can be accessed by index via <code>at()</code> and by model ID via <code>get()</code></li>
 </ul>
-
-<p>In this chapter, we'll write an observable array, and then add some additional niceties on top of it to make it a collection (e.g. something that is specific to storing models).</p>
-
-<h2>Storing Models and emitting events</h2>
-
-<p>Let's start with the constructor. We want to mixin EventEmitter to add support for events for the collection.</p>
-
-<pre class="prettyprint">
-function Collection(models) {
-  this.reset();
-  models &amp;&amp; this.add(models);
+<p>In this chapter, we&#39;ll write an observable array, and then add some additional niceties on top of it to make it a collection (e.g. something that is specific to storing models).</p>
+<h2 id="storing-models-and-emitting-events"><a class="header-link" href="#storing-models-and-emitting-events"></a>Storing Models and emitting events</h2>
+<p>Let&#39;s start with the constructor. We want to mixin EventEmitter to add support for events for the collection.</p>
+<pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Collection</span><span class="hljs-params">(models)</span> </span>{
+  <span class="hljs-keyword">this</span>.reset();
+  models &amp;&amp; <span class="hljs-keyword">this</span>.add(models);
 }
-util.inherits(Collection, events.EventEmitter);
-</pre>
-
-<p>To support passing a set of initial models, we call this.add() in the constructor.</p>
-
-<p><b>Resetting the collection</b>. Self-explanatory, really. We will use an array to store the models, because collections are ordered rather than indexed; and we will maintain a length property directly for convenience.</p>
-
-<pre class="prettyprint">
-Collection.prototype.reset = function() {
-  this._items = [];
-  this.length = 0;
-  this.emit('reset');
-};
-</pre>
-
-<p><b>Adding items</b>. We should be able to call <code>add(model)</code> and emit/listen for an "add" event when the model is added.</p>
-
-<pre class="prettyprint">
-Collection.prototype.add = function(model, at) {
-  var self = this;
-  // multiple add
-  if(Array.isArray(model)) {
-    return model.forEach(function(m) { self.add(m, at); });
+util.inherits(Collection, events.EventEmitter);</code></pre><p>To support passing a set of initial models, we call this.add() in the constructor.</p>
+<p><strong>Resetting the collection</strong>. Self-explanatory, really. We will use an array to store the models, because collections are ordered rather than indexed; and we will maintain a length property directly for convenience.</p>
+<pre class="hljs"><code>Collection.prototype.reset = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-keyword">this</span>._items = [];
+  <span class="hljs-keyword">this</span>.length = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'reset'</span>);
+};</code></pre><p><strong>Adding items</strong>. We should be able to call <code>add(model)</code> and emit/listen for an &quot;add&quot; event when the model is added.</p>
+<pre class="hljs"><code>Collection.prototype.add = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, at)</span> </span>{
+  <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+  <span class="hljs-comment">// multiple add</span>
+  <span class="hljs-keyword">if</span>(<span class="hljs-built_in">Array</span>.isArray(model)) {
+    <span class="hljs-keyword">return</span> model.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(m)</span> </span>{ self.add(m, at); });
   }
-  this._items.splice(at || this._items.length, 0, model);
-  this.length = this._items.length;
-  this.emit('add', model, this);
-};
-</pre>
-
-<p>To support calling <code>add([model1, model2])</code>, we'll check if the first parameter is an array and make multiple calls in that case.</p>
-
-<p>Other than that, we just use Array.splice to insert the model. The optional <code>at</code> param allows us to specify a particular index to add at. Finally, after each add, we emit the "add" event.</p>
-
-<p><b>Removing items</b>. We should be able to call <code>remove(model)</code> to remove a model, and receive events when the item is removed. Again, the code is rather trivial.</p>
-
-<pre class="prettyprint">
-Collection.prototype.remove = function(model){
-  var index = this._items.indexOf(model);
-  if (index &lt; -1) {
-    this._items.splice(index, 1);
-    this.length = this._items.length;
-    this.emit('remove', model, this);
+  <span class="hljs-keyword">this</span>._items.splice(at || <span class="hljs-keyword">this</span>._items.length, <span class="hljs-number">0</span>, model);
+  <span class="hljs-keyword">this</span>.length = <span class="hljs-keyword">this</span>._items.length;
+  <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'add'</span>, model, <span class="hljs-keyword">this</span>);
+};</code></pre><p>To support calling <code>add([model1, model2])</code>, we&#39;ll check if the first parameter is an array and make multiple calls in that case.</p>
+<p>Other than that, we just use Array.splice to insert the model. The optional <code>at</code> param allows us to specify a particular index to add at. Finally, after each add, we emit the &quot;add&quot; event.</p>
+<p><strong>Removing items</strong>. We should be able to call <code>remove(model)</code> to remove a model, and receive events when the item is removed. Again, the code is rather trivial.</p>
+<pre class="hljs"><code>Collection.prototype.remove = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span></span>{
+  <span class="hljs-keyword">var</span> index = <span class="hljs-keyword">this</span>._items.indexOf(model);
+  <span class="hljs-keyword">if</span> (index &gt; -<span class="hljs-number">1</span>) {
+    <span class="hljs-keyword">this</span>._items.splice(index, <span class="hljs-number">1</span>);
+    <span class="hljs-keyword">this</span>.length = <span class="hljs-keyword">this</span>._items.length;
+    <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'remove'</span>, model, <span class="hljs-keyword">this</span>);
   }
-};
-</pre>
-
-<p><b>Retrieving items by index and retrieving all items</b>. Since we are using an array, this is trivial:</p>
-
-<pre class="prettyprint">
-Collection.prototype.at = function(index) { return this._items[index]; };
-</pre>
-
-<pre class="prettyprint">
-Collection.prototype.all = function() { return this._items; };
-</pre>
-
-<h2>Iteration</h2>
-
-<p>We also want to make working with the collection easy by supporting a few iteration functions. Since these are already implemented in ES5, we can just call the native function, setting the parameter appropriately using <code>.apply()</code>. I'll add support for the big 5 - forEach (each), filter, map, every and some: </p>
-
-<pre class="prettyprint">
-['filter', 'forEach', 'every', 'map', 'some'].forEach(function(name) {
-  Collection.prototype[name] = function() {
-    return Array.prototype[name].apply(this._items, arguments);
+};</code></pre><p><strong>Retrieving items by index and retrieving all items</strong>. Since we are using an array, this is trivial:</p>
+<pre class="hljs"><code>Collection.prototype.at = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(index)</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._items[index]; };</code></pre><pre class="hljs"><code>Collection.prototype.all = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._items; };</code></pre><h2 id="iteration"><a class="header-link" href="#iteration"></a>Iteration</h2>
+<p>We also want to make working with the collection easy by supporting a few iteration functions. Since these are already implemented in ES5, we can just call the native function, setting the parameter appropriately using <code>.apply()</code>. I&#39;ll add support for the big 5 - forEach (each), filter, map, every and some:</p>
+<pre class="hljs"><code>[<span class="hljs-string">'filter'</span>, <span class="hljs-string">'forEach'</span>, <span class="hljs-string">'every'</span>, <span class="hljs-string">'map'</span>, <span class="hljs-string">'some'</span>].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(name)</span> </span>{
+  Collection.prototype[name] = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Array</span>.prototype[name].apply(<span class="hljs-keyword">this</span>._items, <span class="hljs-built_in">arguments</span>);
   }
-});
-</pre>
-
-<h2>Sorting</h2>
-
+});</code></pre><h2 id="sorting"><a class="header-link" href="#sorting"></a>Sorting</h2>
 <p>Implementing sorting is easy, all we need is a comparator function.</p>
-
-<pre class="prettyprint">
-Collection.prototype.sort = function(comparator) {
-  this._items.sort(comparator || this.orderBy);
-};
-</pre>
-
-<p><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/sort">Array.sort</a> is already implemented in <a href="http://en.wikipedia.org/wiki/ECMAScript#Dialects">ES3</a> and does what we want: you can pass a custom comparator, or set <code>collection.orderBy</code> to set a default sort function.</p>
-
-<h2>Using our observable array</h2>
-
-<p>The code above covers the essence of an observable array. Let's look at few usage examples before moving on to a making it a collection.</p>
-
-<pre class="prettyprint">
-var items = new Collection();
-items.on('add', function(item) {
-  console.log('Added', item);
+<pre class="hljs"><code>Collection.prototype.sort = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(comparator)</span> </span>{
+  <span class="hljs-keyword">this</span>._items.sort(comparator || <span class="hljs-keyword">this</span>.orderBy);
+};</code></pre><p><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/sort">Array.sort</a> is already implemented in <a href="http://en.wikipedia.org/wiki/ECMAScript#Dialects">ES3</a> and does what we want: you can pass a custom comparator, or set <code>collection.orderBy</code> to set a default sort function.</p>
+<h2 id="using-our-observable-array"><a class="header-link" href="#using-our-observable-array"></a>Using our observable array</h2>
+<p>The code above covers the essence of an observable array. Let&#39;s look at few usage examples before moving on to a making it a collection.</p>
+<pre class="hljs"><code><span class="hljs-keyword">var</span> items = <span class="hljs-keyword">new</span> Collection();
+items.on(<span class="hljs-string">'add'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(item)</span> </span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Added'</span>, item);
 });
-setInterval(function() {
-  items.add(Math.floor(Math.random() * 100));
-  console.log(items.all());
-}, 1000);
-</pre>
-
-<h2>Creating a collection</h2>
-
+setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+  items.add(<span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * <span class="hljs-number">100</span>));
+  <span class="hljs-built_in">console</span>.log(items.all());
+}, <span class="hljs-number">1000</span>);</code></pre><h2 id="creating-a-collection"><a class="header-link" href="#creating-a-collection"></a>Creating a collection</h2>
 <p>A collection is a more specialized form of an observable array. Collections add the ability to hook into the events of the models they contain, and add the ability to retrieve/check for item presence by model id in addition to the position in the array.</p>
-
-<p><b>get(modelId)</b>. Let's implement <code>get(modelId)</code> first. In order to make get() fast, we need a supplementary index. To do this, we need to capture the add() and remove() calls:</p>
-
-<pre class="prettyprint">
-Collection.prototype.add = function(model, at) {
-  var self = this, modelId;
-  // ...
-  modelId = model.get('id');
-  if (typeof modelId != 'undefined') {
-    this._byId[modelId] = model;
+<p><strong>get(modelId)</strong>. Let&#39;s implement <code>get(modelId)</code> first. In order to make get() fast, we need a supplementary index. To do this, we need to capture the add() and remove() calls:</p>
+<pre class="hljs"><code>Collection.prototype.add = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, at)</span> </span>{
+  <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>, modelId;
+  <span class="hljs-comment">// ...</span>
+  modelId = model.get(<span class="hljs-string">'id'</span>);
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> modelId != <span class="hljs-string">'undefined'</span>) {
+    <span class="hljs-keyword">this</span>._byId[modelId] = model;
   }
 };
 
-Collection.prototype.remove = function(model){
-  var index = this._items.indexOf(model), modelId;
-  // ...
-  modelId = model.get('id');
-  if (typeof modelId != 'undefined') {
-    delete this._byId[modelId];
+Collection.prototype.remove = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span></span>{
+  <span class="hljs-keyword">var</span> index = <span class="hljs-keyword">this</span>._items.indexOf(model), modelId;
+  <span class="hljs-comment">// ...</span>
+  modelId = model.get(<span class="hljs-string">'id'</span>);
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> modelId != <span class="hljs-string">'undefined'</span>) {
+    <span class="hljs-keyword">delete</span> <span class="hljs-keyword">this</span>._byId[modelId];
   }
-};
-</pre>
-
-<p>Now get() can make a simple lookup:</p>
-
-<pre class="prettyprint">
-Collection.prototype.get = function(id) { return this._byId[id]; };
-</pre>
-
-<p><b>Hooking into model events</b>. We need to bind to the model change event (at least), so that we can trigger a "change" event for the collection:</p>
-
-<pre class="prettyprint">
-Collection.prototype._modelChange = function(key, value, oldValue, model) {
-  this.emit(key, value, oldValue, model);
+};</code></pre><p>Now get() can make a simple lookup:</p>
+<pre class="hljs"><code>Collection.prototype.get = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id)</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._byId[id]; };</code></pre><p><strong>Hooking into model events</strong>. We need to bind to the model change event (at least), so that we can trigger a &quot;change&quot; event for the collection:</p>
+<pre class="hljs"><code>Collection.prototype._modelChange = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(key, value, oldValue, model)</span> </span>{
+  <span class="hljs-keyword">this</span>.emit(key, value, oldValue, model);
 };
 
-Collection.prototype.add = function(model, at) {
-  // ...
-  model.on('change', this._modelChange);
+Collection.prototype.add = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, at)</span> </span>{
+  <span class="hljs-comment">// ...</span>
+  model.on(<span class="hljs-string">'change'</span>, <span class="hljs-keyword">this</span>._modelChange);
+};</code></pre><p>And we need to unbind when a model is removed, or the collection is reset:</p>
+<pre class="hljs"><code>Collection.prototype.remove = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span></span>{
+  <span class="hljs-comment">// ...</span>
+  model.removeListener(<span class="hljs-string">'change'</span>, <span class="hljs-keyword">this</span>._modelChange);
 };
-</pre>
-
-<p>And we need to unbind when a model is removed, or the collection is reset:</p>
-
-<pre class="prettyprint">
-Collection.prototype.remove = function(model){
-  // ...
-  model.removeListener('change', this._modelChange);
-};
-Collection.prototype.reset = function() {
-  var self = this;
-  if(this._items) {
-    this._items.forEach(function(model) {
-      model.removeListener('change', self._modelChange);
+Collection.prototype.reset = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+  <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>._items) {
+    <span class="hljs-keyword">this</span>._items.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model)</span> </span>{
+      model.removeListener(<span class="hljs-string">'change'</span>, self._modelChange);
     });
   }
-  // ...
-};
-</pre>
-
-<h2>Using the Collection class</h2>
-
-<div id="bottom_navi">
-  <a href="collections2.html"> &lt; &lt; Previous Chapter</a> | <a href="collections4.html">Next Chapter &gt; &gt;</a>
-</div>
-
-
-        <div id="disqus_thread"></div>
-        <script type="text/javascript">
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
-
-            /* * * DON'T EDIT BELOW THIS LINE * * */
-            (function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            })();
-        </script>
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-
+  <span class="hljs-comment">// ...</span>
+};</code></pre>
+         <div id="bottom_navi">
+              <a href="collections2.html"> &lt; &lt; Previous Chapter</a> |
+              <a href="collections4.html">Next Chapter &gt; &gt;</a>
+         </div>
         </div>
       </div>
-
-
-      <div id="sidebar">
-        <h3><a href="index.html">Home</a></h3>
+    </div>
+    <div id="sidebar">
+      <h3><a href="index.html">Home</a></h3>
+      <h3><a href="single-page.html">Single page HTML</a></h3>
         <h3><a href="collections2.html">Previous Chapter</a></h3>
         <h3><a href="collections4.html">Next Chapter</a></h3>
-        <br>
-        
-      </div>
 
-
+      <h3>Other books</h3>
+        <ul class="spaced">
+          <li>
+            <a href="http://book.mixu.net/css/">Learn CSS Layout the pedantic way</a> (2015)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/distsys/">Distributed systems: for fun and profit</a> (2013)
+          </li>
+          <li>
+            <a href="http://book.mixu.net/node/">Mixu's Node book</a> (2012)
+          </li>
+        </ul>
+    </div>
     <div class="clear">
     </div>
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'singlepageappbook'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
     <div id="footer">
       <p>A book about single page applications by <a href="http://mixu.net/">Mikito Takada</a>.</p>
     </div>
-    </div>
-  </div>
-
-
   </div>
 </body>
 </html>
