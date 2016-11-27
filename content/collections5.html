@@ -60,7 +60,7 @@ post.with(['tags', 'comments.author'], function(post) {
 });
 </pre>
 
-<p>Basically, you tell the API what you want as the input, and give it a callback to run when it has done your bidding. </p>
+<p>Basically, you tell the API what you want as the input, and give it a callback to run when it has done your binding. </p>
 
 <p><b>Implementation</b>. How can we build this? It is basically an API that takes a bunch of paths, looks up the metadata, makes data source calls to fetch by ID, and stores the data on the model, and then calls the continuation callback.</p>
 
