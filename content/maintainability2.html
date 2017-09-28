@@ -48,13 +48,13 @@
 
 <p>4. Delay concrete instatiation as long as possible by extracting module state setup into a single bootstrap file/function. Defining a module should be separate from running the module. This allows small parts of the system to be tested independently since you can now require your module without running it.</p>
 
-<p>For example, where you previously used to define a class and then immediately assign a instance of that class onto a global variable/namespace in the same file; you should move the instantatiation to a separate bootstrap file/function.</p>
+<p>For example, where you previously used to define a class and then immediately assign an instance of that class onto a global variable/namespace in the same file; you should move the instantatiation to a separate bootstrap file/function.</p>
 
 <p>5. If you have submodules (e.g. chat uses backend_service), do not directly expose them to the layer above. Initializing the submodule should be the task of the layer directly above it (and not two layers above it). Configuration can go from a top level initialize() function to initialize() functions in submodules, but keep the submodules of modules out of reach from higher layers.</p>
 
 <p>6. Try to minimize your external surface area.</p>
 
-<p>7. Write package-local tests. Each package should be have unit and integration tests which can be run independently of other packages (other than 3rd party libraries and the common package).</p>
+<p>7. Write package-local tests. Each package should have unit and integration tests which can be run independently of other packages (other than 3rd party libraries and the common package).</p>
 
 <p>8. Start using npm with semantic versioning for distributing dependencies. Npm makes it easy to distribute and use small modules of Javascript.</p>
 
@@ -75,7 +75,7 @@
 
 <h2>Tooling: npm</h2>
 
-<p>Finally, let's talk about distribution. As your projects grow in scope and in modularity, you'll want to be able to load packages from different repositories easily. <a href="http://npmjs.org/">npm</a> is an awesome tool for creating and distributing small JS modules. If you haven't used it before, Google for a tutorial or <a href="http://npmjs.org/doc/">read the docs</a>, or check out <a href="http://blog.nodejitsu.com/npm-cheatsheet">Nodejitsu's npm cheatsheet</a>. Creating a npm package is simply a matter of following the CommonJS conventions and adding a bit of metadata via a <code>package.json</code> file. Here is an example <code>package.json</code></p>
+<p>Finally, let's talk about distribution. As your projects grow in scope and in modularity, you'll want to be able to load packages from different repositories easily. <a href="http://npmjs.org/">npm</a> is an awesome tool for creating and distributing small JS modules. If you haven't used it before, Google for a tutorial or <a href="http://npmjs.org/doc/">read the docs</a>, or check out <a href="http://blog.nodejitsu.com/npm-cheatsheet">Nodejitsu's npm cheatsheet</a>. Creating an npm package is simply a matter of following the CommonJS conventions and adding a bit of metadata via a <code>package.json</code> file. Here is an example <code>package.json</code></p>
 
 <pre class="prettyprint">
 { "name": "modulename",
