@@ -1,4 +1,4 @@
-# Single page apps in depth
+# Single Page Apps in Depth
 
 Read the book here: http://singlepageappbook.com/
 
@@ -16,7 +16,7 @@ tells me that I made 216 commits between Jun 28th 2012 and Jan 18th 2012 to writ
 
 There will be a second set of updates coming later on - once I am done with http://mixu.net/view.json/ , which is a view layer I'm working on right now. It has definitely changed and clarified my thinking re:view layers. Writing a book is fairly intense, which is why I am focusing on code for now; it'll let me come back to the book with a less attached and more critical perspective.
 
-# Directory structure
+# Directory Structure
 
 The content of the book is in ./content/. To generate the book:
 
